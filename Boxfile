@@ -13,7 +13,7 @@ build:
     - "mv pagodabox/copies/config/app.php web/application/config/app.php"
     - "mv pagodabox/copies/config/concrete.php web/application/config/concrete.php"
     - "mv pagodabox/copies/config/database.php web/application/config/database.php"
-    - "php pagoda/after_exec.php"
+    - "php pagodabox/after_exec.php"
 
 web1:
   name: web
