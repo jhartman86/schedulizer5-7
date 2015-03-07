@@ -1,0 +1,73 @@
+build:
+  type: php
+  version: 5.5
+  stability: production
+  reuse_libs: true
+  lib_dir: web/concrete/vendor
+
+  exec:
+    - "composer install --no-interaction --prefer-source --working-dir=web/concrete"
+
+  after_exec:
+    - "mv pagodabox/copies/bootstrap/start.php web/application/bootstrap/start.php"
+    - "mv pagodabox/copies/config/app.php web/application/config/app.php"
+    - "mv pagodabox/copies/config/concrete.php web/application/config/concrete.php"
+    - "mv pagodabox/copies/config/database.php web/application/config/database.php"
+    - "php pagoda/after_exec.php"
+
+web1:
+  name: web
+  httpd_document_root: web
+  type: php
+  version: 5.5
+  stability: production
+  php_error_reporting: 30719
+  php_display_errors: "1"
+  php_error_log: true
+  apache_access_log: true
+  apache_error_log: true
+  apache_log_level: info
+  php_date_timezone: "UTC"
+  php_default_locale: "en_US"
+  php_short_open_tag: "1"
+  php_file_uploads: "1"
+  php_upload_max_filesize: "20M"
+  php_post_max_size: "20M"
+  php_max_file_uploads: 20
+  php_allow_url_fopen: "On"
+  php_session_save_handler: "redis"
+  php_session_save_path: "tcp://${CACHE1_HOST}:${CACHE1_PORT}"
+  php_session_length: "3600"
+  php_session_autostart: "0"
+  php_extensions:
+    - json
+    - mysql
+    - curl
+    - apc
+    - gd
+    - mbstring
+    - zip
+    - redis
+    - xml
+    - session
+    - pdo_mysql
+  network_dirs:
+    storage1:
+      - web/application/files
+
+cache1:
+  name: redis
+  type: redis
+  version: 2.8
+  stability: production
+
+storage1:
+  name: filestore
+  type: nfs
+
+database1:
+  name: database
+  type: mysql
+  version: 5.6
+  stability: production
+  topology: single
