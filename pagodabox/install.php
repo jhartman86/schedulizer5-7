@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 use Concrete\Core\Database\Connection\ConnectionFactory;
 use Concrete\Core\Cache\Cache;
@@ -12,9 +13,9 @@ fwrite(STDOUT, "\n************* BEGINNING INSTALLATION *************\n");
 // If DBx key not in $_SERVER variables...
 if( count(preg_grep("/DATABASE1./",array_keys($_SERVER))) === 0 ){
     $_SERVER['DATABASE1_HOST'] = '127.0.0.1';
-    $_SERVER['DATABASE1_USER'] = 'root';
-    $_SERVER['DATABASE1_PASS'] = 'root';
-    $_SERVER['DATABASE1_NAME'] = 'concrete5_site';
+    $_SERVER['DATABASE1_USER'] = 'concrete5';
+    $_SERVER['DATABASE1_PASS'] = 'concrete5';
+    $_SERVER['DATABASE1_NAME'] = 'dev_site';
 }
 
 $cliconfig = array(
@@ -56,33 +57,37 @@ Cache::disableAll();
 $passHash = new PasswordHash(Config::get('concrete.user.password.hash_cost_log2'), Config::get('concrete.user.password.hash_portable'));
 define('INSTALL_USER_EMAIL', $cliconfig['admin-email']);
 define('INSTALL_USER_PASSWORD_HASH', $passHash->HashPassword($cliconfig['admin-password']));
-define('INSTALL_STARTING_POINT', $cliconfig['starting-point']);
+//define('INSTALL_STARTING_POINT', $cliconfig['starting-point']);
 define('SITE', $cliconfig['site']);
 
 // Test that the database is empty; fail if not
-$db = Loader::db();
-if( count($db->GetCol("SHOW TABLES")) > 0 ){
-    fwrite(STDERR, "\nDatabase already installed; leaving existing installation untouched and moving on...\n\n");
-    exit(0);
-}
+// $db = Loader::db();
+// if( count($db->GetCol("SHOW TABLES")) > 0 ){
+//     fwrite(STDERR, "\nDatabase already installed; leaving existing installation untouched and moving on...\n\n");
+//     exit(0);
+// }
 
-// Install the database: this is the same thing in the StartingPointPackage
-// without the generateProxyClasses call to the (now) non-writable directory!
-Package::installDB(DIR_BASE_CORE . '/config/db.xml');
-// Index additional fields
-$db->Execute('ALTER TABLE PagePaths ADD INDEX (`cPath` (255))');
-$db->Execute('ALTER TABLE Groups ADD INDEX (`gPath` (255))');
-$db->Execute('ALTER TABLE SignupRequests ADD INDEX (`ipFrom` (32))');
-$db->Execute('ALTER TABLE UserBannedIPs ADD UNIQUE INDEX (ipFrom (32), ipTo(32))');
-$db->Execute(
-    'ALTER TABLE QueueMessages ADD FOREIGN KEY (`queue_id`) REFERENCES `Queues` (`queue_id`) ON DELETE CASCADE ON UPDATE CASCADE'
-);
-$configuration = new Configuration();
-$version = $configuration->getVersion(Config::get('concrete.version_db'));
-$version->markMigrated();
+// // Install the database: this is the same thing in the StartingPointPackage
+// // without the generateProxyClasses call to the (now) non-writable directory!
+// Package::installDB(DIR_BASE_CORE . '/config/db.xml');
+// // Index additional fields
+// $db->Execute('ALTER TABLE PagePaths ADD INDEX (`cPath` (255))');
+// $db->Execute('ALTER TABLE Groups ADD INDEX (`gPath` (255))');
+// $db->Execute('ALTER TABLE SignupRequests ADD INDEX (`ipFrom` (32))');
+// $db->Execute('ALTER TABLE UserBannedIPs ADD UNIQUE INDEX (ipFrom (32), ipTo(32))');
+// $db->Execute(
+//     'ALTER TABLE QueueMessages ADD FOREIGN KEY (`queue_id`) REFERENCES `Queues` (`queue_id`) ON DELETE CASCADE ON UPDATE CASCADE'
+// );
+// $configuration = new Configuration();
+// $version = $configuration->getVersion(Config::get('concrete.version_db'));
+// $version->markMigrated();
 
 // Starting Point that ignores the things we did above manually
-$startingPoint = \Concrete\Core\Package\StartingPointPackage::getClass(INSTALL_STARTING_POINT);
+$sp = StartingPointPackage::getClass('elemental_blank');
+print_r($sp);exit;
+
+$startingPoint = StartingPointPackage::getClass(INSTALL_STARTING_POINT);
+print_r($startingPoint);exit;
 $routines      = $startingPoint->getInstallRoutines();
 
 $skipMethods = array('install_database', 'finish');
