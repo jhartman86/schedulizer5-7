@@ -1,13 +1,6 @@
 <?php
 
 use Concrete\Core\Application\Application;
-use Concrete\Core\Config\Repository\Repository as ConfigRepository;
-use Concrete\Core\Config\FileLoader;
-use Illuminate\Filesystem\Filesystem;
-
-class EphemeralConfigSaver implements Concrete\Core\Config\SaverInterface {
-    public function save($item, $value, $environment, $group, $namespace = null){}
-}
 
 /**
  * ----------------------------------------------------------------------------
@@ -32,9 +25,9 @@ $app->detectEnvironment(
         )
     ));
 
-$file_system  = new Filesystem();
-$ephem_loader = new FileLoader($file_system);
-$ephem_saver  = new EphemeralConfigSaver();
-$app->instance('config', new ConfigRepository($ephem_loader, $ephem_saver, $app->environment()));
+/**
+ * Override Concrete5's config persistence method.
+ */
+\Application\Src\Config\Ephemeral::bindToApp($app);
 
 return $app;

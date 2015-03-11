@@ -1,4 +1,5 @@
-<?php 
+#!/usr/bin/env php
+<?php
 use Concrete\Core\Database\Connection\ConnectionFactory;
 use Concrete\Core\Cache\Cache;
 
@@ -21,5 +22,4 @@ $dbm = Core::make('database/structure', \ORM::entityManager('core'));
 $dbm->generateProxyClasses();
 
 fwrite(STDOUT, "Doctrine Proxy Classes Created OK!\n");
-
 exit(0);

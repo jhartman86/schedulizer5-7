@@ -8,14 +8,6 @@ require_once(__DIR__ . '/_shared.php');
 
 fwrite(STDOUT, "\n************* BEGINNING INSTALLATION *************\n");
 
-// If DBx key not in $_SERVER variables...
-//if( count(preg_grep("/DATABASE1./",array_keys($_SERVER))) === 0 ){
-//    $_SERVER['DATABASE1_HOST'] = '127.0.0.1';
-//    $_SERVER['DATABASE1_USER'] = 'concrete5';
-//    $_SERVER['DATABASE1_PASS'] = 'concrete5';
-//    $_SERVER['DATABASE1_NAME'] = 'dev_site';
-//}
-
 $_defaults = array(
     'site'              => 'Concrete5',
     'admin-email'       => 'change@me.com',

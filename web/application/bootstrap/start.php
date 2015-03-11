@@ -1,4 +1,5 @@
 <?php
+
 use Concrete\Core\Application\Application;
 
 /**
@@ -7,6 +8,7 @@ use Concrete\Core\Application\Application;
  * ----------------------------------------------------------------------------
  */
 $app = new Application();
+
 
 /**
  * ----------------------------------------------------------------------------
@@ -22,5 +24,10 @@ $app->detectEnvironment(
             'live.site'
         )
     ));
+
+/**
+ * Override Concrete5's config persistence method.
+ */
+\Application\Src\Config\Ephemeral::bindToApp($app);
 
 return $app;

@@ -11,7 +11,7 @@ __MACOSX
 composer.phar
 
 # ignore the config
-/web/application/config/*
+#/web/application/config/*
 
 # ignore everything but the index.html
 /web/application/files/*
@@ -23,7 +23,7 @@ composer.phar
 /web/updates/*
 
 # ignore packages folder
-/web/packages/*
+#/web/packages/*
 /web/concrete/packages/*
 
 # more stuff

@@ -5,4 +5,4 @@ build:
 
 web1:
   before_deploy:
-    - "php pagodabox/install.php"
+    - "php _quickstart/install.php"
