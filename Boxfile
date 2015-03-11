@@ -9,11 +9,15 @@ build:
     - "composer install --no-interaction --prefer-source --working-dir=web/concrete"
 
   after_exec:
+    - "mv pagodabox/copies/config web/application/config"
     - "mv pagodabox/copies/bootstrap/start.php web/application/bootstrap/start.php"
-    - "mv pagodabox/copies/config/app.php web/application/config/app.php"
-    - "mv pagodabox/copies/config/concrete.php web/application/config/concrete.php"
-    - "mv pagodabox/copies/config/database.php web/application/config/database.php"
+    - "mv pagodabox/copies/src web/application/src"
     - "php pagodabox/after_exec.php"
+#    - "mv pagodabox/copies/bootstrap/start.php web/application/bootstrap/start.php"
+#    - "mv pagodabox/copies/config/app.php web/application/config/app.php"
+#    - "mv pagodabox/copies/config/concrete.php web/application/config/concrete.php"
+#    - "mv pagodabox/copies/config/database.php web/application/config/database.php"
+#    - "php pagodabox/after_exec.php"
 
 web1:
   name: web
