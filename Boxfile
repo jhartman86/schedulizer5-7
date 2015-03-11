@@ -1,6 +1,6 @@
 build:
   type: php
-  version: 5.5
+  version: 5.6
   stability: production
   reuse_libs: true
   lib_dir: web/concrete/vendor
@@ -19,7 +19,7 @@ web1:
   name: web
   httpd_document_root: web
   type: php
-  version: 5.5
+  version: 5.6
   stability: production
   php_error_reporting: 30719
   php_display_errors: "1"
