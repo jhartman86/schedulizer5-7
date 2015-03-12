@@ -85,8 +85,8 @@ module.exports = function( gulp ){
     gulp.task(_taskName('sass:app:prod'), function(){ return runSass(sources.scss.app, 'compressed'); });
     gulp.task(_taskName('js:core:dev'), function(){ return runJs(sources.js.core, 'core.js', false) });
     gulp.task(_taskName('js:core:prod'), function(){ return runJs(sources.js.core, 'core.js', true) });
-    gulp.task(_taskName('js:app:dev'), ['jshint'], function(){ return runJs(sources.js.app, 'app.js', false) });
-    gulp.task(_taskName('js:app:prod'), ['jshint'], function(){ return runJs(sources.js.app, 'app.js', true) });
+    gulp.task(_taskName('js:app:dev'), [_taskName('jshint')], function(){ return runJs(sources.js.app, 'app.js', false) });
+    gulp.task(_taskName('js:app:prod'), [_taskName('jshint')], function(){ return runJs(sources.js.app, 'app.js', true) });
 
     /** Run all dev tasks */
     gulp.task(_taskName('build:dev'), [
