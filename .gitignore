@@ -11,7 +11,7 @@ __MACOSX
 composer.phar
 
 # ignore the config
-#/web/application/config/*
+/web/application/config/*
 
 # ignore everything but the index.html
 /web/application/files/*
@@ -23,7 +23,7 @@ composer.phar
 /web/updates/*
 
 # ignore packages folder
-#/web/packages/*
+/web/packages/*
 /web/concrete/packages/*
 
 # more stuff
@@ -34,7 +34,7 @@ composer.phar
 
 # ignore the error log and .htaccess and others
 error_log
-#.htaccess
+.htaccess
 .ftpquota
 /.idea/
 
@@ -54,8 +54,6 @@ error_log
 /build/release
 /build/Gruntfile.parameters.js
 /build/npm-debug.log
-# custom, for gulp builds
-node_modules
 
 # ignore PHP symbol map
 __IDE_SYMBOLS__.php
@@ -64,67 +62,77 @@ __IDE_SYMBOLS__.php
 
 # Built assets
 # JS
-# /web/concrete/js/account.js
-# /web/concrete/js/app.js
-# /web/concrete/js/backstretch.js
-# /web/concrete/js/bootstrap-editable.js
-# /web/concrete/js/bootstrap/alert.js
-# /web/concrete/js/bootstrap/button.js
-# /web/concrete/js/bootstrap/dropdown.js
-# /web/concrete/js/bootstrap/popover.js
-# /web/concrete/js/bootstrap/tooltip.js
-# /web/concrete/js/bootstrap/transition.js
-# /web/concrete/js/conversations.js
-# /web/concrete/js/dashboard.js
-# /web/concrete/js/dropzone.js
-# /web/concrete/js/dynatree.js
-# /web/concrete/js/events.js
-# /web/concrete/js/file-manager.js
-# /web/concrete/js/gathering.js
-# /web/concrete/js/groups.js
-# /web/concrete/js/image-editor.js
-# /web/concrete/js/jquery-cookie.js
-# /web/concrete/js/jquery-fileupload.js
-# /web/concrete/js/jquery-form.js
-# /web/concrete/js/jquery-magnific-popup.js
-# /web/concrete/js/kinetic.js
-# /web/concrete/js/layouts.js
-# /web/concrete/js/redactor.js
-# /web/concrete/js/jquery-awesome-rating.js
-# /web/concrete/js/sitemap.js
-# /web/concrete/js/spectrum.js
-# /web/concrete/js/style-customizer.js
-# /web/concrete/js/topics.js
-# /web/concrete/js/underscore.js
-# /web/concrete/js/lightbox.js
-# /web/concrete/js/legacy.js
-# /web/concrete/js/select2.js
-# /web/concrete/js/translator.js
+/web/concrete/js/account.js
+/web/concrete/js/app.js
+/web/concrete/js/backstretch.js
+/web/concrete/js/bootstrap-editable.js
+/web/concrete/js/bootstrap/alert.js
+/web/concrete/js/bootstrap/button.js
+/web/concrete/js/bootstrap/dropdown.js
+/web/concrete/js/bootstrap/popover.js
+/web/concrete/js/bootstrap/tooltip.js
+/web/concrete/js/bootstrap/transition.js
+/web/concrete/js/conversations.js
+/web/concrete/js/dashboard.js
+/web/concrete/js/dropzone.js
+/web/concrete/js/dynatree.js
+/web/concrete/js/events.js
+/web/concrete/js/file-manager.js
+/web/concrete/js/gathering.js
+/web/concrete/js/groups.js
+/web/concrete/js/image-editor.js
+/web/concrete/js/jquery-cookie.js
+/web/concrete/js/jquery-fileupload.js
+/web/concrete/js/jquery-form.js
+/web/concrete/js/jquery-magnific-popup.js
+/web/concrete/js/kinetic.js
+/web/concrete/js/layouts.js
+/web/concrete/js/redactor.js
+/web/concrete/js/jquery-awesome-rating.js
+/web/concrete/js/sitemap.js
+/web/concrete/js/spectrum.js
+/web/concrete/js/style-customizer.js
+/web/concrete/js/topics.js
+/web/concrete/js/underscore.js
+/web/concrete/js/lightbox.js
+/web/concrete/js/legacy.js
+/web/concrete/js/select2.js
+/web/concrete/js/translator.js
 
 # CSS
-# /web/concrete/css/select2.css
-# /web/concrete/css/account.css
-# /web/concrete/css/app.css
-# /web/concrete/css/conversations.css
-# /web/concrete/css/dynatree.css
-# /web/concrete/css/editable-fields.css
-# /web/concrete/css/file-manager.css
-# /web/concrete/css/font-awesome.css
-# /web/concrete/css/frontend/pagination.css
-# /web/concrete/css/gathering/base.css
-# /web/concrete/css/gathering/display.css
-# /web/concrete/css/image-editor.css
-# /web/concrete/css/jquery-magnific-popup.css
-# /web/concrete/css/jquery-awesome-rating.css
-# /web/concrete/css/jquery-ui.css
-# /web/concrete/css/redactor.css
-# /web/concrete/css/sitemap.css
-# /web/concrete/css/spectrum.css
-# /web/concrete/css/style-customizer.css
-# /web/concrete/css/topics.css
-# /web/concrete/css/views/install.css
-# /web/concrete/themes/concrete/main.css
-# /web/concrete/themes/dashboard/main.css
-# /web/concrete/themes/elemental/css/bootstrap-modified.css
-# /web/concrete/css/legacy.css
-# /web/concrete/css/translator.css
+/web/concrete/css/select2.css
+/web/concrete/css/account.css
+/web/concrete/css/app.css
+/web/concrete/css/conversations.css
+/web/concrete/css/dynatree.css
+/web/concrete/css/editable-fields.css
+/web/concrete/css/file-manager.css
+/web/concrete/css/font-awesome.css
+/web/concrete/css/frontend/pagination.css
+/web/concrete/css/gathering/base.css
+/web/concrete/css/gathering/display.css
+/web/concrete/css/image-editor.css
+/web/concrete/css/jquery-magnific-popup.css
+/web/concrete/css/jquery-awesome-rating.css
+/web/concrete/css/jquery-ui.css
+/web/concrete/css/redactor.css
+/web/concrete/css/sitemap.css
+/web/concrete/css/spectrum.css
+/web/concrete/css/style-customizer.css
+/web/concrete/css/topics.css
+/web/concrete/css/views/install.css
+/web/concrete/themes/concrete/main.css
+/web/concrete/themes/dashboard/main.css
+/web/concrete/themes/elemental/css/bootstrap-modified.css
+/web/concrete/css/legacy.css
+/web/concrete/css/translator.css
+
+# Customizations
+node_modules
+.sass-cache
+!.htaccess
+!/web/application/config/*
+!/web/packages/*
+!/web/concrete/js/*.js
+!/web/concrete/css/*.css
+!/web/concrete/themes/*.css
