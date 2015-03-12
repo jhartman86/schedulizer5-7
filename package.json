@@ -1,0 +1,27 @@
+{
+  "name": "App",
+  "description": "App",
+  "version": "0.0.1",
+  "author": {
+    "name": "Focus43"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.4.x"
+  },
+  "devDependencies": {
+    "glob": "^4.0.5",
+    "gulp": "^3.8.7",
+    "gulp-concat": "^2.3.4",
+    "gulp-jshint": "^1.8.4",
+    "gulp-ruby-sass": "^0.7.1",
+    "gulp-task-listing": "^1.0.0",
+    "gulp-uglify": "^0.3.1",
+    "gulp-util": "^3.0.0",
+    "jshint-stylish": "^0.4.0"
+  }
+}
