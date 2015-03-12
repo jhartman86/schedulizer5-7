@@ -133,6 +133,7 @@ node_modules
 !.htaccess
 !/web/application/config/*
 !/web/packages/*
+/web/packages/*.DS_Store
 !/web/concrete/js/*.js
 !/web/concrete/css/*.css
 !/web/concrete/themes/*.css
