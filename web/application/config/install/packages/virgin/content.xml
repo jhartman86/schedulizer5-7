@@ -40,7 +40,7 @@
     </pagetype>
     </pagetypes>
     <pages>
-  <page name="Home" path="" filename="" template="full" pagetype="page" description="" package="">
-  </page>
+	<page name="Home" path="" filename="" template="full" pagetype="page" description="" package="">
+	</page>
     </pages>
 </concrete5-cif>
