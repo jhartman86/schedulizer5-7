@@ -5,6 +5,12 @@ angular.module('schedulizer.app').
 
             // $scope.calendarID is ng-init'd from the view!
 
+            $scope.calendarSettings = {};
+
+            $scope.$watch('calendarSettings.currentMonth', function(val){
+                console.log($scope.calendarSettings);
+            });
+
             /**
              * Receive a month map object from calendry and setup the request as
              * you see fit.
