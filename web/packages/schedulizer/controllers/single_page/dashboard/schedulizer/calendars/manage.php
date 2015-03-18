@@ -3,7 +3,6 @@
     use Config;
     use Concrete\Package\Schedulizer\Src\Calendar;
     use Concrete\Package\Schedulizer\Controller\DashboardController;
-    use Concrete\Package\Schedulizer\Helpers\TimeConversion;
 
     class Manage extends DashboardController {
 

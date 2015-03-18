@@ -11,17 +11,30 @@
          * @param array $results
          */
         public function __construct( array $results = array() ){
+            $dtzUTC = new DateTimeZone('UTC');
+
             foreach($results AS $eventData){
+                $dtzEvent   = new DateTimeZone($eventData['timezoneName']);
+                $startLocal = new DateTime($eventData['startLocalized'], $dtzEvent);
+                $endLocal   = new DateTime($eventData['endLocalized'], $dtzEvent);
+
                 array_push($this->formatted, (object)array(
-                    'id'            => $eventData['id'],
-                    'title'         => $eventData['title'],
-                    'start'         => $eventData['startLocalized'] . '+00:00',
-                    'end'           => $eventData['endLocalized'] . '+00:00',
-                    'allDay'        => (bool)$eventData['isAllDay'] ? true : false,
-                    'color'         => $eventData['eventColor'],
-                    'isAlias'       => $eventData['isAlias'],
-                    'isRepeating'   => $eventData['isRepeating'],
-                    'repeatMethod'  => $eventData['repeatTypeHandle']
+                    'id'                => $eventData['id'],
+                    'title'             => $eventData['title'],
+                    'allDay'            => (bool)$eventData['isAllDay'],
+                    'color'             => $eventData['eventColor'],
+                    'isAlias'           => (bool)$eventData['isAlias'],
+                    'isRepeating'       => (bool)$eventData['isRepeating'],
+                    'repeatMethod'      => $eventData['repeatTypeHandle'],
+                    'timezone'          => $eventData['timezoneName'],
+                    'startLocalized'    => $startLocal->format('c'),
+                    'startUTC'          => $startLocal->setTimezone($dtzUTC)->format('c'),
+                    'endLocalized'      => $endLocal->format('c'),
+                    'endUTC'            => $endLocal->setTimezone($dtzUTC)->format('c')
+//                    'startUTC'          => $eventData['startUTC'],
+//                    'endUTC'            => $eventData['endUTC'],
+//                    'startLocalized'    => $eventData['startLocalized'],
+//                    'endLocalized'      => $eventData['endLocalized'],
                 ));
             }
         }

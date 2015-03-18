@@ -1,7 +1,8 @@
 $border-radius-base:        0;
 $border-radius-large:       0;
 $border-radius-small:       0;
-$icomoon-font-path:         '/packages/schedulizer/fonts/icomoon';
+$icomoon-font-path:         '/packages/schedulizer/css/_fonts';
+
 @import 'compass';
 @import 'dependencies/icomoon';
 @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/variables';
@@ -13,7 +14,7 @@ $icomoon-font-path:         '/packages/schedulizer/fonts/icomoon';
 //  }
 //}
 
-#ccm-dashboard-content.container-fluid {padding-bottom:0;background:transparent url('/packages/schedulizer/images/blurry_bg.jpg') no-repeat 50% 50%;background-size:cover;}
+//#ccm-dashboard-content.container-fluid {padding-bottom:0;background:transparent url('/packages/schedulizer/images/blurry_bg.jpg') no-repeat 50% 50%;background-size:cover;}
 
 .schedulizer-app {
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/scaffolding';

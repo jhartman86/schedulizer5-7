@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'icomoon';
-  src: url("/packages/schedulizer/fonts/icomoon/icomoon.eot?-mgjnnv");
-  src: url("/packages/schedulizer/fonts/icomoon/icomoon.eot?#iefix-mgjnnv") format("embedded-opentype"), url("/packages/schedulizer/fonts/icomoon/icomoon.woff?-mgjnnv") format("woff"), url("/packages/schedulizer/fonts/icomoon/icomoon.ttf?-mgjnnv") format("truetype"), url("/packages/schedulizer/fonts/icomoon/icomoon.svg?-mgjnnv#icomoon") format("svg");
+  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?-mgjnnv");
+  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?#iefix-mgjnnv") format("embedded-opentype"), url("/packages/schedulizer/css/_fonts/icomoon.woff?-mgjnnv") format("woff"), url("/packages/schedulizer/css/_fonts/icomoon.ttf?-mgjnnv") format("truetype"), url("/packages/schedulizer/css/_fonts/icomoon.svg?-mgjnnv#icomoon") format("svg");
   font-weight: normal;
   font-style: normal; }
 [class^="icon-"], [class*=" icon-"] {
@@ -96,11 +96,6 @@
 
 .icon-box2:before {
   content: "\e619"; }
-
-#ccm-dashboard-content.container-fluid {
-  padding-bottom: 0;
-  background: transparent url("/packages/schedulizer/images/blurry_bg.jpg") no-repeat 50% 50%;
-  background-size: cover; }
 
 .schedulizer-app {
   /*! normalize.css v3.0.2 | MIT License | git.io/normalize */ }

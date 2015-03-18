@@ -6,7 +6,7 @@ angular.module('schedulizer.app').
      * @param $log
      * @returns Moment | false
      */
-    provider('Moment', function(){
+    provider('_moment', function(){
         this.$get = ['$window', '$log',
             function( $window, $log ){
                 return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);

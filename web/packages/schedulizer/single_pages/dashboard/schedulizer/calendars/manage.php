@@ -23,14 +23,15 @@
 <!-- Page view -->
 <div class="schedulizer-app">
     <div class="ccm-dashboard-content-full">
-        <!--<div calendar data-id="<?php echo $calendarObj->getID(); ?>" data-feed="<?php echo View::url('/_schedulizer/event/list', $calendarObj->getID()); ?>"></div>-->
-        <div class="calendar-wrap" ng-controller="CtrlCalendar">
+
+        <div class="calendar-wrap" ng-controller="CtrlCalendar" ng-init="calendarID = <?php echo $calendarObj->getID(); ?>">
             <!-- Note: transclusion of items *inside* calendry represents the EVENT objects on the day cells. -->
             <div calendry="calendarSettings" ng-cloak>
-                <a class="event-cell" modalize="/event_form" data-using="{eventObj:{id:eventObj.id}}" ng-style="{background:eventObj.color}">
+                <a class="event-cell" modalize="/event_form" data-using="{eventObj:{id:eventObj.id,aliased:eventObj.isAlias}}" ng-style="{background:eventObj.color}">
                     <span class="dt">{{eventObj._moment.format('h:mm a')}}</span> {{eventObj.title}}
                 </a>
             </div>
         </div>
+
     </div>
 </div>

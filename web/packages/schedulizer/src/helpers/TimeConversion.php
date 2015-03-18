@@ -1,4 +1,4 @@
-<?php namespace Concrete\Package\Schedulizer\Helpers {
+<?php namespace Concrete\Package\Schedulizer\Src\Helpers {
 
     date_default_timezone_set('UTC');
 

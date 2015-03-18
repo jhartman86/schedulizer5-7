@@ -18,8 +18,8 @@
         const DEFAULT_TIMEZONE  = 'DEFAULT_TIMEZONE';
 
         protected $pkgHandle                = self::PACKAGE_HANDLE;
-        protected $appVersionRequired       = '5.7.3';
-        protected $pkgVersion               = '0.07';
+        protected $appVersionRequired       = '5.7.3.2';
+        protected $pkgVersion               = '0.12';
 
         public function getPackageName(){ return t('Schedulizer'); }
         public function getPackageDescription(){ return t('Schedulizer Calendar Package'); }
@@ -76,11 +76,11 @@
             try {
                 // delete mysql tables
                 $db = Loader::db();
-                $db->Execute("DROP TABLE SchedulizerCalendar");
-                $db->Execute("DROP TABLE SchedulizerCalendarAttributeValues");
-                $db->Execute("DROP TABLE SchedulizerEvent");
-                $db->Execute("DROP TABLE SchedulizerEventRepeat");
-                $db->Execute("DROP TABLE SchedulizerEventRepeatNullify");
+//                $db->Execute("DROP TABLE SchedulizerCalendar");
+//                //$db->Execute("DROP TABLE SchedulizerCalendarAttributeValues");
+//                $db->Execute("DROP TABLE SchedulizerEvent");
+//                $db->Execute("DROP TABLE SchedulizerEventRepeat");
+                //$db->Execute("DROP TABLE SchedulizerEventRepeatNullify");
                 //$db->Execute("DROP TABLE SchedulizerCalendarSearchIndexAttributes");
             }catch(Exception $e){
                 // fail gracefully

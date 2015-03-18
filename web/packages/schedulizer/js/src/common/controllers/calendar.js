@@ -1,7 +1,9 @@
 angular.module('schedulizer.app').
 
-    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$calendry',
-        function( $rootScope, $scope, $http, $calendry ){
+    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$calendry', 'API',
+        function( $rootScope, $scope, $http, $calendry, API ){
+
+            // $scope.calendarID is ng-init'd from the view!
 
             /**
              * Receive a month map object from calendry and setup the request as
@@ -11,7 +13,7 @@ angular.module('schedulizer.app').
              * @private
              */
             function _fetch( monthMapObj ){
-                return $http.get('/_schedulizer/event/list/3', {cache:true, params:{
+                return $http.get(API._routes.generate('api.eventList', [$scope.calendarID]), {cache:false, params:{
                     start: monthMapObj.calendarStart.format('YYYY-MM-DD'),
                     end: monthMapObj.calendarEnd.format('YYYY-MM-DD')
                 }});

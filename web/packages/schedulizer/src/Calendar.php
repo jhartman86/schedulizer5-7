@@ -7,7 +7,12 @@
      * Class Calendar
      * @package Concrete\Package\Schedulizer\Src
      * @Entity
-     * @Table(name="SchedulizerCalendar")
+     * @Table(name="SchedulizerCalendar",indexes={
+     *  @Index(name="createdUTC",columns="createdUTC"),
+     *  @Index(name="modifiedUTC",columns="modifiedUTC"),
+     *  @Index(name="title",columns="title"),
+     *  @Index(name="ownerID",columns="ownerID")
+     * })
      * @HasLifecycleCallbacks
      */
     class Calendar extends Bin\Persistable {
@@ -15,17 +20,17 @@
         use Bin\Traits\Persistable, Bin\Traits\Unique;
 
         /**
-         * @Column(type="string", length=255)
+         * @Column(type="string", length=255, nullable=true)
          */
         protected $title;
 
         /**
-         * @Column(columnDefinition="integer unsigned")
+         * @Column(type="integer", nullable=false, options={"unsigned":true,"default":1})
          */
         protected $ownerID;
 
         /**
-         * @Column(type="string")
+         * @Column(type="string", length=255, nullable=false)
          */
         protected $defaultTimezone;
 

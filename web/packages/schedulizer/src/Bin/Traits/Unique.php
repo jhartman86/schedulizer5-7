@@ -8,7 +8,7 @@
     trait Unique {
 
         /**
-         * @Id @Column(type="integer") @GeneratedValue
+         * @Id @Column(type="integer") @GeneratedValue(strategy="IDENTITY")
          * @var int
          */
         protected $id;

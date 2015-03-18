@@ -2,13 +2,21 @@
 
     use DateTime;
     use DateTimeZone;
-    use Concrete\Package\Schedulizer\Src\EventRepeat;
 
     /**
      * Class Calendar
      * @package Concrete\Package\Schedulizer\Src
      * @Entity
-     * @Table(name="SchedulizerEvent")
+     * @Table(name="SchedulizerEvent",indexes={
+     *  @Index(name="createdUTC",columns="createdUTC"),
+     *  @Index(name="modifiedUTC",columns="modifiedUTC"),
+     *  @Index(name="startUTC",columns="startUTC"),
+     *  @Index(name="endUTC",columns="endUTC"),
+     *  @Index(name="calendarID",columns="calendarID"),
+     *  @Index(name="title",columns="title"),
+     *  @Index(name="repeatEndUTC",columns="repeatEndUTC"),
+     *  @Index(name="ownerID",columns="ownerID")
+     * })
      * @HasLifecycleCallbacks
      */
     class Event extends Bin\Persistable {
@@ -40,82 +48,82 @@
                 IS_ALIAS_FALSE                  = 0;
 
         /**
-         * @Column(type="integer")
+         * @Column(type="integer", nullable=false, options={"unsigned":true})
          */
         protected $calendarID;
 
         /**
-         * @Column(type="string", length=255)
+         * @Column(type="string", length=255, nullable=true)
          */
         protected $title;
 
         /**
-         * @Column(type="text")
+         * @Column(type="text", nullable=true)
          */
         protected $description;
 
         /**
-         * @Column(type="datetime")
+         * @Column(type="datetime", nullable=false)
          */
         protected $startUTC;
 
         /**
-         * @Column(type="datetime")
+         * @Column(type="datetime", nullable=false)
          */
         protected $endUTC;
 
         /**
-         * @Column(type="boolean")
+         * @Column(type="boolean", nullable=false, options={"default":1})
          */
         protected $isAllDay;
 
         /**
-         * @Column(type="boolean")
+         * @Column(type="boolean", nullable=false, options={"default":1})
          */
         protected $useCalendarTimezone;
 
         /**
-         * @Column(type="string", length=255)
+         * @Column(type="string", length=255, nullable=false, options={"default":"UTC"})
          */
         protected $timezoneName;
 
         /**
-         * @Column(type="string", length=10)
+         * @Column(type="string", length=10, nullable=true, options={"default":"#e1e1e1"})
          */
         protected $eventColor;
 
         /**
-         * @Column(type="boolean")
+         * @Column(type="boolean", nullable=false, options={"default":0})
          */
         protected $isRepeating;
 
         /**
-         * @Column(type="string", length=255)
+         * @Column(type="string", length=255, nullable=true)
          */
         protected $repeatTypeHandle;
 
         /**
-         * @Column(type="integer")
+         * @Column(type="integer", nullable=true, options={"unsigned":true})
          */
         protected $repeatEvery;
 
         /**
-         * @Column(type="boolean")
+         * @Column(type="boolean", nullable=false, options={"default":0})
          */
         protected $repeatIndefinite;
 
         /**
-         * @Column(type="datetime")
+         * @Column(type="datetime", nullable=false)
          */
         protected $repeatEndUTC;
 
         /**
-         * @Column(type="boolean")
+         * @Column(type="boolean", nullable=true)
          */
         protected $repeatMonthlyMethod;
 
         /**
-         * @Column(type="integer")
+         * @Column(type="integer", nullable=false, options={"unsigned":true,"default":0})
          */
         protected $ownerID;
 
@@ -146,6 +154,16 @@
         public function setRepeatEndUTC(){
             if( !($this->repeatEndUTC instanceof DateTime) ){
                 $this->repeatEndUTC = new DateTime($this->repeatEndUTC, new DateTimeZone('UTC'));
+            }
+        }
+
+        /**
+         * @PrePersist
+         * @PreUpdate
+         */
+        public function setCalendarTimezone(){
+            if( $this->useCalendarTimezone === self::USE_CALENDAR_TIMEZONE_TRUE ){
+                $this->timezoneName = Calendar::getByID($this->calendarID)->getDefaultTimezone();
             }
         }
 

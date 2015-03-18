@@ -1,7 +1,7 @@
 angular.module('schedulizer.app').
 
-    controller('CtrlCalendarForm', ['$scope', '$q', 'Routes', 'ModalManager', 'API',
-        function( $scope, $q, Routes, ModalManager, API ){
+    controller('CtrlCalendarForm', ['$scope', '$q', '$window', 'ModalManager', 'API',
+        function( $scope, $q, $window, ModalManager, API ){
 
             // Show loading message
             $scope._ready       = false;
@@ -33,6 +33,7 @@ angular.module('schedulizer.app').
                 ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
                     function( resp ){
                         $scope._requesting = false;
+                        $window.location.href = API._routes.generate('dashboard',['calendars','manage',resp.id]);
                     }
                 );
             };

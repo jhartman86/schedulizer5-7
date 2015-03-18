@@ -1,7 +1,14 @@
 <form class="event container-fluid" ng-controller="CtrlEventForm" ng-submit="submitHandler()">
     <?php Loader::packageElement('templates/loading', 'schedulizer'); ?>
 
-    <div ng-show="_ready">
+    <div class="row" ng-show="warnAliased">
+        <div class="col-sm-12 text-center">
+            <blockquote class="text-left"><strong>Heads Up!</strong> The event you clicked is one in a repeating series. To update it, you have to update the original event, which will cascade to <i>all</i> events in the series.</blockquote>
+            <button type="button" class="btn btn-info" ng-click="warnAliased = false">Edit Original Event</button>
+        </div>
+    </div>
+
+    <div ng-show="(_ready && !warnAliased)">
         <!-- title -->
         <div class="row">
             <div class="col-sm-12">
@@ -40,7 +47,7 @@
                 <div class="row">
                     <div class="col-sm-12 time-widgets" ng-class="{'is-all-day':entity.isAllDay}">
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="End" bs-datepicker ng-model="entity.endUTC" data-autoclose="1" data-min-date="{{entity.startUTC}}" data-template="/tpl-datepicker" data-icon-left="icon-angle-left" data-icon-right="icon-angle-right" />
+                            <input type="text" class="form-control" placeholder="End" bs-datepicker ng-model="entity.endUTC" data-autoclose="1" data-min-date="{{calendarEndMinDate}}" data-template="/tpl-datepicker" data-icon-left="icon-angle-left" data-icon-right="icon-angle-right" />
                         </div>
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Time" bs-timepicker ng-model="entity.endUTC" data-autoclose="1" data-template="/tpl-timepicker" data-icon-up="icon-angle-up" data-icon-down="icon-angle-down" data-time-format="hh:mm a" />
@@ -150,9 +157,25 @@
 
         <div class="row">
             <div class="col-sm-12">
-                <button type="submit" class="btn btn-success btn-lg btn-block">
-                    <span ng-hide="_requesting">Save</span>
-                    <img ng-show="_requesting" src="<?php echo SCHEDULIZER_IMAGE_PATH; ?>spinner.svg" />
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-lg btn-block">
+                        <span ng-hide="_requesting">Save</span>
+                        <img ng-show="_requesting" src="<?php echo SCHEDULIZER_IMAGE_PATH; ?>spinner.svg" />
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" ng-show="entity.id">
+            <div class="col-sm-12 text-center">
+                <button type="button" class="btn btn-warning btn-sm" ng-click="confirmDelete = !confirmDelete" ng-hide="confirmDelete">
+                    Delete Event
+                </button>
+                <button type="button" class="btn btn-info btn-sm" ng-click="confirmDelete = !confirmDelete" ng-show="confirmDelete">
+                    Nevermind!
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" ng-click="deleteEvent()" ng-show="confirmDelete">
+                    <strong>Danger Zone!</strong> Yes, Delete It
                 </button>
             </div>
         </div>

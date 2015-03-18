@@ -7,8 +7,6 @@
             <key />
             <unsigned />
         </field>
-
-        <!-- created/modified -->
         <field name="createdUTC" type="T">
             <NOTNULL/>
         </field>
@@ -24,8 +22,6 @@
             <NOTNULL />
             <DEFAULT value="0"/>
         </field>
-
-        <!-- indices -->
         <index name="createdUTC">
             <col>createdUTC</col>
         </index>
@@ -46,14 +42,11 @@
             <key />
             <unsigned />
         </field>
-
-        <!-- created/modified -->
         <field name="createdUTC" type="T">
             <NOTNULL/>
         </field>
         <field name="modifiedUTC" type="T">
             <NOTNULL/>
-            <!--<DEFTIMESTAMP/>-->
         </field>
 
         <field name="calendarID" type="I" size="11">
@@ -106,9 +99,6 @@
             <NOTNULL />
             <DEFAULT value="0"/>
         </field>
-
-
-        <!-- indices -->
         <index name="createdUTC">
             <col>createdUTC</col>
         </index>
@@ -135,6 +125,10 @@
         </index>
         <index name="ownerID">
             <col>ownerID</col>
+        </index>
+        <index name="description">
+            <col>description</col>
+            <FULLTEXT />
         </index>
     </table>
 

@@ -95,11 +95,21 @@
         }
 
         /**
-         * Delete an event
+         * Delete an event.
          * @param $id
+         * @throws \Exception
          */
         public function delete( $id ){
-            echo 'delete';exit;
+            $eventObj = Event::getByID($id);
+            if( ! $eventObj ){
+                throw new Exception("Event with ID: {$id} does not exist.");
+            }
+            $eventObj->delete();
+            // Set response data
+            $this->_response->setData((object)array(
+                'ok' => true
+            ));
+            $this->_response->setStatusCode(JsonResponse::HTTP_OK);
         }
 
         /**

@@ -209,6 +209,17 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     /**
      * {@inheritDoc}
      */
+    public function setCalendarTimezone()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCalendarTimezone', array());
+
+        return parent::setCalendarTimezone();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function postPersistEvent()
     {
 

@@ -210,7 +210,7 @@
                     // Loop through every event object and create _moment property, and
                     // append to mapped
                     eventList.forEach(function(eventObj){
-                        eventObj._moment = momentJS(eventObj.start);
+                        eventObj._moment = momentJS(eventObj.startLocalized, momentJS.ISO_8601);
                         var mappedKey    = eventObj._moment.format(_eventMapKey);
                         if( ! mapped[mappedKey] ){
                             mapped[mappedKey] = [];

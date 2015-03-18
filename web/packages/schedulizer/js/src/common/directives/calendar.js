@@ -1,7 +1,7 @@
 angular.module('schedulizer.app').
 
-    directive('calendar', ['$rootScope', 'Moment', 'ModalManager', 'Routes',
-        function( $rootScope, Moment, ModalManager, Routes ){
+    directive('calendar', ['$rootScope', '_moment', 'ModalManager', 'Routes',
+        function( $rootScope, _moment, ModalManager, Routes ){
 
             function _link( scope, $element, attrs ){
                 $element.fullCalendar({
@@ -16,7 +16,7 @@ angular.module('schedulizer.app').
                     dayClick: function( moment ){
                         scope.$apply(function(){
                             ModalManager.data = {
-                                source: Routes.generate('views.eventFormModal'),
+                                source: Routes.generate('views.eventFormModal'), // DEPRECATED routes.generate call
                                 eventObj: {
                                     calendarID:     +(attrs.id),
                                     startUTC:       moment.local().clone().add(9, 'hours'),

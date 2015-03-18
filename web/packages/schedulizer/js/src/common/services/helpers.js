@@ -20,8 +20,8 @@ angular.module('schedulizer.app').
                     {label: 'Years', value: 'yearly'}
                 ],
                 repeatIndefiniteOptions: [
-                    {label: 'Forever', value: 1},
-                    {label: 'Until', value: 0}
+                    {label: 'Forever', value: true},
+                    {label: 'Until', value: false}
                 ],
                 weekdayRepeatOptions: [
                     {label: 'Sun', value: 1},
