@@ -22,6 +22,12 @@ return array(
         'url_rewriting' => true,
         'url_rewriting_all' => true
     ),
+    'sitemap_xml' => array(
+        'file' => 'application/files/sitemap.xml',
+        'frequency' => 'weekly',
+        'priority' => 0.5,
+        'base_url' => BASE_URL
+    ),
     'permissions' => array(
         'model' => 'advanced'
     ),
