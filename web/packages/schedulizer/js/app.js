@@ -78,402 +78,9 @@
     });
 
 })(window, window.angular);
-angular.module('schedulizer.app', []);
 angular.module('calendry', []);
 
-angular.module('schedulizer.app').
-
-    directive('calendar', ['$rootScope', '_moment', 'ModalManager', 'Routes',
-        function( $rootScope, _moment, ModalManager, Routes ){
-
-            function _link( scope, $element, attrs ){
-                $element.fullCalendar({
-                    header: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'month,agendaWeek,agendaDay'
-                    },
-                    editable: true,
-                    defaultView: 'month',
-                    events: attrs.feed,
-                    dayClick: function( moment ){
-                        scope.$apply(function(){
-                            ModalManager.data = {
-                                source: Routes.generate('views.eventFormModal'), // DEPRECATED routes.generate call
-                                eventObj: {
-                                    calendarID:     +(attrs.id),
-                                    startUTC:       moment.local().clone().add(9, 'hours'),
-                                    endUTC:         moment.local().clone().add(10, 'hours'),
-                                    repeatEndUTC:   moment.local().clone().add(10, 'hours'),
-                                }
-                            };
-                        });
-                    },
-                    eventClick: function( calEvent ){
-                        scope.$apply(function(){
-                            ModalManager.data = {
-                                source: Routes.generate('views.eventFormModal'),
-                                eventObj: calEvent
-                            };
-                        });
-                    }
-                });
-
-                // Event Listeners
-//                $rootScope.$on('calendar.refresh', function(){
-//                    $element.fullCalendar('refetchEvents');
-//                });
-
-//                $element.fullCalendar({
-//                    header: {
-//                        left: 'prev,next today',
-//                        center: 'title',
-//                        right: 'month,agendaWeek,agendaDay'
-//                    },
-//                    editable: true,
-//                    defaultView: 'month',
-//                    // load event data
-//                    events: _toolsURI + 'dashboard/events/feed?' + $.param({
-//                        calendarID: _calendarID
-//                    }),
-//
-//                    // open a dialog and create a new event on the specific day
-//                    dayClick: function(date, allDay, jsEvent, view){
-//                        var _data = $.param({
-//                            calendarID: _calendarID,
-//                            year: date.getUTCFullYear(),
-//                            month: date.getUTCMonth() + 1,
-//                            day: date.getUTCDate(),
-//                            hour: date.getUTCHours(),
-//                            min: date.getUTCMinutes(),
-//                            allDay: allDay
-//                        });
-//
-//                        // launch the dialog and pass appropriate data
-//                        $.fn.dialog.open({
-//                            width:650,
-//                            height:550,
-//                            title: 'New Event: ' + date.toLocaleDateString(),
-//                            href: _toolsURI + 'dashboard/events/new?' + _data
-//                        });
-//                    },
-//
-//                    // open a dialog to edit an existing event
-//                    eventClick: function(calEvent, jsEvent, view){
-//                        editEventDialog(calEvent);
-//                    },
-//
-//                    eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc){
-//                        // if its a repeating event, show warning
-//                        if( event.isRepeating === 1 ){
-//                            if( event.repeatMethod !== 'daily' ){
-//                                ccmAlert.hud('Events that repeat ' + event.repeatMethod + ' cannot be dragged/dropped.', 2000, 'error');
-//                                revertFunc.call();
-//                                return;
-//                            }
-//                            if( ! confirm('This is a repeating event and will affect all other events in the series. Proceed?') ){
-//                                revertFunc.call();
-//                                return;
-//                            }
-//                        }
-//
-//                        // append day and minute deltas to the event object
-//                        event.dayDelta    = dayDelta;
-//                        event.minuteDelta = minuteDelta;
-//
-//                        // then send the whole shebang
-//                        $.post( _toolsURI + 'dashboard/events/calendar_handler_drop', event, function( _respData ){
-//                            if( _respData.code === 1 ){
-//                                ccmAlert.hud(_respData.msg, 2000, 'success');
-//                            }else{
-//                                ccmAlert.hud('Error occurred adjusting the event length', 2000, 'error');
-//                            }
-//                        }, 'json');
-//                    },
-//
-//                    eventResize: function(event, dayDelta, minuteDelta, revertFunc){
-//                        // if its a repeating event, show warning
-//                        if( event.isRepeating === 1 ){
-//                            if( ! confirm('This is a repeating event and will affect all other events in the series. Proceed?') ){
-//                                revertFunc.call();
-//                                return;
-//                            }
-//                        }
-//
-//                        // append day and minute deltas to the event object
-//                        event.dayDelta    = dayDelta;
-//                        event.minuteDelta = minuteDelta;
-//
-//                        // then send the whole shebang
-//                        $.post( _toolsURI + 'dashboard/events/calendar_handler_resize', event, function( _respData ){
-//                            if( _respData.code === 1 ){
-//                                ccmAlert.hud(_respData.msg, 2000, 'success');
-//                            }else{
-//                                ccmAlert.hud('Error occurred adjusting the event length', 2000, 'error');
-//                            }
-//                        }, 'json');
-//                    }
-//                });
-            }
-
-            return {
-                restrict: 'A',
-                link:     _link
-            };
-        }
-    ]);
-angular.module('schedulizer.app').
-
-    /**
-     * Will automatically initialize modalWindow directive; and we don't have to worry about
-     * leaving this in HTML somewhere.
-     */
-    run([function(){
-        angular.element(document.querySelector('body')).append('<div modal-window class="schedulizer-app" ng-class="manager.classes"><a class="icon-close" modal-close></a><div class="modal-inner" ng-include="manager.data.source"></div></div>');
-    }]).
-
-    /**
-     * ModalManager
-     */
-    factory('ModalManager', [function(){
-        return {
-            classes : {open: false},
-            data    : {source: null}
-        };
-    }]).
-
-    /**
-     * Elements that should trigger opening a modal window
-     * @returns {{restrict: string, scope: boolean, link: Function, controller: Array}}
-     */
-    directive('modalize', [function(){
-
-            /**
-             * @param scope
-             * @param $element
-             * @param attrs
-             * @private
-             */
-            function _link( scope, $element, attrs ){
-                $element.on('click', function(){
-                    scope.$apply(function(){
-                        scope.manager.data = angular.extend({
-                            source: attrs.modalize
-                        }, scope.using);
-                    });
-                });
-            }
-
-            return {
-                restrict:   'A',
-                scope:      {using: '=using'},
-                link:       _link,
-                controller: ['$scope', 'ModalManager', function( $scope, ModalManager ){
-                    $scope.manager = ModalManager;
-                }]
-            };
-        }
-    ]).
-
-    /**
-     * Close the modal window
-     */
-    directive('modalClose', ['ModalManager', function( ModalManager ){
-
-        function _link( scope, $elem, attrs ){
-            $elem.on('click', function(){
-                scope.$apply(function(){
-                    ModalManager.classes.open = false;
-                    ModalManager.data = null;
-                });
-            });
-        }
-
-        return {
-            restrict: 'A',
-            link: _link
-        };
-    }]).
-
-    /**
-     * Actual ModalWindow directive handler
-     * @param Tween
-     * @returns {{restrict: string, scope: boolean, link: Function, controller: Array}}
-     */
-    directive('modalWindow', [function(){
-
-        /**
-         * Link function with ModalManager service bound to the scope
-         * @param scope
-         * @param $elem
-         * @param attrs
-         * @private
-         */
-        function _link( scope, $elem, attrs ){
-            scope.$watch('manager.classes.open', function(_val){
-                if( ! _val ){
-                    scope.manager.data = null;
-                }
-            });
-        }
-
-        return {
-            restrict:   'A',
-            scope:      true,
-            link:       _link,
-            controller: ['$scope', 'ModalManager', function( $scope, ModalManager ){
-                $scope.manager = ModalManager;
-
-                $scope.$on('$includeContentLoaded', function(){
-                    $scope.manager.classes.open = true;
-                });
-            }]
-        };
-        }
-    ]);
-
-angular.module('schedulizer.app').
-
-    directive('redactorized', [function(){
-
-        /**
-         * Redactor settings, pulled from Concrete5 defaults
-         * @type {{minHeight: number, concrete5: {filemanager: boolean, sitemap: boolean, lightbox: boolean}, plugins: Array}}
-         */
-        var settings = {
-            minHeight: 200,
-            concrete5: {
-                filemanager: true,
-                sitemap: true,
-                lightbox: true
-            },
-            plugins: ['fontcolor', 'concrete5','underline']
-        };
-
-        /**
-         * @param scope
-         * @param $element
-         * @param attrs
-         * @param Controller ngModel controller
-         * @private
-         */
-        function _link( scope, $elem, attrs, Controller ){
-            // ngModel's $render function
-            Controller.$render = function(){
-                // Set the initial value, if any
-                $elem.val(Controller.$viewValue);
-
-                // Initialize redactor, binding change callback
-                $elem.redactor(angular.extend(settings, {
-                    changeCallback: function(){
-                        scope.$apply(Controller.$setViewValue(this.get()));
-                    }
-                }));
-            };
-        }
-
-        return {
-            priority:   0,
-            require:    '?ngModel',
-            restrict:   'A',
-            link:       _link
-        };
-    }]);
-angular.module('schedulizer.app').
-
-    /**
-     * @description MomentJS provider
-     * @param $window
-     * @param $log
-     * @returns Moment | false
-     */
-    provider('_moment', function(){
-        this.$get = ['$window', '$log',
-            function( $window, $log ){
-                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
-            }
-        ];
-    });
-angular.module('schedulizer.app').
-
-    filter('numberContraction', function($filter) {
-
-        var suffixes = ["th", "st", "nd", "rd"];
-
-        return function(input) {
-            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
-            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
-            return suffix;
-        };
-    });
-angular.module('schedulizer.app').
-
-    factory('Helpers', function factory(){
-
-        function _range( start, end ){
-            var arr = [];
-            for(var i = start; i <= end; i++){
-                arr.push(i);
-            }
-            return arr;
-        }
-
-        return {
-            range: _range,
-            eventDefaults: {
-                repeatTypeHandleOptions: [
-                    {label: 'Days', value: 'daily'},
-                    {label: 'Weeks', value: 'weekly'},
-                    {label: 'Months', value: 'monthly'},
-                    {label: 'Years', value: 'yearly'}
-                ],
-                repeatIndefiniteOptions: [
-                    {label: 'Forever', value: true},
-                    {label: 'Until', value: false}
-                ],
-                weekdayRepeatOptions: [
-                    {label: 'Sun', value: 1},
-                    {label: 'Mon', value: 2},
-                    {label: 'Tue', value: 3},
-                    {label: 'Wed', value: 4},
-                    {label: 'Thu', value: 5},
-                    {label: 'Fri', value: 6},
-                    {label: 'Sat', value: 7}
-                ],
-                repeatMonthlyMethodOptions: {
-                    specific    : 1,
-                    dynamic     : 0
-                },
-                repeatMonthlyDynamicWeekOptions: [
-                    {label: 'First', value: 1},
-                    {label: 'Second', value: 2},
-                    {label: 'Third', value: 3},
-                    {label: 'Fourth', value: 4},
-                    {label: 'Last', value: 5}
-                ],
-                repeatMonthlyDynamicWeekdayOptions: [
-                    {label: 'Sunday', value: 1},
-                    {label: 'Monday', value: 2},
-                    {label: 'Tuesday', value: 3},
-                    {label: 'Wednesday', value: 4},
-                    {label: 'Thursday', value: 5},
-                    {label: 'Friday', value: 6},
-                    {label: 'Saturday', value: 7}
-                ],
-                eventColorOptions: [
-                    {value: '#A3D900'},
-                    {value: '#3A87AD'},
-                    {value: '#DE4E56'},
-                    {value: '#BFBFFF'},
-                    {value: '#FFFF73'},
-                    {value: '#FFA64D'},
-                    {value: '#CCCCCC'},
-                    {value: '#00B7FF'},
-                    {value: '#222222'}
-                ]
-            }
-        };
-    });
+angular.module('schedulizer.app', []);
 ;(function( window, angular, undefined ){
     'use strict';
 
@@ -874,6 +481,18 @@ angular.module('schedulizer.app').
 })( window, window.angular );
 angular.module('schedulizer.app').
 
+    filter('numberContraction', function($filter) {
+
+        var suffixes = ["th", "st", "nd", "rd"];
+
+        return function(input) {
+            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
+            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
+            return suffix;
+        };
+    });
+angular.module('schedulizer.app').
+
     controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$calendry', 'API',
         function( $rootScope, $scope, $http, $calendry, API ){
 
@@ -1097,3 +716,384 @@ angular.module('schedulizer.app').
             };
         }
     ]);
+angular.module('schedulizer.app').
+
+    factory('Helpers', function factory(){
+
+        function _range( start, end ){
+            var arr = [];
+            for(var i = start; i <= end; i++){
+                arr.push(i);
+            }
+            return arr;
+        }
+
+        return {
+            range: _range,
+            eventDefaults: {
+                repeatTypeHandleOptions: [
+                    {label: 'Days', value: 'daily'},
+                    {label: 'Weeks', value: 'weekly'},
+                    {label: 'Months', value: 'monthly'},
+                    {label: 'Years', value: 'yearly'}
+                ],
+                repeatIndefiniteOptions: [
+                    {label: 'Forever', value: true},
+                    {label: 'Until', value: false}
+                ],
+                weekdayRepeatOptions: [
+                    {label: 'Sun', value: 1},
+                    {label: 'Mon', value: 2},
+                    {label: 'Tue', value: 3},
+                    {label: 'Wed', value: 4},
+                    {label: 'Thu', value: 5},
+                    {label: 'Fri', value: 6},
+                    {label: 'Sat', value: 7}
+                ],
+                repeatMonthlyMethodOptions: {
+                    specific    : 1,
+                    dynamic     : 0
+                },
+                repeatMonthlyDynamicWeekOptions: [
+                    {label: 'First', value: 1},
+                    {label: 'Second', value: 2},
+                    {label: 'Third', value: 3},
+                    {label: 'Fourth', value: 4},
+                    {label: 'Last', value: 5}
+                ],
+                repeatMonthlyDynamicWeekdayOptions: [
+                    {label: 'Sunday', value: 1},
+                    {label: 'Monday', value: 2},
+                    {label: 'Tuesday', value: 3},
+                    {label: 'Wednesday', value: 4},
+                    {label: 'Thursday', value: 5},
+                    {label: 'Friday', value: 6},
+                    {label: 'Saturday', value: 7}
+                ],
+                eventColorOptions: [
+                    {value: '#A3D900'},
+                    {value: '#3A87AD'},
+                    {value: '#DE4E56'},
+                    {value: '#BFBFFF'},
+                    {value: '#FFFF73'},
+                    {value: '#FFA64D'},
+                    {value: '#CCCCCC'},
+                    {value: '#00B7FF'},
+                    {value: '#222222'}
+                ]
+            }
+        };
+    });
+angular.module('schedulizer.app').
+
+    directive('calendar', ['$rootScope', '_moment', 'ModalManager', 'Routes',
+        function( $rootScope, _moment, ModalManager, Routes ){
+
+            function _link( scope, $element, attrs ){
+                $element.fullCalendar({
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                    },
+                    editable: true,
+                    defaultView: 'month',
+                    events: attrs.feed,
+                    dayClick: function( moment ){
+                        scope.$apply(function(){
+                            ModalManager.data = {
+                                source: Routes.generate('views.eventFormModal'), // DEPRECATED routes.generate call
+                                eventObj: {
+                                    calendarID:     +(attrs.id),
+                                    startUTC:       moment.local().clone().add(9, 'hours'),
+                                    endUTC:         moment.local().clone().add(10, 'hours'),
+                                    repeatEndUTC:   moment.local().clone().add(10, 'hours'),
+                                }
+                            };
+                        });
+                    },
+                    eventClick: function( calEvent ){
+                        scope.$apply(function(){
+                            ModalManager.data = {
+                                source: Routes.generate('views.eventFormModal'),
+                                eventObj: calEvent
+                            };
+                        });
+                    }
+                });
+
+                // Event Listeners
+//                $rootScope.$on('calendar.refresh', function(){
+//                    $element.fullCalendar('refetchEvents');
+//                });
+
+//                $element.fullCalendar({
+//                    header: {
+//                        left: 'prev,next today',
+//                        center: 'title',
+//                        right: 'month,agendaWeek,agendaDay'
+//                    },
+//                    editable: true,
+//                    defaultView: 'month',
+//                    // load event data
+//                    events: _toolsURI + 'dashboard/events/feed?' + $.param({
+//                        calendarID: _calendarID
+//                    }),
+//
+//                    // open a dialog and create a new event on the specific day
+//                    dayClick: function(date, allDay, jsEvent, view){
+//                        var _data = $.param({
+//                            calendarID: _calendarID,
+//                            year: date.getUTCFullYear(),
+//                            month: date.getUTCMonth() + 1,
+//                            day: date.getUTCDate(),
+//                            hour: date.getUTCHours(),
+//                            min: date.getUTCMinutes(),
+//                            allDay: allDay
+//                        });
+//
+//                        // launch the dialog and pass appropriate data
+//                        $.fn.dialog.open({
+//                            width:650,
+//                            height:550,
+//                            title: 'New Event: ' + date.toLocaleDateString(),
+//                            href: _toolsURI + 'dashboard/events/new?' + _data
+//                        });
+//                    },
+//
+//                    // open a dialog to edit an existing event
+//                    eventClick: function(calEvent, jsEvent, view){
+//                        editEventDialog(calEvent);
+//                    },
+//
+//                    eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc){
+//                        // if its a repeating event, show warning
+//                        if( event.isRepeating === 1 ){
+//                            if( event.repeatMethod !== 'daily' ){
+//                                ccmAlert.hud('Events that repeat ' + event.repeatMethod + ' cannot be dragged/dropped.', 2000, 'error');
+//                                revertFunc.call();
+//                                return;
+//                            }
+//                            if( ! confirm('This is a repeating event and will affect all other events in the series. Proceed?') ){
+//                                revertFunc.call();
+//                                return;
+//                            }
+//                        }
+//
+//                        // append day and minute deltas to the event object
+//                        event.dayDelta    = dayDelta;
+//                        event.minuteDelta = minuteDelta;
+//
+//                        // then send the whole shebang
+//                        $.post( _toolsURI + 'dashboard/events/calendar_handler_drop', event, function( _respData ){
+//                            if( _respData.code === 1 ){
+//                                ccmAlert.hud(_respData.msg, 2000, 'success');
+//                            }else{
+//                                ccmAlert.hud('Error occurred adjusting the event length', 2000, 'error');
+//                            }
+//                        }, 'json');
+//                    },
+//
+//                    eventResize: function(event, dayDelta, minuteDelta, revertFunc){
+//                        // if its a repeating event, show warning
+//                        if( event.isRepeating === 1 ){
+//                            if( ! confirm('This is a repeating event and will affect all other events in the series. Proceed?') ){
+//                                revertFunc.call();
+//                                return;
+//                            }
+//                        }
+//
+//                        // append day and minute deltas to the event object
+//                        event.dayDelta    = dayDelta;
+//                        event.minuteDelta = minuteDelta;
+//
+//                        // then send the whole shebang
+//                        $.post( _toolsURI + 'dashboard/events/calendar_handler_resize', event, function( _respData ){
+//                            if( _respData.code === 1 ){
+//                                ccmAlert.hud(_respData.msg, 2000, 'success');
+//                            }else{
+//                                ccmAlert.hud('Error occurred adjusting the event length', 2000, 'error');
+//                            }
+//                        }, 'json');
+//                    }
+//                });
+            }
+
+            return {
+                restrict: 'A',
+                link:     _link
+            };
+        }
+    ]);
+angular.module('schedulizer.app').
+
+    /**
+     * Will automatically initialize modalWindow directive; and we don't have to worry about
+     * leaving this in HTML somewhere.
+     */
+    run([function(){
+        angular.element(document.querySelector('body')).append('<div modal-window class="schedulizer-app" ng-class="manager.classes"><a class="icon-close" modal-close></a><div class="modal-inner" ng-include="manager.data.source"></div></div>');
+    }]).
+
+    /**
+     * ModalManager
+     */
+    factory('ModalManager', [function(){
+        return {
+            classes : {open: false},
+            data    : {source: null}
+        };
+    }]).
+
+    /**
+     * Elements that should trigger opening a modal window
+     * @returns {{restrict: string, scope: boolean, link: Function, controller: Array}}
+     */
+    directive('modalize', [function(){
+
+            /**
+             * @param scope
+             * @param $element
+             * @param attrs
+             * @private
+             */
+            function _link( scope, $element, attrs ){
+                $element.on('click', function(){
+                    scope.$apply(function(){
+                        scope.manager.data = angular.extend({
+                            source: attrs.modalize
+                        }, scope.using);
+                    });
+                });
+            }
+
+            return {
+                restrict:   'A',
+                scope:      {using: '=using'},
+                link:       _link,
+                controller: ['$scope', 'ModalManager', function( $scope, ModalManager ){
+                    $scope.manager = ModalManager;
+                }]
+            };
+        }
+    ]).
+
+    /**
+     * Close the modal window
+     */
+    directive('modalClose', ['ModalManager', function( ModalManager ){
+
+        function _link( scope, $elem, attrs ){
+            $elem.on('click', function(){
+                scope.$apply(function(){
+                    ModalManager.classes.open = false;
+                    ModalManager.data = null;
+                });
+            });
+        }
+
+        return {
+            restrict: 'A',
+            link: _link
+        };
+    }]).
+
+    /**
+     * Actual ModalWindow directive handler
+     * @param Tween
+     * @returns {{restrict: string, scope: boolean, link: Function, controller: Array}}
+     */
+    directive('modalWindow', [function(){
+
+        /**
+         * Link function with ModalManager service bound to the scope
+         * @param scope
+         * @param $elem
+         * @param attrs
+         * @private
+         */
+        function _link( scope, $elem, attrs ){
+            scope.$watch('manager.classes.open', function(_val){
+                if( ! _val ){
+                    scope.manager.data = null;
+                }
+            });
+        }
+
+        return {
+            restrict:   'A',
+            scope:      true,
+            link:       _link,
+            controller: ['$scope', 'ModalManager', function( $scope, ModalManager ){
+                $scope.manager = ModalManager;
+
+                $scope.$on('$includeContentLoaded', function(){
+                    $scope.manager.classes.open = true;
+                });
+            }]
+        };
+        }
+    ]);
+
+angular.module('schedulizer.app').
+
+    directive('redactorized', [function(){
+
+        /**
+         * Redactor settings, pulled from Concrete5 defaults
+         * @type {{minHeight: number, concrete5: {filemanager: boolean, sitemap: boolean, lightbox: boolean}, plugins: Array}}
+         */
+        var settings = {
+            minHeight: 200,
+            concrete5: {
+                filemanager: true,
+                sitemap: true,
+                lightbox: true
+            },
+            plugins: ['fontcolor', 'concrete5','underline']
+        };
+
+        /**
+         * @param scope
+         * @param $element
+         * @param attrs
+         * @param Controller ngModel controller
+         * @private
+         */
+        function _link( scope, $elem, attrs, Controller ){
+            // ngModel's $render function
+            Controller.$render = function(){
+                // Set the initial value, if any
+                $elem.val(Controller.$viewValue);
+
+                // Initialize redactor, binding change callback
+                $elem.redactor(angular.extend(settings, {
+                    changeCallback: function(){
+                        scope.$apply(Controller.$setViewValue(this.get()));
+                    }
+                }));
+            };
+        }
+
+        return {
+            priority:   0,
+            require:    '?ngModel',
+            restrict:   'A',
+            link:       _link
+        };
+    }]);
+angular.module('schedulizer.app').
+
+    /**
+     * @description MomentJS provider
+     * @param $window
+     * @param $log
+     * @returns Moment | false
+     */
+    provider('_moment', function(){
+        this.$get = ['$window', '$log',
+            function( $window, $log ){
+                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
+            }
+        ];
+    });
