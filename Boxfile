@@ -10,6 +10,13 @@ build:
 
   after_exec:
     - "php _quickstart/after_exec.php"
+    - "cd web && ln -s application/files/sitemap.xml sitemap.xml"
+
+  before_deploy:
+    - "php _quickstart/before_deploy.php"
+
+  after_deploy:
+    - "rm -R web/application/files/cache 2>/dev/null; echo Cache Cleared"
 
 web1:
   name: web
