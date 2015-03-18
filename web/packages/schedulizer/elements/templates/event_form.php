@@ -9,6 +9,19 @@
     </div>
 
     <div ng-show="(_ready && !warnAliased)">
+        <!-- delete event? -->
+        <div class="delete-event" ng-show="entity.id">
+            <button type="button" class="btn btn-warning btn-xs" ng-click="confirmDelete = !confirmDelete" ng-hide="confirmDelete">
+                Delete Event
+            </button>
+            <button type="button" class="btn btn-info btn-xs" ng-click="confirmDelete = !confirmDelete" ng-show="confirmDelete">
+                Nevermind!
+            </button>
+            <button type="button" class="btn btn-danger btn-xs" ng-click="deleteEvent()" ng-show="confirmDelete">
+                <strong>Danger Zone!</strong> Yes, Delete It
+            </button>
+        </div>
+
         <!-- title -->
         <div class="row">
             <div class="col-sm-12">
@@ -163,20 +176,6 @@
                         <img ng-show="_requesting" src="<?php echo SCHEDULIZER_IMAGE_PATH; ?>spinner.svg" />
                     </button>
                 </div>
-            </div>
-        </div>
-
-        <div class="row" ng-show="entity.id">
-            <div class="col-sm-12 text-center">
-                <button type="button" class="btn btn-warning btn-sm" ng-click="confirmDelete = !confirmDelete" ng-hide="confirmDelete">
-                    Delete Event
-                </button>
-                <button type="button" class="btn btn-info btn-sm" ng-click="confirmDelete = !confirmDelete" ng-show="confirmDelete">
-                    Nevermind!
-                </button>
-                <button type="button" class="btn btn-danger btn-sm" ng-click="deleteEvent()" ng-show="confirmDelete">
-                    <strong>Danger Zone!</strong> Yes, Delete It
-                </button>
             </div>
         </div>
     </div>

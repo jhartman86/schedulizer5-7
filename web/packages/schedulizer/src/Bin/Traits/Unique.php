@@ -1,7 +1,5 @@
 <?php namespace Concrete\Package\Schedulizer\Src\Bin\Traits {
 
-    date_default_timezone_set('UTC');
-
     use DateTime;
     use DateTimeZone;
 

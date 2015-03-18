@@ -1,8 +1,8 @@
 <?php namespace Concrete\Package\Schedulizer\Controller\SinglePage\Dashboard\Schedulizer\Calendars {
 
     use Config;
-    use Concrete\Package\Schedulizer\Src\Calendar;
-    use Concrete\Package\Schedulizer\Controller\DashboardController;
+    use \Concrete\Package\Schedulizer\Src\Calendar;
+    use \Concrete\Package\Schedulizer\Controller\DashboardController;
 
     class Manage extends DashboardController {
 

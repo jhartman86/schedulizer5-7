@@ -1,6 +1,6 @@
 <? namespace Concrete\Package\Schedulizer\Controller\SinglePage\Dashboard {
 
-    use Concrete\Package\Schedulizer\Controller\DashboardController;
+    use \Concrete\Package\Schedulizer\Controller\DashboardController;
 
     class Schedulizer extends DashboardController {
 

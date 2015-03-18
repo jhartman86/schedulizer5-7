@@ -1,10 +1,7 @@
-<?php namespace Concrete\Package\Schedulizer\Src\Helpers {
-
-    date_default_timezone_set('UTC');
+<?php namespace Concrete\Package\Schedulizer\Src\Bin {
 
     use DateTime;
     use DateTimeZone;
-    use Concrete\Package\Schedulizer\Src\Interfaces\BaseInterface;
 
     class TimeConversion {
 

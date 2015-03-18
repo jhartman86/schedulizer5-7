@@ -3,8 +3,8 @@
     use \Exception;
     use DateTime;
     use DateTimeZone;
-    use Concrete\Package\Schedulizer\Src\EventList;
-    use Concrete\Package\Schedulizer\Src\Api\Utilities\EventFeedFormat;
+    use \Concrete\Package\Schedulizer\Src\EventList;
+    use \Concrete\Package\Schedulizer\Src\Api\Utilities\EventFeedFormat;
     use \Symfony\Component\HttpFoundation\Request;
     use \Symfony\Component\HttpFoundation\JsonResponse;
     use \Concrete\Core\Controller\Controller AS CoreController;

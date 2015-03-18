@@ -1,7 +1,5 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
-    date_default_timezone_set('UTC');
-
     use Loader;
     use DateTime;
     use DateTimeZone;

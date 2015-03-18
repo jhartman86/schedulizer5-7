@@ -43,7 +43,12 @@
         public function on_start(){
             define('SCHEDULIZER_IMAGE_PATH', DIR_REL . '/packages/' . $this->pkgHandle . '/images/');
 
-            new Src\Api\OnStart(function( $routes ){
+            // @todo: add installation support tests for current timezone and provide notifications
+            if( @date_default_timezone_get() !== 'UTC' ){
+                @date_default_timezone_set('UTC');
+            }
+
+            new \Concrete\Package\Schedulizer\Src\Api\OnStart(function( $routes ){
                 $routes->add('schedulizer_event_list', new \Symfony\Component\Routing\Route('/_schedulizer/event/list/{calendarID}{trailingSlash}', array(
                     '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\EventListHandler::dispatch',
                     'calendarID'    => null,
@@ -76,10 +81,10 @@
             try {
                 // delete mysql tables
                 $db = Loader::db();
-//                $db->Execute("DROP TABLE SchedulizerCalendar");
-//                //$db->Execute("DROP TABLE SchedulizerCalendarAttributeValues");
-//                $db->Execute("DROP TABLE SchedulizerEvent");
-//                $db->Execute("DROP TABLE SchedulizerEventRepeat");
+                $db->Execute("DROP TABLE SchedulizerCalendar");
+                //$db->Execute("DROP TABLE SchedulizerCalendarAttributeValues");
+                $db->Execute("DROP TABLE SchedulizerEvent");
+                $db->Execute("DROP TABLE SchedulizerEventRepeat");
                 //$db->Execute("DROP TABLE SchedulizerEventRepeatNullify");
                 //$db->Execute("DROP TABLE SchedulizerCalendarSearchIndexAttributes");
             }catch(Exception $e){

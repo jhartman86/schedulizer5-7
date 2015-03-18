@@ -1,6 +1,5 @@
 <?php namespace Concrete\Package\Schedulizer\Src\Api {
 
-    use \Symfony\Component\HttpFoundation\Request;
     use \Symfony\Component\HttpFoundation\JsonResponse;
     use \Concrete\Core\Controller\Controller AS CoreController;
 

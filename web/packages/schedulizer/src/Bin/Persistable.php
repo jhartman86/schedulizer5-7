@@ -1,7 +1,5 @@
 <?php namespace Concrete\Package\Schedulizer\Src\Bin {
 
-    date_default_timezone_set('UTC');
-
     /**
      * Class Base
      * @package Concrete\Package\Schedulizer\Src\Abstracts

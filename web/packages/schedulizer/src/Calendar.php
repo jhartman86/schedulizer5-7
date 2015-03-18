@@ -1,6 +1,5 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
-    use DateTime;
     use DateTimeZone;
 
     /**

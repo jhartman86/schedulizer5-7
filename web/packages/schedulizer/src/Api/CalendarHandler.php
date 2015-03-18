@@ -3,7 +3,7 @@
     use Config;
     use User;
     use \Exception;
-    use Concrete\Package\Schedulizer\Src\Calendar;
+    use \Concrete\Package\Schedulizer\Src\Calendar;
     use \Symfony\Component\HttpFoundation\Request;
     use \Symfony\Component\HttpFoundation\JsonResponse;
     use \Concrete\Core\Controller\Controller AS CoreController;

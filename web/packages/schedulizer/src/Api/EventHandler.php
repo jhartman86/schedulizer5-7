@@ -2,8 +2,8 @@
 
     use User;
     use \Exception;
-    use Concrete\Package\Schedulizer\Src\Calendar;
-    use Concrete\Package\Schedulizer\Src\Event;
+    use \Concrete\Package\Schedulizer\Src\Calendar;
+    use \Concrete\Package\Schedulizer\Src\Event;
     use \Symfony\Component\HttpFoundation\Request;
     use \Symfony\Component\HttpFoundation\JsonResponse;
     use \Concrete\Core\Controller\Controller AS CoreController;
