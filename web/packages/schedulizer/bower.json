@@ -1,0 +1,19 @@
+{
+  "name": "Focus43",
+  "version": "0.0.1",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "source/components/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fullcalendar": "~2.3.0",
+    "angular": "~1.3.14",
+    "angular-strap": "~2.2.0",
+    "angular-route": "~1.3.14",
+    "angular-resource": "~1.3.14"
+  }
+}

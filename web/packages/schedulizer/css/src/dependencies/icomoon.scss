@@ -1,0 +1,132 @@
+@font-face {
+  font-family: 'icomoon';
+  src:url('#{$icomoon-font-path}/icomoon.eot?-mgjnnv');
+  src:url('#{$icomoon-font-path}/icomoon.eot?#iefix-mgjnnv') format('embedded-opentype'),
+  url('#{$icomoon-font-path}/icomoon.woff?-mgjnnv') format('woff'),
+  url('#{$icomoon-font-path}/icomoon.ttf?-mgjnnv') format('truetype'),
+  url('#{$icomoon-font-path}/icomoon.svg?-mgjnnv#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'icomoon';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-check2:before {
+  content: "\e116";
+}
+
+.icon-close:before {
+  content: "\e600";
+}
+
+.icon-close-circle:before {
+  content: "\e601";
+}
+
+.icon-angle-up:before {
+  content: "\e602";
+}
+
+.icon-angle-up-circle:before {
+  content: "\e603";
+}
+
+.icon-angle-right:before {
+  content: "\e604";
+}
+
+.icon-angle-right-circle:before {
+  content: "\e605";
+}
+
+.icon-angle-left:before {
+  content: "\e606";
+}
+
+.icon-angle-left-circle:before {
+  content: "\e607";
+}
+
+.icon-angle-down:before {
+  content: "\e608";
+}
+
+.icon-angle-down-circle:before {
+  content: "\e609";
+}
+
+.icon-unlock:before {
+  content: "\e60a";
+}
+
+.icon-tools:before {
+  content: "\e60b";
+}
+
+.icon-ticket:before {
+  content: "\e60c";
+}
+
+.icon-power:before {
+  content: "\e60d";
+}
+
+.icon-paper-plane:before {
+  content: "\e60e";
+}
+
+.icon-map-marker:before {
+  content: "\e60f";
+}
+
+.icon-mail:before {
+  content: "\e610";
+}
+
+.icon-loop:before {
+  content: "\e611";
+}
+
+.icon-link:before {
+  content: "\e612";
+}
+
+.icon-less:before {
+  content: "\e613";
+}
+
+.icon-info:before {
+  content: "\e614";
+}
+
+.icon-expand1:before {
+  content: "\e615";
+}
+
+.icon-download:before {
+  content: "\e616";
+}
+
+.icon-config:before {
+  content: "\e617";
+}
+
+.icon-check:before {
+  content: "\e618";
+}
+
+.icon-box2:before {
+  content: "\e619";
+}

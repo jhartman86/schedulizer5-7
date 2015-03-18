@@ -1,0 +1,31 @@
+// Datepicker
+$pickers-bg-color: #f1f1f1;
+
+.dropdown-menu {background:$pickers-bg-color;width:auto;min-width:300px;padding:0;margin:0;border:0;position:absolute;z-index:9;padding:5px;
+
+  button {width:100%;outline:none;border:0;@include border-radius(0);
+    &[disabled="disabled"]{opacity:0.25;}
+  }
+
+  thead, tfoot {font-weight:normal;
+    button {font-weight:inherit;padding:5px 0;
+      * {line-height:1;}
+      [class*="icon-"]{font-size:28px;line-height:0.1;position:relative;top:8px;}
+    }
+  }
+
+  &.datepicker {
+    table {
+      thead {
+        th {font-weight:inherit;
+          &.dow {padding:5px 0;font-size:80%;}
+        }
+      }
+    }
+  }
+
+  &.timepicker {
+
+  }
+
+}
