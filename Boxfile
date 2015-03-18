@@ -6,7 +6,7 @@ build:
   lib_dir: web/concrete/vendor
 
   exec:
-    - "composer install --no-interaction --prefer-source --working-dir=web/concrete"
+    - "composer install --no-interaction --working-dir=web/concrete"
 
   after_exec:
     - "php _quickstart/after_exec.php"
