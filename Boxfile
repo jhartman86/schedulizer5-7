@@ -7,16 +7,14 @@ build:
 
   exec:
     - "composer install --no-interaction --working-dir=web/concrete"
-
   after_exec:
-    - "php _quickstart/after_exec.php"
+    - "php _quickstart/generate_proxies.php"
     - "cd web && ln -s application/files/sitemap.xml sitemap.xml"
-
   before_deploy:
-    - "php _quickstart/before_deploy.php"
-
+    - "php _quickstart/purge_redis_cache.php"
+    - "php _quickstart/update_packages.php"
   after_deploy:
-    - "rm -R web/application/files/cache 2>/dev/null; echo Cache Cleared"
+    - "rm -R web/application/files/cache 2>/dev/null; echo File Cache Cleared"
 
 web1:
   name: web
