@@ -1,3 +1,4 @@
+/* global Sortable */
 ;(function( window, angular, undefined ){
     'use strict';
 
@@ -13,35 +14,10 @@
     }]).
 
     /**
-     * Easy way to gain access to the directive controller from anywhere. The callback
-     * will only happen *after* the directive has been linked and initialized.
-     * Usage: $calendry('element-selector', function( CalendryController ){ ... })
-     */
-    factory('$calendry', ['$q', function( $q ){
-        return function( selector, callback ){
-            var $element = angular.isString(selector) ? angular.element(document.querySelector(selector)) : selector,
-                $defer   = $element.data('$calendryDefer');
-
-            if( ! $defer ){
-                $defer = $q.defer();
-                $element.data('$calendryDefer', $defer);
-            }
-
-            if( ! angular.isFunction(callback) ){
-                return $defer;
-            }
-
-            $defer.promise.then(callback);
-
-            return $defer;
-        };
-    }]).
-
-    /**
      * Calendry directive
      */
-    directive('calendry', ['$cacheFactory', '$document', '$log', '$timeout', '$q', 'MomentJS', '$calendry',
-        function factory( $cacheFactory, $document, $log, $timeout, $q, momentJS, $calendry ){
+    directive('calendry', ['$cacheFactory', '$document', '$log', '$q', 'MomentJS',
+        function factory( $cacheFactory, $document, $log, $q, momentJS ){
 
             // If momentJS is not available, don't initialize the directive!
             if( ! momentJS ){
@@ -58,12 +34,12 @@
                 _eventMapKey    = 'YYYY_MM_DD',
                 // Default settings
                 _defaults       = {
+                    forceListView   : false,
                     daysOfWeek      : momentJS.weekdaysShort(),
                     currentMonth    : momentJS(),
                     dayCellClass    : 'day-node',
-                    eventCellClass  : 'event-node',
-                    // Callbacks
-                    onMonthChange   : null
+                    onMonthChange   : function(){},
+                    onDropEnd       : function(){}
                 };
 
 
@@ -75,8 +51,8 @@
             function MonthMap( monthStartMoment ){
                 this.monthStart         = monthStartMoment;
                 this.monthEnd           = momentJS(this.monthStart).endOf('month');
-                this.calendarStart      = momentJS(this.monthStart).subtract('day', this.monthStart.day());
-                this.calendarEnd        = momentJS(this.monthEnd).add('day', (6 - this.monthEnd.day()));
+                this.calendarStart      = momentJS(this.monthStart).subtract(this.monthStart.day(), 'day');
+                this.calendarEnd        = momentJS(this.monthEnd).add((6 - this.monthEnd.day()), 'day');
                 this.calendarDayCount   = Math.abs(this.calendarEnd.diff(this.calendarStart, 'days'));
                 this.calendarDays       = (function( daysInCalendar, calendarStart, _array ){
                     for( var _i = 0; _i <= daysInCalendar; _i++ ){
@@ -159,40 +135,55 @@
             }
 
 
+            /**
+             * Hex to RGB conversion utility
+             * @param hex
+             * @returns {{r: number, g: number, b: number}}
+             */
+            function hexToRgb(hex) {
+                // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+                var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+                hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+                    return r + r + g + g + b + b;
+                });
+
+                var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+
             function _link( $scope, $element, attrs, Controller, transcludeFn ){
-
-                $scope.goToCurrentMonth = Controller.goToCurrentMonth;
-                $scope.goToPrevMonth    = Controller.goToPrevMonth;
-                $scope.goToNextMonth    = Controller.goToNextMonth;
-                $scope.toggleListView   = Controller.toggleListView;
-
-
                 /**
                  * Pass in the directive element and the monthMap we use to generate the
-                 * calendar DOM elements. Returns a promise so we can chain it - such that DOM
-                 * manipulation takes place, THEN something else (even though DOM is syncronous, makes
-                 * the syntax easier :)
+                 * calendar DOM elements.
                  * @param $element
                  * @param monthMap
-                 * @returns {promise|Q.promise}
+                 * @returns null
                  */
                 function renderCalendarLayout( monthMap ){
                     // Rebuild the calendar layout (no events attached, just days)
-                    var deferred  = $q.defer(),
-                        $renderTo = angular.element($element[0].querySelector('.calendar-render')),
+                    var $renderTo = angular.element($element[0].querySelector('.calendar-render')),
                         weekRows  = Math.ceil( monthMap.calendarDayCount / 7 );
 
                     // Set row classes on calendar-body
-                    angular.element($element[0].querySelector('.calendry-body')).removeClass('week-rows-4 week-rows-5 week-rows-6')
+                    angular.element($element[0].querySelector('.calendry-body'))
+                        .removeClass('week-rows-4 week-rows-5 week-rows-6')
                         .addClass('week-rows-' + weekRows);
 
                     // Render the calendar body
-                    $renderTo.empty().append( getCalendarFragment(monthMap) );
+                    //$renderTo.empty().append( getCalendarFragment(monthMap) );
+                    var fragment = getCalendarFragment(monthMap);
 
-                    // Resolve
-                    deferred.resolve();
+                    // DECORATE EVERY DAY ELEMENT WITH A _moment PROPERTY VIA .data()
+                    Array.prototype.slice.call(fragment.childNodes).forEach(function(node, index){
+                        fragment.childNodes[index] = angular.element(node).data('_moment', monthMap.calendarDays[index]);
+                    });
 
-                    return deferred.promise;
+                    $renderTo.empty().append(fragment);
                 }
 
 
@@ -237,7 +228,7 @@
                      * re-orders the arguments so that $dayNode is the first arg, THEN
                      * $cloned
                      */
-                    $scope.monthMap.calendarDays.forEach(function( dayMoment ){
+                    $scope.instance.monthMap.calendarDays.forEach(function( dayMoment ){
                         var eventsForDay = mapped[dayMoment.format(_eventMapKey)];
                         if( eventsForDay ){
                             var $dayNode = angular.element($element[0].querySelector('#' + getDayCellID(dayMoment)));
@@ -246,9 +237,6 @@
                                     var $newScope       = $scope.$new(/*true*/);
                                     $newScope.eventObj  = eventsForDay[_i];
                                     transcludeFn($newScope, _transcluder.bind(null, $dayNode));
-//                                    transcludeFn($newScope, function( $cloned ){
-//                                        $dayNode.append($cloned);
-//                                    });
                                 }
                             }
                         }
@@ -257,13 +245,9 @@
 
 
                 // Any time the monthMap model changes, re-render.
-                $scope.$watch('monthMap', function( monthMapObj ){
+                $scope.$watch('instance.monthMap', function( monthMapObj ){
                     if( monthMapObj ){
-                        renderCalendarLayout(monthMapObj).then(function(){
-                            if( angular.isFunction($scope.settings.onMonthChange) ){
-                                $scope.settings.onMonthChange.apply(Controller);
-                            }
-                        });
+                        renderCalendarLayout(monthMapObj);
                     }
                 });
 
@@ -272,123 +256,91 @@
                 $scope.$watch('events', function(eventList){
                     if( angular.isArray(eventList) ){
                         renderEvents(eventList);
+
+                        // Sortable
+                        Array.prototype.slice.call($element[0].querySelectorAll('.day-node')).forEach(function(node){
+                            Sortable.create(node, {
+                                group: 'day',
+                                draggable: '.event-cell',
+                                sort: false,
+                                onAdd: function(ev){
+                                    var landingDayMoment = angular.element(this.el).data('_moment').clone(),
+                                        eventObj         = angular.element(ev.item).data('$scope').eventObj;
+                                    $scope.instance.onDropEnd.apply(Controller, [landingDayMoment, eventObj]);
+                                }
+                            });
+                        });
+
                     }
                 });
 
-
-                // Event Handler
-                // @todo: bind .moment object to each day cell as data attribute
+                // Event click handler
 //                angular.element($element[0].querySelector('.calendry-body')).on('click', function(event){
-//                    console.log(this, event);
+//                    // Ghetto delegation from the parent
+//                    var delegator = this,
+//                        target    = (function( _target ){
+//                            while( ! _target.classList.contains('event-cell') ){
+//                                if(_target === delegator){_target = null; break;}
+//                                _target = _target.parentNode;
+//                            }
+//                            return _target;
+//                        })(event.target);
+//
+//                    //console.log(target);
 //                });
 
-
-                // Calendry element is fully available; resolve the service accessor
-                $calendry($element).resolve(Controller);
             }
 
 
             return {
                 restrict: 'A',
                 scope: {
-                    settings: '=calendry'
+                    instance: '=calendry'
                 },
                 replace: true,
                 templateUrl: '/calendry',
                 transclude: true,
-                //terminal: true,
                 link: _link,
                 controller: ['$scope', function( $scope ){
-                    var ControllerInstance = this;
 
-                    $scope.forceListView = false;
+                    var Controller = this;
 
-                    // Initialize settings by merging in defaults
-                    $scope.settings = angular.extend(_defaults, ($scope.settings || {}));
+                    $scope.instance = angular.extend(Controller, _defaults, ($scope.instance || {}));
 
-                    // Gets called automatically on init with a valid moment
-                    $scope.$watch('settings.currentMonth', function(){
-                        $scope.monthMap = getMonthMap( $scope.settings.currentMonth );
+                    this.goToCurrentMonth = $scope.goToCurrentMonth = function(){
+                        $scope.instance.currentMonth = momentJS();
+                    };
+
+                    this.goToPrevMonth = $scope.goToPrevMonth = function(){
+                        $scope.instance.currentMonth = momentJS($scope.instance.currentMonth).subtract({months:1});
+                    };
+
+                    this.goToNextMonth = $scope.goToNextMonth = function(){
+                        $scope.instance.currentMonth = momentJS($scope.instance.currentMonth).add({months:1});
+                    };
+
+                    this.toggleListView = $scope.toggleListView = function(){
+                        $scope.instance.forceListView = !$scope.instance.forceListView;
+                    };
+
+                    $scope.$watch('instance.currentMonth', function( monthMoment ){
+                        if( monthMoment ){
+                            $scope.instance.monthMap = getMonthMap(monthMoment);
+                            // Dispatch callback
+                            $scope.instance.onMonthChange.apply(Controller, [$scope.instance.monthMap]);
+                        }
                     });
 
-
-                    //----- Publicly accessible methods on the controller instance ----- //
-                    /**
-                     * Navigate to the current month.
-                     * @return void
-                     */
-                    this.goToCurrentMonth = function(){
-                        $scope.settings.currentMonth = momentJS();
-                    };
-
-                    /**
-                     * Navigate to previous month.
-                     * @return void
-                     */
-                    this.goToPrevMonth = function(){
-                        $scope.settings.currentMonth = momentJS($scope.settings.currentMonth).subtract({months:1});
-                    };
-
-                    /**
-                     * Navigate to next month.
-                     * @return void
-                     */
-                    this.goToNextMonth = function(){
-                        $scope.settings.currentMonth = momentJS($scope.settings.currentMonth).add({months:1});
-                    };
-
-                    /**
-                     * Toggle list or calendar view (only applicable on larger devices; list view
-                     * is forced on mobile)
-                     * @return void
-                     */
-                    this.toggleListView = function(){
-                        $scope.forceListView = !$scope.forceListView;
-                    };
-
-                    /**
-                     * If a parameter _for is passed in (a moment object), get the month map for that
-                     * month; otherwise return the *current* month map.
-                     * @param moment _for optional
-                     * @returns MonthMap
-                     */
-                    this.getMonthMap = function( _for ){
-                        if( _for ){
-                            return getMonthMap(_for);
+                    $scope.$watch('instance.events', function( events ){
+                        if( events ){
+                            $scope.events = events;
                         }
-                        return $scope.monthMap;
-                    };
+                    });
 
-                    /**
-                     * Pass in an event list (triggers re-render in link fn).
-                     * @param eventList
-                     */
-                    this.setEvents = function( eventList ){
-                        $scope.events = eventList;
-                    };
-
-                    /**
-                     * Get the controller scope
-                     * @returns $scope
-                     */
-                    this.getScope = function(){
-                        return $scope;
-                    };
-
-                    /**
-                     * Callback for when the monthmap changes
-                     * @todo: this creates a new $watch, unncessarily since
-                     * there is also a watch on the same property above.
-                     * Set this up as queue that gets called by the other
-                     * watch
-                     * @param callback
-                     */
-                    this.onMonthChange = function( callback ){
-                        $scope.$watch('monthMap', function( monthMapObj ){
-                            if( monthMapObj ){
-                                callback.apply(ControllerInstance, [monthMapObj]);
-                            }
-                        });
+                    $scope.eventFontColor = function( color ){
+                        var rgb = hexToRgb(color),
+                            val = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000);
+                        return (val > 125) ? '#000000' : '#FFFFFF';
                     };
                 }]
             };

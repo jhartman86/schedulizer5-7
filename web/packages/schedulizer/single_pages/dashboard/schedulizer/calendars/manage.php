@@ -25,9 +25,10 @@
     <div class="ccm-dashboard-content-full">
 
         <div class="calendar-wrap" ng-controller="CtrlCalendar" ng-init="calendarID = <?php echo $calendarObj->getID(); ?>">
+
             <!-- Note: transclusion of items *inside* calendry represents the EVENT objects on the day cells. -->
-            <div calendry="calendarSettings" ng-cloak>
-                <a class="event-cell" modalize="/event_form" data-using="{eventObj:{id:eventObj.id,aliased:eventObj.isAlias}}" ng-style="{background:eventObj.color}">
+            <div calendry="instance" ng-cloak>
+                <a class="event-cell" modalize="/event_form" data-using="{eventObj:{id:eventObj.id,aliased:eventObj.isAlias}}" ng-style="{background:eventObj.color,color:eventFontColor(eventObj.color)}">
                     <span class="dt">{{eventObj._moment.format('h:mm a')}}</span> {{eventObj.title}}
                 </a>
             </div>

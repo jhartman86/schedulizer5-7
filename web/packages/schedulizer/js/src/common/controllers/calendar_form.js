@@ -8,7 +8,7 @@ angular.module('schedulizer.app').
             $scope._requesting  = false;
 
             // Create requests promise queue, always loading available timezones list
-            var _requests = [API.timezones.query().$promise];
+            var _requests = [API.timezones.get().$promise];
 
             // If calendarID is available; try to load it, and push to the requests queue
             if( ModalManager.data.calendarID ){

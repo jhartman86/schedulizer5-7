@@ -1,15 +1,10 @@
 angular.module('schedulizer.app').
 
-    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$calendry', 'API',
-        function( $rootScope, $scope, $http, $calendry, API ){
+    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$cacheFactory', 'API',
+        function( $rootScope, $scope, $http, $cacheFactory, API ){
 
             // $scope.calendarID is ng-init'd from the view!
-
-            $scope.calendarSettings = {};
-
-            $scope.$watch('calendarSettings.currentMonth', function(val){
-                console.log($scope.calendarSettings);
-            });
+            var _cache = $cacheFactory('calendarData');
 
             /**
              * Receive a month map object from calendry and setup the request as
@@ -19,28 +14,27 @@ angular.module('schedulizer.app').
              * @private
              */
             function _fetch( monthMapObj ){
-                return $http.get(API._routes.generate('api.eventList', [$scope.calendarID]), {cache:false, params:{
+                return $http.get(API._routes.generate('api.eventList', [$scope.calendarID]), {cache:_cache, params:{
                     start: monthMapObj.calendarStart.format('YYYY-MM-DD'),
                     end: monthMapObj.calendarEnd.format('YYYY-MM-DD')
                 }});
             }
 
-
-            /**
-             * Callback to get the controller once the calendar is loaded.
-             */
-            $calendry('[calendry]', function( CalendryCtrl ){
-                CalendryCtrl.onMonthChange(function( map ){
-                    _fetch(map).then(function( resp ){
-                        CalendryCtrl.setEvents(resp.data);
+            $scope.instance = {
+                onMonthChange: function( monthMap ){
+                    _fetch(monthMap).then(function( resp ){
+                        $scope.instance.events = resp.data;
                     });
-                });
+                },
+                onDropEnd: function( landingMoment, eventObj ){
+                    console.log(landingMoment, eventObj);
+                }
+            };
 
-                // Listen for emitted changes
-                $rootScope.$on('calendar.refresh', function(){
-                    _fetch(CalendryCtrl.getMonthMap()).then(function( resp ){
-                        CalendryCtrl.setEvents(resp.data);
-                    });
+            $rootScope.$on('calendar.refresh', function(){
+                _cache.removeAll();
+                _fetch($scope.instance.monthMap, true).then(function( resp ){
+                    $scope.instance.events = resp.data;
                 });
             });
 
