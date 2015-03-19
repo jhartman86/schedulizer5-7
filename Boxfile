@@ -10,11 +10,6 @@ build:
   after_exec:
     - "php _quickstart/generate_proxies.php"
     - "cd web && ln -s application/files/sitemap.xml sitemap.xml"
-  before_deploy:
-    - "php _quickstart/purge_redis_cache.php"
-    - "php _quickstart/update_packages.php"
-  after_deploy:
-    - "rm -R web/application/files/cache 2>/dev/null; echo File Cache Cleared"
 
 web1:
   name: web
@@ -55,6 +50,11 @@ web1:
   network_dirs:
     storage1:
       - web/application/files
+  before_deploy:
+    - "php _quickstart/purge_redis_cache.php"
+    - "php _quickstart/update_packages.php"
+  after_deploy:
+    - "rm -R web/application/files/cache 2>/dev/null; echo File Cache Cleared"
 
 cache1:
   name: redis
