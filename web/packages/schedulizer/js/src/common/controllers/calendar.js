@@ -20,6 +20,10 @@ angular.module('schedulizer.app').
                 }});
             }
 
+            /**
+             * Handlers for calendry stuff.
+             * @type {{onMonthChange: Function, onDropEnd: Function}}
+             */
             $scope.instance = {
                 onMonthChange: function( monthMap ){
                     _fetch(monthMap).then(function( resp ){
@@ -31,6 +35,10 @@ angular.module('schedulizer.app').
                 }
             };
 
+            /**
+             * calendar.refresh IS NOT issued by the calendry directive; it comes
+             * from other things in the app.
+             */
             $rootScope.$on('calendar.refresh', function(){
                 _cache.removeAll();
                 _fetch($scope.instance.monthMap, true).then(function( resp ){
