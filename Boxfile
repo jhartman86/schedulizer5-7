@@ -51,8 +51,8 @@ web1:
     storage1:
       - web/application/files
   before_deploy:
-      - "php _quickstart/purge_redis_cache.php"
-      - "php _quickstart/update_packages.php"
+    - "php _quickstart/purge_redis_cache.php"
+    - "php _quickstart/update_packages.php"
   after_deploy:
     - "rm -R web/application/files/cache 2>/dev/null; echo File Cache Cleared"
 
