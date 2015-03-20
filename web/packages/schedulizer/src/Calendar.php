@@ -92,6 +92,13 @@
          * @return array|mixed
          */
         public function jsonSerialize(){
+            if( $this->id === null ){
+                $properties = (object) get_object_vars($this);
+                unset($properties->createdUTC);
+                unset($properties->modifiedUTC);
+                unset($properties->id);
+                return $properties;
+            }
             $properties                 = (object) get_object_vars($this);
             $properties->createdUTC     = $properties->createdUTC->format('c');
             $properties->modifiedUTC    = $properties->modifiedUTC->format('c');
