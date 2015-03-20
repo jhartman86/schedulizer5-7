@@ -1,8 +1,8 @@
-<?php namespace Schedulizer\Tests\Src {
+<?php namespace Schedulizer\Tests\Calendar {
 
     use \Concrete\Package\Schedulizer\Src\Calendar;
 
-    class CalendarTest extends \PHPUnit_Framework_TestCase {
+    class CalendarClassTest extends \PHPUnit_Framework_TestCase {
 
         protected $calendarObj;
 
@@ -68,11 +68,6 @@
             $this->assertObjectHasAttribute('title', $result);
             $this->assertObjectHasAttribute('ownerID', $result);
             $this->assertObjectHasAttribute('defaultTimezone', $result);
-        }
-
-        public function testDatabaseStuff(){
-            $calendarObj = Calendar::getByID(1);
-            print_r($calendarObj);
         }
 
     }

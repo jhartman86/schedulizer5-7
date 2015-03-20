@@ -1,4 +1,4 @@
-<?php namespace Schedulizer\Tests\Src\Bin {
+<?php namespace Schedulizer\Tests\Bin {
 
     use DateTime;
     use DateTimeZone;

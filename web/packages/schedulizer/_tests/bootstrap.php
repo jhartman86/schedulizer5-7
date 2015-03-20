@@ -44,5 +44,11 @@ $config->set('concrete.cache.enabled', false);
 include DIR_APPLICATION . '/bootstrap/app.php';
 $cms->setupPackages();
 
+// By default, lets make sure the package is installed...
+$packageObj = Concrete\Core\Package\Package::getByHandle('schedulizer');
+if( ! is_object($packageObj) ){
+    Concrete\Core\Package\Package::getClass('schedulizer')->install();
+}
+
 // Unset so it doesn't fuck w/ PHPUnit too hard
 unset($cms);

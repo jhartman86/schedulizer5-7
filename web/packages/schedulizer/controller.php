@@ -79,14 +79,16 @@
             parent::uninstall();
 
             try {
-                // delete mysql tables
-                $db = Loader::db();
-                $db->Execute("DROP TABLE SchedulizerCalendar");
-                //$db->Execute("DROP TABLE SchedulizerCalendarAttributeValues");
-                $db->Execute("DROP TABLE SchedulizerEvent");
-                $db->Execute("DROP TABLE SchedulizerEventRepeat");
-                //$db->Execute("DROP TABLE SchedulizerEventRepeatNullify");
-                //$db->Execute("DROP TABLE SchedulizerCalendarSearchIndexAttributes");
+                //$em = $this->getDatabaseStructureManager()->getEntityManager();
+
+//                // delete mysql tables
+//                $db = Loader::db();
+//                $db->Execute("DROP TABLE SchedulizerCalendar");
+//                //$db->Execute("DROP TABLE SchedulizerCalendarAttributeValues");
+//                $db->Execute("DROP TABLE SchedulizerEvent");
+//                $db->Execute("DROP TABLE SchedulizerEventRepeat");
+//                //$db->Execute("DROP TABLE SchedulizerEventRepeatNullify");
+//                //$db->Execute("DROP TABLE SchedulizerCalendarSearchIndexAttributes");
             }catch(Exception $e){
                 // fail gracefully
             }
