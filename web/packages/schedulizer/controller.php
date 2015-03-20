@@ -43,6 +43,9 @@
         public function on_start(){
             define('SCHEDULIZER_IMAGE_PATH', DIR_REL . '/packages/' . $this->pkgHandle . '/images/');
 
+            // Composer Autoloader
+            require __DIR__ . '/vendor/autoload.php';
+
             // @todo: add installation support tests for current timezone and provide notifications
             if( @date_default_timezone_get() !== 'UTC' ){
                 @date_default_timezone_set('UTC');
