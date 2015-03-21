@@ -3,15 +3,20 @@
     use \Concrete\Core\Package\Package;
 
     /**
-     * Class PackageTest
+     * Class PackageEntitiesTest
      * @package Schedulizer\Tests
-     * @todo checklist:
-     *  Package won't install on versions <5.7.3.2
-     *  Package install method creates proxy files
-     *  Package install creates database tables correctly
-     *  Package update doesn't wipe data
+     * @todo:
+     * ✓ Concrete5 Package class structureManager detects proxy files
+     * ✓ Doctrine detects and parses Calendar entity metadata
+     * ✓ Doctrine detects and parses Event entity metadata
+     * ✓ Doctrine detects and parses EventRepeat entity metadata
+     * ✓ Doctrine detects and parses EventRepeatNullify entity metadata
+     * ✓ Doctrine generates Proxy classes
+     * ✗ Destroy proxy classes?
      */
     class PackageEntitiesTest extends \PHPUnit_Framework_TestCase {
+
+        use \Schedulizer\Tests\EntityManagerTrait;
 
         const PROXY_PATH_AND_PREFIX         = DIR_CONFIG_SITE . '/doctrine/proxies/__CG__ConcretePackageSchedulizerSrc';
 
@@ -20,42 +25,47 @@
         protected $cNameEventRepeat         = 'Concrete\Package\Schedulizer\Src\EventRepeat';
         protected $cNameEventRepeatNullify  = 'Concrete\Package\Schedulizer\Src\EventRepeatNullify';
 
-        protected static $packageObj    = null;
-        protected static $structManager = null;
-        protected static $entityManager = null;
-        protected static $metadatas     = null;
+        protected $proxyClassesNukedAtStart = false;
 
-        public static function setUpBeforeClass(){
-            self::$packageObj    = Package::getClass('schedulizer');
-            self::$structManager = self::$packageObj->getDatabaseStructureManager();
-            self::$entityManager = self::$structManager->getEntityManager();
-            self::$metadatas     = self::$structManager->getMetadatas();
-            // NUKE ANY PREVIOUSLY GENERATED PROXY CLASSES!
-            self::$structManager->destroyProxyClasses('ConcretePackageSchedulizerSrc');
+
+        /**
+         * Runs before every test; but lets only destroy Proxy classes on the first run
+         * just to make sure they're gone.
+         * @throws \Exception
+         */
+        public function setUp(){
+            if( $this->proxyClassesNukedAtStart === false ){
+                $this->packageStructManager()->destroyProxyClasses('ConcretePackageSchedulizerSrc');
+                $this->proxyClassesNukedAtStart = true;
+            }
         }
 
-        public static function tearDownAfterClass(){
-            self::$structManager->destroyProxyClasses('ConcretePackageSchedulizerSrc');
+
+        /**
+         * Concrete5's custom structure manager detects entities in
+         * the package properly.
+         */
+        public function testCorePackageDetectionOfEntities(){
+            $this->assertTrue($this->packageStructManager()->hasEntities());
         }
 
         /**
-         * Make sure Concrete is doing its job...
+         * Calendar metadata being parsed by Doctrine?
          */
-        public function testCorePackageDetectionOfEntities(){
-            $this->assertTrue(self::$structManager->hasEntities());
-        }
-
         public function testCalendarClassEntityMetadataDetected(){
             $this->assertContains(
                 $this->cNameCalendar,
-                array_keys(self::$metadatas),
+                array_keys($this->packageMetadatas()),
                 'Doctrine metadata parser failed to parse Calendar'
             );
         }
 
+        /**
+         * Calendar metadata is parsed AND correct?
+         */
         public function testCalendarClassMetadataCorrect(){
             /** @var $metaDef \Doctrine\ORM\Mapping\ClassMetadata */
-            $metaDef = self::$entityManager->getClassMetadata($this->cNameCalendar);
+            $metaDef = $this->packageEntityManager()->getClassMetadata($this->cNameCalendar);
             $columns = $metaDef->getColumnNames();
             $this->assertContains('id', $columns);
             $this->assertContains('title', $columns);
@@ -65,17 +75,23 @@
             $this->assertContains('modifiedUTC', $columns);
         }
 
+        /**
+         * Event metadata being parsed by Doctrine?
+         */
         public function testEventClassEntityMetadataDetected(){
             $this->assertContains(
                 $this->cNameEvent,
-                array_keys(self::$metadatas),
+                array_keys($this->packageMetadatas()),
                 'Doctrine metadata parser failed to parse Event'
             );
         }
 
+        /**
+         * Event metadata being parsed AND correct?
+         */
         public function testEventClassMetadataCorrect(){
             /** @var $metaDef \Doctrine\ORM\Mapping\ClassMetadata */
-            $metaDef = self::$entityManager->getClassMetadata($this->cNameEvent);
+            $metaDef = $this->packageEntityManager()->getClassMetadata($this->cNameEvent);
             $columns = $metaDef->getColumnNames();
             $this->assertContains('id', $columns);
             $this->assertContains('calendarID', $columns);
@@ -98,17 +114,23 @@
             $this->assertContains('modifiedUTC', $columns);
         }
 
+        /**
+         * EventRepeat metadata being parsed by Doctrine?
+         */
         public function testEventRepeatClassEntityMetadataDetected(){
             $this->assertContains(
                 $this->cNameEventRepeat,
-                array_keys(self::$metadatas),
+                array_keys($this->packageMetadatas()),
                 'Doctrine metadata parser failed to parse EventRepeat'
             );
         }
 
+        /**
+         * EventRepeat metadata being parsed AND correct?
+         */
         public function testEventRepeatClassMetadataCorrect(){
             /** @var $metaDef \Doctrine\ORM\Mapping\ClassMetadata */
-            $metaDef = self::$entityManager->getClassMetadata($this->cNameEventRepeat);
+            $metaDef = $this->packageEntityManager()->getClassMetadata($this->cNameEventRepeat);
             $columns = $metaDef->getColumnNames();
             $this->assertContains('id', $columns);
             $this->assertContains('eventID', $columns);
@@ -117,32 +139,33 @@
             $this->assertContains('repeatWeekday', $columns);
         }
 
+        /**
+         * EventRepeatNullify metadata being parsed by Doctrine?
+         */
         public function testEventRepeatNullifyClassEntityMetadataDetected(){
             $this->assertContains(
                 $this->cNameEventRepeatNullify,
-                array_keys(self::$metadatas),
+                array_keys($this->packageMetadatas()),
                 'Doctrine metadata parser failed to parse EventRepeatNullify'
             );
         }
 
+        /**
+         * EventRepeatNullify metadata being parsed AND correct?
+         */
         public function testEventRepeatNullifyClassMetadataCorrect(){
             /** @var $metaDef \Doctrine\ORM\Mapping\ClassMetadata */
-            $metaDef = self::$entityManager->getClassMetadata($this->cNameEventRepeatNullify);
+            $metaDef = $this->packageEntityManager()->getClassMetadata($this->cNameEventRepeatNullify);
             $columns = $metaDef->getColumnNames();
             $this->assertContains('eventID', $columns);
             $this->assertContains('hideOnDate', $columns);
         }
 
-
         /**
-         * Works just fine... need to test?
+         * Creates Proxy Class files OK?
          */
-        public function testDestroyingProxyClasses(){
-
-        }
-
         public function testCreatingProxyClasses(){
-            self::$structManager->generateProxyClasses();
+            $this->packageStructManager()->generateProxyClasses();
             $this->assertFileExists(sprintf('%sCalendar.php', self::PROXY_PATH_AND_PREFIX));
             $this->assertFileExists(sprintf('%sEvent.php', self::PROXY_PATH_AND_PREFIX));
             $this->assertFileExists(sprintf('%sEventRepeat.php', self::PROXY_PATH_AND_PREFIX));

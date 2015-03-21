@@ -4,17 +4,17 @@
         <testsuite name="Schedulizer: API">
             <directory>./Tests/Api</directory>
         </testsuite>
-        <!--<testsuite name="Schedulizer: Package">
+        <testsuite name="Schedulizer: Package">
             <directory>./Tests/Package</directory>
         </testsuite>
         <testsuite name="Schedulizer: Bin">
             <directory>./Tests/Bin</directory>
-        </testsuite>-->
-        <!--<testsuite name="Schedulizer: Calendar">-->
-            <!--<directory>./Tests/Calendar</directory>-->
-        <!--</testsuite>-->
-        <!--<testsuite name="Schedulizer: Event">-->
-            <!--<directory>./Tests/Event</directory>-->
-        <!--</testsuite>-->
+        </testsuite>
+        <testsuite name="Schedulizer: Event">
+            <directory>./Tests/Event</directory>
+        </testsuite>
+        <testsuite name="Schedulizer: Calendar">
+            <directory>./Tests/Calendar</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

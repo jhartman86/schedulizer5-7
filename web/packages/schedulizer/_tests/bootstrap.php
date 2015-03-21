@@ -6,6 +6,7 @@
  * developing on. These will WIPE OUT wherever your at.
  * @ref: https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
  * @ref: http://code.tutsplus.com/tutorials/all-about-mocking-with-phpunit--net-27252
+ * @ref: http://jamesmcfadden.co.uk/phpunit-and-doctrine-2-orm-caching-issues/
  */
 
 use Concrete\Core\Config\Repository;

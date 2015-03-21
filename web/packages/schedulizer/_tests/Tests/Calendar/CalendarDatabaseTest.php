@@ -1,28 +1,24 @@
 <?php namespace Schedulizer\Tests\Calendar {
 
     use Concrete\Package\Schedulizer\Src\Calendar;
-    use Concrete\Core\Package\Package;
     use \Doctrine\ORM\Tools\SchemaTool;
 
     /**
      * Class CalendarDatabaseTest
-     * @see http://jamesmcfadden.co.uk/phpunit-and-doctrine-2-orm-caching-issues/
      * @package Schedulizer\Tests\Calendar
      */
     class CalendarDatabaseTest extends \Schedulizer\Tests\DatabaseTestCase {
 
+        use \Schedulizer\Tests\EntityManagerTrait;
+
         const TABLE_NAME = 'SchedulizerCalendar';
 
-        protected static $packageObj    = null;
-        protected static $structManager = null;
-        protected static $entityManager = null;
-        protected static $metadatas     = null;
-
         public static function setUpBeforeClass(){
-            self::$packageObj    = Package::getClass('schedulizer');
-            self::$structManager = self::$packageObj->getDatabaseStructureManager();
-            self::$entityManager = self::$structManager->getEntityManager();
-            self::$metadatas     = self::$structManager->getMetadatas();
+            $static       = new self();
+            $calendarMeta = array($static->packageMetadatas('Concrete\Package\Schedulizer\Src\Calendar'));
+            $schemaTool   = new SchemaTool($static->packageEntityManager());
+            $schemaTool->dropSchema($calendarMeta);
+            $schemaTool->createSchema($calendarMeta);
         }
 
         /**
@@ -30,25 +26,21 @@
          * create for each test.
          */
         public function setUp(){
-            $schemaTool = new SchemaTool(self::$entityManager);
-            $schemaTool->dropSchema(self::$metadatas);
-            $schemaTool->createSchema(self::$metadatas);
+            // $this->packageEntityManager()->clear() ?
             parent::setUp();
-//            $structManager = Package::getByHandle('schedulizer')->getDatabaseStructureManager();
-//            $entityManager = $structManager->getEntityManager();
-//            $entityManager->clear();
-//            $schemaTool = new SchemaTool($entityManager);
-//            $entities   = $structManager->getMetadatas();
-//            $schemaTool->dropSchema($entities);
-//            $schemaTool->createSchema($entities);
-//            parent::setUp();
         }
 
+        /**
+         * GetByID method returns a calendar instance
+         */
         public function testCalendarGetsInstanceByID(){
             $instance = Calendar::getByID(1);
             $this->assertInstanceOf('Concrete\Package\Schedulizer\Src\Calendar', $instance);
         }
 
+        /**
+         * GetByID returns a POPULATED calendar instance
+         */
         public function testCalendarDataHydrationByDoctrine(){
             /** @var $instance \Concrete\Package\Schedulizer\Src\Calendar */
             $instance = Calendar::getByID(1);
@@ -60,6 +52,9 @@
             $this->assertInstanceOf('DateTime', $instance->getModifiedUTC());
         }
 
+        /**
+         * Calendar is persisted on create
+         */
         public function testCalendarCreate(){
             $rowsBefore = $this->getConnection()->getRowCount(self::TABLE_NAME);
             Calendar::create(array(
@@ -70,21 +65,37 @@
             $this->assertEquals(($rowsBefore + 1), $this->getConnection()->getRowCount(self::TABLE_NAME), 'Inserting Calendar Failed');
         }
 
+        /**
+         * Calendar record is actually removed from the db
+         */
         public function testCalendarDelete(){
             $rowsBefore = $this->getConnection()->getRowCount(self::TABLE_NAME);
             Calendar::getByID(1)->delete();
             $this->assertEquals(($rowsBefore - 1), $this->getConnection()->getRowCount(self::TABLE_NAME), 'Deleting Calendar Failed');
         }
 
+        /**
+         * Updating an existing calendar instance is persisted properly
+         * @todo: this one is tricky since the modifiedUTC method SHOULD be different; for
+         * now we're just ommitting the result
+         */
         public function testCalendarUpdateIsPersisted(){
             Calendar::getByID(1)->update(array(
                 'title'             => 'FancyPants',
                 'defaultTimezone'   => 'Canada',
                 'ownerID'           => 1999
             ));
-            $resultingTable = $this->getConnection()->createQueryTable(self::TABLE_NAME, "SELECT * FROM SchedulizerCalendar WHERE id = 1");
-            $expectedTable  = $this->getDataSet('CalendarDatabaseUpdate')->getTable(self::TABLE_NAME);
-            $this->assertTablesEqual($expectedTable, $resultingTable);
+
+            // Load another dataset into a data set filter
+            $expectedTable = new \PHPUnit_Extensions_Database_DataSet_DataSetFilter($this->getDataSet('CalendarDatabaseUpdate'));
+            $expectedTable->setExcludeColumnsForTable('SchedulizerCalendar', array('modifiedUTC'));
+
+            // Query for result WITHOUT modifiedUTC column
+            $resultingTable = $this->getConnection()->createQueryTable(self::TABLE_NAME,
+                "SELECT id, title, ownerID, defaultTimezone, createdUTC FROM SchedulizerCalendar WHERE id = 1"
+            );
+
+            $this->assertTablesEqual($expectedTable->getTable(self::TABLE_NAME), $resultingTable);
         }
 
     }
