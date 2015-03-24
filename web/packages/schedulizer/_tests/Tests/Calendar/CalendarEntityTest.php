@@ -2,7 +2,7 @@
 
     use \Concrete\Package\Schedulizer\Src\Calendar;
 
-    class CalendarClassTest extends \PHPUnit_Framework_TestCase {
+    class CalendarEntityTest extends \PHPUnit_Framework_TestCase {
 
         protected $calendarObj;
 

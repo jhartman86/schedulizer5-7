@@ -21,6 +21,10 @@
             $schemaTool->createSchema($calendarMeta);
         }
 
+        public static function tearDownAfterClass(){
+            self::setUpBeforeClass();
+        }
+
         /**
          * Use Doctrine's destroy/create schema facilities to destroy and
          * create for each test.

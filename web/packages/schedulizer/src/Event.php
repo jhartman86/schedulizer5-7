@@ -218,10 +218,108 @@
         }
 
         /**
+         * @return int|null
+         */
+        public function getCalendarID(){
+            return $this->calendarID;
+        }
+
+        /**
          * @return string
          */
         public function getTitle(){
             return $this->title;
+        }
+
+        /**
+         * @return string|null
+         */
+        public function getDescription(){
+            return $this->description;
+        }
+
+        /**
+         * @return DateTime|null
+         */
+        public function getStartUTC(){
+            return $this->startUTC;
+        }
+
+        /**
+         * @return DateTime|null
+         */
+        public function getEndUTC(){
+            return $this->endUTC;
+        }
+
+        /**
+         * @return bool|null
+         */
+        public function getIsAllDay(){
+            return $this->isAllDay;
+        }
+
+        /**
+         * @return bool|null
+         */
+        public function getUseCalendarTimezone(){
+            return $this->useCalendarTimezone;
+        }
+
+        /**
+         * @return string|null
+         */
+        public function getTimezoneName(){
+            return $this->timezoneName;
+        }
+
+        /**
+         * @return string|null
+         */
+        public function getEventColor(){
+            return $this->eventColor;
+        }
+
+        /**
+         * @return bool|null
+         */
+        public function getIsRepeating(){
+            return $this->isRepeating;
+        }
+
+        /**
+         * @return string|null
+         */
+        public function getRepeatTypeHandle(){
+            return $this->repeatTypeHandle;
+        }
+
+        /**
+         * @return int|null
+         */
+        public function getRepeatEvery(){
+            return $this->repeatEvery;
+        }
+
+        /**
+         * @return bool|null
+         */
+        public function getRepeatIndefinite(){
+            return $this->repeatIndefinite;
+        }
+
+        /**
+         * @return DateTime|null
+         */
+        public function getRepeatEndUTC(){
+            return $this->repeatEndUTC;
+        }
+
+        /**
+         * @return int|null
+         */
+        public function getRepeatMonthlyMethod(){
+            return $this->repeatMonthlyMethod;
         }
 
         /**
