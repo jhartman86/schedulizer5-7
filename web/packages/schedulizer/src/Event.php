@@ -24,17 +24,17 @@
         use Bin\Traits\Persistable, Bin\Traits\Unique;
 
                 // timezone overrides
-        const   USE_CALENDAR_TIMEZONE_TRUE      = 1,
-                USE_CALENDAR_TIMEZONE_FALSE     = 0,
+        const   USE_CALENDAR_TIMEZONE_TRUE      = true,
+                USE_CALENDAR_TIMEZONE_FALSE     = false,
                 // all day booleans
-                ALL_DAY_TRUE                    = 1,
-                ALL_DAY_FALSE                   = 0,
+                ALL_DAY_TRUE                    = true,
+                ALL_DAY_FALSE                   = false,
                 // is recurring booleans
-                IS_REPEATING_TRUE               = 1,
-                IS_REPEATING_FALSE              = 0,
+                IS_REPEATING_TRUE               = true,
+                IS_REPEATING_FALSE              = false,
                 // indefinite?
-                REPEAT_INDEFINITE_TRUE          = 1,
-                REPEAT_INDEFINITE_FALSE         = 0,
+                REPEAT_INDEFINITE_TRUE          = true,
+                REPEAT_INDEFINITE_FALSE         = false,
                 // repeat monthly (specific day or "3rd {monday}"
                 REPEAT_MONTHLY_SPECIFIC_DATE    = 1,
                 REPEAT_MONTHLY_WEEK_AND_DAY     = 0,
@@ -44,8 +44,8 @@
                 REPEAT_TYPE_HANDLE_MONTHLY      = 'monthly',
                 REPEAT_TYPE_HANDLE_YEARLY       = 'yearly',
                 // alias? (only used when editing recurring events that are not the original)
-                IS_ALIAS_TRUE                   = 1,
-                IS_ALIAS_FALSE                  = 0;
+                IS_ALIAS_TRUE                   = true,
+                IS_ALIAS_FALSE                  = false;
 
         /**
          * @Column(type="integer", nullable=false, options={"unsigned":true})
@@ -73,7 +73,12 @@
         protected $endUTC;
 
         /**
-         * @Column(type="boolean", nullable=false, options={"default":1})
+         * @Column(type="boolean", nullable=true, options={"default":0})
+         */
+        protected $isOpenEnded;
+
+        /**
+         * @Column(type="boolean", nullable=true, options={"default":0})
          */
         protected $isAllDay;
 
@@ -128,6 +133,49 @@
         protected $ownerID;
 
         /**
+         * @Column(type="integer", nullable=true, options={"unsigned":true})
+         */
+        protected $fileID;
+
+//        /**
+//         * @ManyToMany(targetEntity="\Concrete\Package\Schedulizer\Src\EventTag", inversedBy="eventTags", cascade={"persist", "merge", "refresh"})
+//         * @JoinTable(name="SchedulizerTaggedEvents",
+//         *  joinColumns={@JoinColumn(name="eventID", referencedColumnName="id")},
+//         *  inverseJoinColumns={@JoinColumn(name="tagID", referencedColumnName="id")}
+//         * )
+//         */
+//        protected $eventTags;
+//
+//        /**
+//         * @param EventTag $tag
+//         */
+//        public function addTag( EventTag $tag ){
+//            $tag->addEvent($this);
+//            $this->eventTags[] = $tag;
+//        }
+//
+//        public function getEventtags(){
+//            return $this->eventTags;
+//        }
+
+        /**
+         * @OneToMany(targetEntity="\Concrete\Package\Schedulizer\Src\EventRepeat", mappedBy="event", cascade={"all"})
+         */
+        protected $eventRepeaterSettings;
+
+        public function addRepeatSetting( EventRepeat $repeater ){
+//            if( !($this->eventRepeaterSettings instanceof \Doctrine\Common\Collections\ArrayCollection) ){
+//                $this->eventRepeaterSettings = new \Doctrine\Common\Collections\ArrayCollection();
+//            }
+            $repeater->setEventObject($this);
+            $this->eventRepeaterSettings->add($repeater);
+        }
+
+        public function getRepeatSettings(){
+            return $this->eventRepeaterSettings;
+        }
+
+        /**
          * @PrePersist
          * @PreUpdate
          */
@@ -172,41 +220,42 @@
          * @PostUpdate
          */
         public function postPersistEvent(){
-            EventRepeat::purgeByID($this->id);
-
-            if( $this->isRepeating ){
-                switch( $this->repeatTypeHandle ){
-                    case self::REPEAT_TYPE_HANDLE_DAILY:
-                    case self::REPEAT_TYPE_HANDLE_YEARLY:
-                        EventRepeat::create(array('eventID' => $this->id));
-                        break;
-
-                    case self::REPEAT_TYPE_HANDLE_WEEKLY:
-                        if( is_object($this->repeatSettings) && !empty($this->repeatSettings->weekdayIndices) ){
-                            foreach($this->repeatSettings->weekdayIndices AS $weekdayIndex){
-                                EventRepeat::create(array('eventID' => $this->id, 'repeatWeekday' => $weekdayIndex));
-                            }
-                        }
-                        break;
-
-                    case self::REPEAT_TYPE_HANDLE_MONTHLY:
-                        // If its repeating only on a specific date(eg. "21st" of every month)
-                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_SPECIFIC_DATE ){
-                            EventRepeat::create(array('eventID' => $this->id, 'repeatDay' => $this->repeatSettings->monthlySpecificDay));
-                            // Its repeating on an abstract (eg. "Second Thursday" of every month)
-                        }else{
-                            EventRepeat::create(array('eventID' => $this->id, 'repeatWeek' => $this->repeatSettings->monthlyDynamicWeek, 'repeatWeekday' => $this->repeatSettings->monthlyDynamicWeekday));
-                        }
-                        break;
-                }
-            }
+//            EventRepeat::purgeByID($this->id);
+//
+//            if( $this->isRepeating ){
+//                switch( $this->repeatTypeHandle ){
+//                    case self::REPEAT_TYPE_HANDLE_DAILY:
+//                    case self::REPEAT_TYPE_HANDLE_YEARLY:
+//                        EventRepeat::create(array('eventID' => $this->id));
+//                        break;
+//
+//                    case self::REPEAT_TYPE_HANDLE_WEEKLY:
+//                        if( is_object($this->repeatSettings) && !empty($this->repeatSettings->weekdayIndices) ){
+//                            foreach($this->repeatSettings->weekdayIndices AS $weekdayIndex){
+//                                EventRepeat::create(array('eventID' => $this->id, 'repeatWeekday' => $weekdayIndex));
+//                            }
+//                        }
+//                        break;
+//
+//                    case self::REPEAT_TYPE_HANDLE_MONTHLY:
+//                        // If its repeating only on a specific date(eg. "21st" of every month)
+//                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_SPECIFIC_DATE ){
+//                            EventRepeat::create(array('eventID' => $this->id, 'repeatDay' => $this->repeatSettings->monthlySpecificDay));
+//                            // Its repeating on an abstract (eg. "Second Thursday" of every month)
+//                        }else{
+//                            EventRepeat::create(array('eventID' => $this->id, 'repeatWeek' => $this->repeatSettings->monthlyDynamicWeek, 'repeatWeekday' => $this->repeatSettings->monthlyDynamicWeekday));
+//                        }
+//                        break;
+//                }
+//            }
         }
 
         /**
          * Constructor
          */
         public function __construct(){
-
+            $this->eventRepeaterSettings = new \Doctrine\Common\Collections\ArrayCollection();
+            //$this->eventTags = new \Doctrine\Common\Collections\ArrayCollection();
         }
 
 
@@ -327,6 +376,13 @@
          */
         public function getOwnerID(){
             return $this->ownerID;
+        }
+
+        /**
+         * @return int|null
+         */
+        public function getFileID(){
+            return $this->fileID;
         }
 
         /**

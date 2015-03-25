@@ -90,7 +90,7 @@
         public function save(){
             $this->entityManager()->persist( $this );
             $this->entityManager()->flush();
-            $this->entityManager()->clear();
+            //$this->entityManager()->clear();
             return $this;
         }
 

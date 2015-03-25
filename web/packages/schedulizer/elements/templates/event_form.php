@@ -157,6 +157,15 @@
             </div>
         </div>
 
+        <!-- file picker -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="ccm-file-selector" data-file-selector="fileID"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- event colors -->
         <div class="row">
             <div class="col-sm-12">

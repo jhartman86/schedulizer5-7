@@ -48,6 +48,12 @@ angular.module('schedulizer.app').
                         repeatEndUTC                : ModalManager.data.eventObj.endUTC || new Date(),
                         repeatMonthlyMethod         : $scope.repeatMonthlyMethodOptions.specific
                     }));
+
+                    jQuery('[data-file-selector="fileID"]').concreteFileSelector({
+                        'inputName': 'fileID',
+                        'filters': [{"field":"type","type":1}]
+                    });
+
                     $scope._ready = true;
                 });
             }
@@ -61,6 +67,13 @@ angular.module('schedulizer.app').
                 $q.all(_requests).then(function( returned ){
                     $scope.timezoneOptions = returned[0];
                     $scope.entity = returned[1];
+
+                    jQuery('[data-file-selector="fileID"]').concreteFileSelector({
+                        'inputName': 'fileID',
+                        'fID': $scope.entity.fileID,
+                        'filters': [{"field":"type","type":1}]
+                    });
+
                     $scope._ready = true;
                 });
             }
@@ -114,6 +127,9 @@ angular.module('schedulizer.app').
              */
             $scope.submitHandler = function(){
                 angular.extend($scope.entity, {repeatSettings:$scope.repeatSettings});
+
+                // File picker specific
+                $scope.entity.fileID = parseInt(jQuery('input[type="hidden"]', '.ccm-file-selector').val()) || null;
 
                 $scope._requesting = true;
                 // If entity already has ID, $update, otherwise $save (create), and bind callback

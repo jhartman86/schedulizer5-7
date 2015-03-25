@@ -7,15 +7,16 @@
     class Manage extends DashboardController {
 
         public function view( $calendarID = null ){
-            $calendarObj = Calendar::getByID( $calendarID );
-
-            if( is_object($calendarObj) ){
-                $this->set('calendarObj', $calendarObj);
-                $this->set('pageTitle', $calendarObj->getTitle());
-                return;
+            try {
+                $calendarObj = Calendar::getByID( $calendarID );
+                if( is_object($calendarObj) ){
+                    $this->set('calendarObj', $calendarObj);
+                    $this->set('pageTitle', $calendarObj->getTitle());
+                    return;
+                }
+            }catch(\Exception $e){
+                $this->redirect('/dashboard/schedulizer/calendars');
             }
-
-            $this->redirect('/dashboard/schedulizer/calendars');
         }
 
     }

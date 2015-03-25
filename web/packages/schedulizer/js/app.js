@@ -83,237 +83,19 @@ angular.module('calendry', []);
 
 angular.module('schedulizer.app').
 
-    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$cacheFactory', 'API',
-        function( $rootScope, $scope, $http, $cacheFactory, API ){
-
-            // $scope.calendarID is ng-init'd from the view!
-            var _cache = $cacheFactory('calendarData');
-
-            /**
-             * Receive a month map object from calendry and setup the request as
-             * you see fit.
-             * @param monthMapObj
-             * @returns {HttpPromise}
-             * @private
-             */
-            function _fetch( monthMapObj ){
-                return $http.get(API._routes.generate('api.eventList', [$scope.calendarID]), {cache:_cache, params:{
-                    start: monthMapObj.calendarStart.format('YYYY-MM-DD'),
-                    end: monthMapObj.calendarEnd.format('YYYY-MM-DD')
-                }});
+    /**
+     * @description MomentJS provider
+     * @param $window
+     * @param $log
+     * @returns Moment | false
+     */
+    provider('_moment', function(){
+        this.$get = ['$window', '$log',
+            function( $window, $log ){
+                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
             }
-
-            /**
-             * Handlers for calendry stuff.
-             * @type {{onMonthChange: Function, onDropEnd: Function}}
-             */
-            $scope.instance = {
-                onMonthChange: function( monthMap ){
-                    _fetch(monthMap).then(function( resp ){
-                        $scope.instance.events = resp.data;
-                    });
-                },
-                onDropEnd: function( landingMoment, eventObj ){
-                    console.log(landingMoment, eventObj);
-                }
-            };
-
-            /**
-             * calendar.refresh IS NOT issued by the calendry directive; it comes
-             * from other things in the app.
-             */
-            $rootScope.$on('calendar.refresh', function(){
-                _cache.removeAll();
-                _fetch($scope.instance.monthMap, true).then(function( resp ){
-                    $scope.instance.events = resp.data;
-                });
-            });
-
-        }
-    ]);
-angular.module('schedulizer.app').
-
-    controller('CtrlCalendarForm', ['$scope', '$q', '$window', 'ModalManager', 'API',
-        function( $scope, $q, $window, ModalManager, API ){
-
-            // Show loading message
-            $scope._ready       = false;
-            $scope._requesting  = false;
-
-            // Create requests promise queue, always loading available timezones list
-            var _requests = [API.timezones.get().$promise];
-
-            // If calendarID is available; try to load it, and push to the requests queue
-            if( ModalManager.data.calendarID ){
-                _requests.push(API.calendar.get({id:ModalManager.data.calendarID}).$promise);
-            }
-
-            // When all requests are finished; proceed...
-            $q.all(_requests).then(function( returned ){
-                $scope.timezoneOptions = returned[0];
-                $scope.entity = returned[1] || new API.calendar({
-                    defaultTimezone: $scope.timezoneOptions[$scope.timezoneOptions.indexOf('America/Denver')]
-                });
-                $scope._ready = true;
-            }, function( resp ){
-                console.log(resp);
-            });
-
-            // Save the resource
-            $scope.submitHandler = function(){
-                $scope._requesting = true;
-                // If entity already has ID, $update, otherwise $save (create), and bind callback
-                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
-                    function( resp ){
-                        $scope._requesting = false;
-                        $window.location.href = API._routes.generate('dashboard',['calendars','manage',resp.id]);
-                    }
-                );
-            };
-        }
-    ]);
-angular.module('schedulizer.app').
-
-    controller('CtrlEventForm', ['$rootScope', '$scope', '$q', '$filter', 'Helpers', 'ModalManager', 'API', '_moment',
-        function( $rootScope, $scope, $q, $filter, Helpers, ModalManager, API, _moment ){
-
-            $scope._ready                               = false;
-            $scope._requesting                          = false;
-            $scope.repeatTypeHandleOptions              = Helpers.eventDefaults.repeatTypeHandleOptions;
-            $scope.repeatIndefiniteOptions              = Helpers.eventDefaults.repeatIndefiniteOptions;
-            $scope.weekdayRepeatOptions                 = Helpers.eventDefaults.weekdayRepeatOptions;
-            $scope.repeatMonthlyMethodOptions           = Helpers.eventDefaults.repeatMonthlyMethodOptions;
-            $scope.repeatMonthlySpecificDayOptions      = Helpers.range(1,31);
-            $scope.repeatMonthlyDynamicWeekOptions      = Helpers.eventDefaults.repeatMonthlyDynamicWeekOptions;
-            $scope.repeatMonthlyDynamicWeekdayOptions   = Helpers.eventDefaults.repeatMonthlyDynamicWeekdayOptions;
-            $scope.eventColorOptions                    = Helpers.eventDefaults.eventColorOptions;
-
-            // Did the user click to edit an event that's an alias?
-            $scope.warnAliased = ModalManager.data.eventObj.aliased || false;
-
-            // If aliased, show the message
-            if( $scope.warnAliased ){
-                $scope._ready = true;
-            }
-
-            var _requests = [
-                API.timezones.get().$promise
-            ];
-
-            // If a calendarID is passed by the ModalManager in the eventObj, its a NEW event
-            if( ModalManager.data.eventObj.calendarID ){
-                _requests.push(API.calendar.get({id:ModalManager.data.eventObj.calendarID}).$promise);
-
-                $q.all(_requests).then(function( returned ){
-                    $scope.timezoneOptions = returned[0];
-                    $scope.entity = new API.event(angular.extend(ModalManager.data.eventObj, {
-                        title                       : null,
-                        description                 : null,
-                        startUTC                    : _moment(),
-                        endUTC                      : _moment(),
-                        isAllDay                    : false,
-                        useCalendarTimezone         : true,
-                        timezoneName                : returned[1].defaultTimezone,
-                        eventColor                  : $scope.eventColorOptions[0].value,
-                        isRepeating                 : false,
-                        repeatTypeHandle            : $scope.repeatTypeHandleOptions[0].value,
-                        repeatEvery                 : 1,
-                        repeatIndefinite            : $scope.repeatIndefiniteOptions[0].value,
-                        repeatEndUTC                : ModalManager.data.eventObj.endUTC || new Date(),
-                        repeatMonthlyMethod         : $scope.repeatMonthlyMethodOptions.specific
-                    }));
-                    $scope._ready = true;
-                });
-            }
-
-            // Otherwise, we're editing an existing one
-            // @todo: on receiving object data, convert start/endUTC to moment
-            // object immediately
-            if( ModalManager.data.eventObj.id ){
-                _requests.push(API.event.get({id:ModalManager.data.eventObj.id}).$promise);
-
-                $q.all(_requests).then(function( returned ){
-                    $scope.timezoneOptions = returned[0];
-                    $scope.entity = returned[1];
-                    $scope._ready = true;
-                });
-            }
-
-            // These don't map directly to an eventObj; but are used in defining it
-            $scope.repeatSettings = {
-                weekdayIndices          : [],
-                monthlySpecificDay      : 1,
-                monthlyDynamicWeek      : $scope.repeatMonthlyDynamicWeekOptions[0].value,
-                monthlyDynamicWeekday   : $scope.repeatMonthlyDynamicWeekdayOptions[0].value
-            };
-
-            $scope.selectedWeekdays = function(){
-                var selected = $filter('filter')($scope.weekdayRepeatOptions, {checked: true});
-                $scope.repeatSettings.weekdayIndices = selected.map(function( object ){
-                    return object.value;
-                });
-            };
-
-            $scope.$watch('entity.repeatTypeHandle', function( val ){
-                switch(val){
-                    case $scope.repeatTypeHandleOptions[0].value: // daily
-                        $scope.repeatEveryOptions = Helpers.range(1,31);
-                        break;
-                    case $scope.repeatTypeHandleOptions[1].value: // weekly
-                        $scope.repeatEveryOptions = Helpers.range(1,30);
-                        break;
-                    case $scope.repeatTypeHandleOptions[2].value: // monthly
-                        $scope.repeatEveryOptions = Helpers.range(1,11);
-                        break;
-                    case $scope.repeatTypeHandleOptions[3].value: // yearly
-                        $scope.repeatEveryOptions = Helpers.range(1,5);
-                        break;
-                }
-            });
-
-            $scope.$watch('entity.startUTC', function( dateObj ){
-                if( dateObj ){
-                    $scope.calendarEndMinDate = _moment(dateObj).subtract(1, 'day');
-
-                    if( _moment($scope.entity.endUTC).isBefore(_moment($scope.entity.startUTC)) ){
-                        $scope.entity.endUTC = _moment($scope.entity.startUTC);
-                    }
-                }
-            });
-
-            /**
-             * Submit handler
-             * @todo: before sending, adjust entity start/endUTC props to moment
-             * objects and ensure sending correctly (as UTC?)
-             */
-            $scope.submitHandler = function(){
-                angular.extend($scope.entity, {repeatSettings:$scope.repeatSettings});
-
-                $scope._requesting = true;
-                // If entity already has ID, $update, otherwise $save (create), and bind callback
-                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
-                    function( resp ){
-                        $scope._requesting = false;
-                        $rootScope.$emit('calendar.refresh');
-                        ModalManager.classes.open = false;
-                    }
-                );
-            };
-
-            /**
-             * Delete the entity.
-             */
-            $scope.confirmDelete = false;
-            $scope.deleteEvent = function(){
-                $scope.entity.$delete().then(function( resp ){
-                    if( resp.ok ){
-                        $rootScope.$emit('calendar.refresh');
-                        ModalManager.classes.open = false;
-                    }
-                });
-            };
-        }
-    ]);
+        ];
+    });
 angular.module('schedulizer.app').
 
     directive('calendar', ['$rootScope', '_moment', 'ModalManager', 'Routes',
@@ -614,6 +396,18 @@ angular.module('schedulizer.app').
     }]);
 angular.module('schedulizer.app').
 
+    filter('numberContraction', function($filter) {
+
+        var suffixes = ["th", "st", "nd", "rd"];
+
+        return function(input) {
+            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
+            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
+            return suffix;
+        };
+    });
+angular.module('schedulizer.app').
+
     factory('Helpers', function factory(){
 
         function _range( start, end ){
@@ -682,19 +476,253 @@ angular.module('schedulizer.app').
     });
 angular.module('schedulizer.app').
 
-    /**
-     * @description MomentJS provider
-     * @param $window
-     * @param $log
-     * @returns Moment | false
-     */
-    provider('_moment', function(){
-        this.$get = ['$window', '$log',
-            function( $window, $log ){
-                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
+    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$cacheFactory', 'API',
+        function( $rootScope, $scope, $http, $cacheFactory, API ){
+
+            // $scope.calendarID is ng-init'd from the view!
+            var _cache = $cacheFactory('calendarData');
+
+            /**
+             * Receive a month map object from calendry and setup the request as
+             * you see fit.
+             * @param monthMapObj
+             * @returns {HttpPromise}
+             * @private
+             */
+            function _fetch( monthMapObj ){
+                return $http.get(API._routes.generate('api.eventList', [$scope.calendarID]), {cache:_cache, params:{
+                    start: monthMapObj.calendarStart.format('YYYY-MM-DD'),
+                    end: monthMapObj.calendarEnd.format('YYYY-MM-DD')
+                }});
             }
-        ];
-    });
+
+            /**
+             * Handlers for calendry stuff.
+             * @type {{onMonthChange: Function, onDropEnd: Function}}
+             */
+            $scope.instance = {
+                onMonthChange: function( monthMap ){
+                    _fetch(monthMap).then(function( resp ){
+                        $scope.instance.events = resp.data;
+                    });
+                },
+                onDropEnd: function( landingMoment, eventObj ){
+                    console.log(landingMoment, eventObj);
+                }
+            };
+
+            /**
+             * calendar.refresh IS NOT issued by the calendry directive; it comes
+             * from other things in the app.
+             */
+            $rootScope.$on('calendar.refresh', function(){
+                _cache.removeAll();
+                _fetch($scope.instance.monthMap, true).then(function( resp ){
+                    $scope.instance.events = resp.data;
+                });
+            });
+
+        }
+    ]);
+angular.module('schedulizer.app').
+
+    controller('CtrlCalendarForm', ['$scope', '$q', '$window', 'ModalManager', 'API',
+        function( $scope, $q, $window, ModalManager, API ){
+
+            // Show loading message
+            $scope._ready       = false;
+            $scope._requesting  = false;
+
+            // Create requests promise queue, always loading available timezones list
+            var _requests = [API.timezones.get().$promise];
+
+            // If calendarID is available; try to load it, and push to the requests queue
+            if( ModalManager.data.calendarID ){
+                _requests.push(API.calendar.get({id:ModalManager.data.calendarID}).$promise);
+            }
+
+            // When all requests are finished; proceed...
+            $q.all(_requests).then(function( returned ){
+                $scope.timezoneOptions = returned[0];
+                $scope.entity = returned[1] || new API.calendar({
+                    defaultTimezone: $scope.timezoneOptions[$scope.timezoneOptions.indexOf('America/Denver')]
+                });
+                $scope._ready = true;
+            }, function( resp ){
+                console.log(resp);
+            });
+
+            // Save the resource
+            $scope.submitHandler = function(){
+                $scope._requesting = true;
+                // If entity already has ID, $update, otherwise $save (create), and bind callback
+                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
+                    function( resp ){
+                        $scope._requesting = false;
+                        $window.location.href = API._routes.generate('dashboard',['calendars','manage',resp.id]);
+                    }
+                );
+            };
+        }
+    ]);
+angular.module('schedulizer.app').
+
+    controller('CtrlEventForm', ['$rootScope', '$scope', '$q', '$filter', 'Helpers', 'ModalManager', 'API', '_moment',
+        function( $rootScope, $scope, $q, $filter, Helpers, ModalManager, API, _moment ){
+
+            $scope._ready                               = false;
+            $scope._requesting                          = false;
+            $scope.repeatTypeHandleOptions              = Helpers.eventDefaults.repeatTypeHandleOptions;
+            $scope.repeatIndefiniteOptions              = Helpers.eventDefaults.repeatIndefiniteOptions;
+            $scope.weekdayRepeatOptions                 = Helpers.eventDefaults.weekdayRepeatOptions;
+            $scope.repeatMonthlyMethodOptions           = Helpers.eventDefaults.repeatMonthlyMethodOptions;
+            $scope.repeatMonthlySpecificDayOptions      = Helpers.range(1,31);
+            $scope.repeatMonthlyDynamicWeekOptions      = Helpers.eventDefaults.repeatMonthlyDynamicWeekOptions;
+            $scope.repeatMonthlyDynamicWeekdayOptions   = Helpers.eventDefaults.repeatMonthlyDynamicWeekdayOptions;
+            $scope.eventColorOptions                    = Helpers.eventDefaults.eventColorOptions;
+
+            // Did the user click to edit an event that's an alias?
+            $scope.warnAliased = ModalManager.data.eventObj.aliased || false;
+
+            // If aliased, show the message
+            if( $scope.warnAliased ){
+                $scope._ready = true;
+            }
+
+            var _requests = [
+                API.timezones.get().$promise
+            ];
+
+            // If a calendarID is passed by the ModalManager in the eventObj, its a NEW event
+            if( ModalManager.data.eventObj.calendarID ){
+                _requests.push(API.calendar.get({id:ModalManager.data.eventObj.calendarID}).$promise);
+
+                $q.all(_requests).then(function( returned ){
+                    $scope.timezoneOptions = returned[0];
+                    $scope.entity = new API.event(angular.extend(ModalManager.data.eventObj, {
+                        title                       : null,
+                        description                 : null,
+                        startUTC                    : _moment(),
+                        endUTC                      : _moment(),
+                        isAllDay                    : false,
+                        useCalendarTimezone         : true,
+                        timezoneName                : returned[1].defaultTimezone,
+                        eventColor                  : $scope.eventColorOptions[0].value,
+                        isRepeating                 : false,
+                        repeatTypeHandle            : $scope.repeatTypeHandleOptions[0].value,
+                        repeatEvery                 : 1,
+                        repeatIndefinite            : $scope.repeatIndefiniteOptions[0].value,
+                        repeatEndUTC                : ModalManager.data.eventObj.endUTC || new Date(),
+                        repeatMonthlyMethod         : $scope.repeatMonthlyMethodOptions.specific
+                    }));
+
+                    jQuery('[data-file-selector="fileID"]').concreteFileSelector({
+                        'inputName': 'fileID',
+                        'filters': [{"field":"type","type":1}]
+                    });
+
+                    $scope._ready = true;
+                });
+            }
+
+            // Otherwise, we're editing an existing one
+            // @todo: on receiving object data, convert start/endUTC to moment
+            // object immediately
+            if( ModalManager.data.eventObj.id ){
+                _requests.push(API.event.get({id:ModalManager.data.eventObj.id}).$promise);
+
+                $q.all(_requests).then(function( returned ){
+                    $scope.timezoneOptions = returned[0];
+                    $scope.entity = returned[1];
+
+                    jQuery('[data-file-selector="fileID"]').concreteFileSelector({
+                        'inputName': 'fileID',
+                        'fID': $scope.entity.fileID,
+                        'filters': [{"field":"type","type":1}]
+                    });
+
+                    $scope._ready = true;
+                });
+            }
+
+            // These don't map directly to an eventObj; but are used in defining it
+            $scope.repeatSettings = {
+                weekdayIndices          : [],
+                monthlySpecificDay      : 1,
+                monthlyDynamicWeek      : $scope.repeatMonthlyDynamicWeekOptions[0].value,
+                monthlyDynamicWeekday   : $scope.repeatMonthlyDynamicWeekdayOptions[0].value
+            };
+
+            $scope.selectedWeekdays = function(){
+                var selected = $filter('filter')($scope.weekdayRepeatOptions, {checked: true});
+                $scope.repeatSettings.weekdayIndices = selected.map(function( object ){
+                    return object.value;
+                });
+            };
+
+            $scope.$watch('entity.repeatTypeHandle', function( val ){
+                switch(val){
+                    case $scope.repeatTypeHandleOptions[0].value: // daily
+                        $scope.repeatEveryOptions = Helpers.range(1,31);
+                        break;
+                    case $scope.repeatTypeHandleOptions[1].value: // weekly
+                        $scope.repeatEveryOptions = Helpers.range(1,30);
+                        break;
+                    case $scope.repeatTypeHandleOptions[2].value: // monthly
+                        $scope.repeatEveryOptions = Helpers.range(1,11);
+                        break;
+                    case $scope.repeatTypeHandleOptions[3].value: // yearly
+                        $scope.repeatEveryOptions = Helpers.range(1,5);
+                        break;
+                }
+            });
+
+            $scope.$watch('entity.startUTC', function( dateObj ){
+                if( dateObj ){
+                    $scope.calendarEndMinDate = _moment(dateObj).subtract(1, 'day');
+
+                    if( _moment($scope.entity.endUTC).isBefore(_moment($scope.entity.startUTC)) ){
+                        $scope.entity.endUTC = _moment($scope.entity.startUTC);
+                    }
+                }
+            });
+
+            /**
+             * Submit handler
+             * @todo: before sending, adjust entity start/endUTC props to moment
+             * objects and ensure sending correctly (as UTC?)
+             */
+            $scope.submitHandler = function(){
+                angular.extend($scope.entity, {repeatSettings:$scope.repeatSettings});
+
+                // File picker specific
+                $scope.entity.fileID = parseInt(jQuery('input[type="hidden"]', '.ccm-file-selector').val()) || null;
+
+                $scope._requesting = true;
+                // If entity already has ID, $update, otherwise $save (create), and bind callback
+                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
+                    function( resp ){
+                        $scope._requesting = false;
+                        $rootScope.$emit('calendar.refresh');
+                        ModalManager.classes.open = false;
+                    }
+                );
+            };
+
+            /**
+             * Delete the entity.
+             */
+            $scope.confirmDelete = false;
+            $scope.deleteEvent = function(){
+                $scope.entity.$delete().then(function( resp ){
+                    if( resp.ok ){
+                        $rootScope.$emit('calendar.refresh');
+                        ModalManager.classes.open = false;
+                    }
+                });
+            };
+        }
+    ]);
 /* global Sortable */
 ;(function( window, angular, undefined ){
     'use strict';
@@ -1045,15 +1073,3 @@ angular.module('schedulizer.app').
     ]);
 
 })( window, window.angular );
-angular.module('schedulizer.app').
-
-    filter('numberContraction', function($filter) {
-
-        var suffixes = ["th", "st", "nd", "rd"];
-
-        return function(input) {
-            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
-            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
-            return suffix;
-        };
-    });

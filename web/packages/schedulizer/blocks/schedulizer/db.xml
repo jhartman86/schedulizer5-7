@@ -5,7 +5,6 @@
             <key />
             <unsigned />
         </field>
-
         <!-- just store everything as json and parse it. lazy but effective -->
         <field name="blockData" type="X2" />
     </table>

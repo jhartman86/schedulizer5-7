@@ -64,10 +64,10 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'id', 'createdUTC', 'modifiedUTC');
+            return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isOpenEnded', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'fileID', 'eventRepeaterSettings', 'id', 'createdUTC', 'modifiedUTC');
         }
 
-        return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'id', 'createdUTC', 'modifiedUTC');
+        return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isOpenEnded', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'fileID', 'eventRepeaterSettings', 'id', 'createdUTC', 'modifiedUTC');
     }
 
     /**
@@ -176,6 +176,28 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     /**
      * {@inheritDoc}
      */
+    public function addRepeatSetting(\Concrete\Package\Schedulizer\Src\EventRepeat $repeater)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addRepeatSetting', array($repeater));
+
+        return parent::addRepeatSetting($repeater);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRepeatSettings()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatSettings', array());
+
+        return parent::getRepeatSettings();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function setStartUTC()
     {
 
@@ -242,6 +264,17 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     /**
      * {@inheritDoc}
      */
+    public function getCalendarID()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCalendarID', array());
+
+        return parent::getCalendarID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getTitle()
     {
 
@@ -253,12 +286,166 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     /**
      * {@inheritDoc}
      */
+    public function getDescription()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDescription', array());
+
+        return parent::getDescription();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getStartUTC()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStartUTC', array());
+
+        return parent::getStartUTC();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEndUTC()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEndUTC', array());
+
+        return parent::getEndUTC();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIsAllDay()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getIsAllDay', array());
+
+        return parent::getIsAllDay();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getUseCalendarTimezone()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getUseCalendarTimezone', array());
+
+        return parent::getUseCalendarTimezone();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTimezoneName()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getTimezoneName', array());
+
+        return parent::getTimezoneName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEventColor()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEventColor', array());
+
+        return parent::getEventColor();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIsRepeating()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getIsRepeating', array());
+
+        return parent::getIsRepeating();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRepeatTypeHandle()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatTypeHandle', array());
+
+        return parent::getRepeatTypeHandle();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRepeatEvery()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatEvery', array());
+
+        return parent::getRepeatEvery();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRepeatIndefinite()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatIndefinite', array());
+
+        return parent::getRepeatIndefinite();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRepeatEndUTC()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatEndUTC', array());
+
+        return parent::getRepeatEndUTC();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRepeatMonthlyMethod()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatMonthlyMethod', array());
+
+        return parent::getRepeatMonthlyMethod();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getOwnerID()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOwnerID', array());
 
         return parent::getOwnerID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFileID()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getFileID', array());
+
+        return parent::getFileID();
     }
 
     /**

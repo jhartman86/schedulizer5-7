@@ -27,6 +27,7 @@
          * @Column(type="integer", nullable=false, options={"unsigned":true})
          */
         protected $eventID;
+        public function setEventID( $id ){ $this->eventID = $id; }
 
         /**
          * @Column(type="integer", nullable=true, options={"unsigned":true})
@@ -43,6 +44,20 @@
          */
         protected $repeatWeekday;
 
+        /**
+         * @ManyToOne(targetEntity="\Concrete\Package\Schedulizer\Src\Event", inversedBy="eventRepeatSettings")
+         * @JoinColumn(name="eventID", referencedColumnName="id")
+         */
+        protected $event;
+
+        public function setEventObject( Event $event ){
+            $this->event = $event;
+        }
+
+
+        public function __construct( $setters = array() ){
+            $this->setPropertiesFromArray($setters);
+        }
 
         public static function purgeByID( $id ){
             Loader::db()->Execute("DELETE FROM SchedulizerEventRepeat WHERE eventID = ?", array($id));
