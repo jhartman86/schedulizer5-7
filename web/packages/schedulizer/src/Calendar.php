@@ -1,6 +1,7 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
     use DateTimeZone;
+    use \Doctrine\Common\Collections\ArrayCollection;
 
     /**
      * Class Calendar
@@ -34,10 +35,16 @@
         protected $defaultTimezone;
 
         /**
+         * @OneToMany(targetEntity="Concrete\Package\Schedulizer\Src\Event", mappedBy="calendarInstance", cascade={"all"})
+         */
+        protected $associatedEvents;
+
+        /**
          * Constructor
          */
         public function __construct(){
-            $this->defaultTimezone = self::DEFAULT_TIMEZONE;
+            $this->associatedEvents = new ArrayCollection();
+            $this->defaultTimezone  = self::DEFAULT_TIMEZONE;
         }
 
         /**
@@ -45,6 +52,29 @@
          */
         public function __toString(){
             return ucwords( $this->title );
+        }
+
+        /**
+         * Add an event.
+         * @param Event $event
+         * @return Calendar
+         */
+        public function addEvent( Event $event ){
+            // Normally we'd have method setCalendarInstance publicly accessible
+            // from the Event class, but that encourages creating an association
+            // from the non-owning side, so lets keep it with the array setter
+            $event->setPropertiesFromArray(array(
+                'calendarInstance' => $this
+            ));
+            $this->associatedEvents->add($event);
+            return $this;
+        }
+
+        /**
+         * @return ArrayCollection
+         */
+        public function getEvents(){
+            return $this->associatedEvents;
         }
 
         /**

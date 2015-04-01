@@ -9,68 +9,25 @@
      */
     trait Persistable {
 
-        /**
-         * @param array $properties
-         * @return self
-         */
-        public function setPropertiesFromArray( array $properties ){
-            foreach($properties as $key => $prop) {
-                $this->{$key} = $prop;
-            }
-            return $this;
-        }
+        use SettersSerializers;
 
         /**
-         * @param $object
-         * @return $this
-         */
-        public function setPropertiesFromObject( $object ){
-            if( is_object($object) ){
-                foreach($object AS $prop => $value){
-                    $this->{$prop} = $value;
-                }
-            }
-            return $this;
-        }
-
-
-        /**
-         * Return properties for JSON serialization
-         * @return array|mixed
-         */
-        public function jsonSerialize(){
-            return (object) get_object_vars($this);
-        }
-
-
-        /**
-         * @param array $properties
+         * @param array $data
          * @return mixed
          */
         public static function create( $data ){
             $instance = new self();
-            if( is_array($data) ){
-                $instance->setPropertiesFromArray( $data );
-            }
-            if( is_object($data) ){
-                $instance->setPropertiesFromObject( $data );
-            }
-            $instance->save();
+            $instance->mergePropertiesFrom($data)->save();
             return $instance;
         }
 
         /**
          * Update the instance with the given properties
-         * @param array $properties
+         * @param array $data
+         * @return mixed
          */
         public function update( $data ){
-            if( is_array($data) ){
-                $this->setPropertiesFromArray( $data );
-            }
-            if( is_object($data) ){
-                $this->setPropertiesFromObject( $data );
-            }
-            $this->save();
+            $this->mergePropertiesFrom($data)->save();
             return $this;
         }
 
@@ -97,8 +54,20 @@
         /**
          * @return \Doctrine\ORM\EntityManager
          */
-        protected static function entityManager(){
-            return Database::get()->getEntityManager();
+        public static function entityManager(){
+            return \Core::make('SchedulizerEntityManager');
+            //return Database::get()->getEntityManager();
+        }
+
+
+        /***************************************************
+         * Fucking Doctrine pollutes your objects to a positively
+         * disgusting level with recursion, so print_r'ing an object will cause the
+         * system to run out of memory unless you use this convenience
+         * method for viewing object state.
+         **************************************************/
+        public function _dump(){
+            \Doctrine\Common\Util\Debug::dump($this);
         }
 
     }

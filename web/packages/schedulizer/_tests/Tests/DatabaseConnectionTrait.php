@@ -10,10 +10,14 @@
      */
     trait DatabaseConnectionTrait {
 
-        private $conn = null;
+        private $rawConn;
+        private $conn;
 
-        final public function getConnection(){
-            if( $this->conn === null ){
+        /**
+         * @return \Concrete\Core\Database\Connection\PDOConnection
+         */
+        public function getRawConnection(){
+            if( $this->rawConn === null ){
                 $config     = \Config::get('database');
                 $settings   = $config['connections'][$config['default-connection']];
                 $database   = \Database::getFactory()->createConnection(array(
@@ -22,7 +26,17 @@
                     'password'  => $settings['password'],
                     'database'  => $settings['database']
                 ));
-                $this->conn = $this->createDefaultDBConnection($database->getWrappedConnection(), 'test');
+                $this->rawConn = $database->getWrappedConnection();
+            }
+            return $this->rawConn;
+        }
+
+        /**
+         * @return PHPUnit_Extensions_Database_DB_DefaultDatabaseConnection
+         */
+        final public function getConnection(){
+            if( $this->conn === null ){
+                $this->conn = $this->createDefaultDBConnection($this->getRawConnection(), 'dev_site');
             }
             return $this->conn;
         }

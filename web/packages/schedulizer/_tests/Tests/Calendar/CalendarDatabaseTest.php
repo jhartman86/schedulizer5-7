@@ -1,7 +1,6 @@
 <?php namespace Schedulizer\Tests\Calendar {
 
     use Concrete\Package\Schedulizer\Src\Calendar;
-    use \Doctrine\ORM\Tools\SchemaTool;
 
     /**
      * Class CalendarDatabaseTest
@@ -9,20 +8,16 @@
      */
     class CalendarDatabaseTest extends \Schedulizer\Tests\DatabaseTestCase {
 
-        use \Schedulizer\Tests\EntityManagerTrait;
-
         const TABLE_NAME = 'SchedulizerCalendar';
 
         public static function setUpBeforeClass(){
-            $static       = new self();
-            $calendarMeta = array($static->packageMetadatas('Concrete\Package\Schedulizer\Src\Calendar'));
-            $schemaTool   = new SchemaTool($static->packageEntityManager());
-            $schemaTool->dropSchema($calendarMeta);
-            $schemaTool->createSchema($calendarMeta);
+            $static = new self();
+            $static->packageEntityManager()->clear();
+            $static->destroySchema()->createSchema();
         }
 
         public static function tearDownAfterClass(){
-            self::setUpBeforeClass();
+            //self::setUpBeforeClass();
         }
 
         /**
@@ -30,8 +25,10 @@
          * create for each test.
          */
         public function setUp(){
-            // $this->packageEntityManager()->clear() ?
-            parent::setUp();
+            $this->execWithoutConstraints(function(){
+                parent::setUp();
+                $this->packageEntityManager()->clear();
+            });
         }
 
         /**

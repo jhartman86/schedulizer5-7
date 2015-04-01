@@ -6,7 +6,21 @@
      */
     abstract class DatabaseTestCase extends \PHPUnit_Extensions_Database_TestCase {
 
-        use \Schedulizer\Tests\DatabaseConnectionTrait;
+        use DatabaseConnectionTrait, EntityManagerTrait;
+
+        protected function disableForeignKeyConstraints(){
+            $this->getConnection()->getConnection()->query('SET foreign_key_checks = 0');
+        }
+
+        protected function enableForeignKeyConstraints(){
+            $this->getConnection()->getConnection()->query('SET foreign_key_checks = 1');
+        }
+
+        public function execWithoutConstraints( \Closure $closure ){
+            $this->disableForeignKeyConstraints();
+            $closure();
+            $this->enableForeignKeyConstraints();
+        }
 
         public function getDataSet( $override = null ){
             $reflector   = new \ReflectionClass(get_called_class());

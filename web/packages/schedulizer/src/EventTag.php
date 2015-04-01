@@ -1,5 +1,7 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
+    use \Doctrine\Common\Collections\ArrayCollection;
+
     /**
      * Class EventTag
      * @package Concrete\Package\Schedulizer\Src
@@ -22,15 +24,15 @@
         protected $tagName;
 
         /**
-         * @ManyToMany(targetEntity="\Concrete\Package\Schedulizer\Src\Event", mappedBy="eventTags", cascade={"persist"})
+         * @ManyToMany(targetEntity="Concrete\Package\Schedulizer\Src\Event", mappedBy="eventTags", cascade={"persist"})
          */
-        protected $events;
+        protected $taggedEvents;
 
         /**
          * @param null $string
          */
         public function __construct( $string = null ){
-            $this->events = new \Doctrine\Common\Collections\ArrayCollection();
+            $this->events = new ArrayCollection();
 
             if( $string !== null ){
                 $this->tagName = $string;

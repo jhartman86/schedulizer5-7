@@ -64,10 +64,10 @@ class EventRepeat extends \Concrete\Package\Schedulizer\Src\EventRepeat implemen
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'eventID', 'repeatWeek', 'repeatDay', 'repeatWeekday', 'event');
+            return array('__isInitialized__', 'id', 'eventID', 'repeatWeek', 'repeatDay', 'repeatWeekday', 'eventInstance');
         }
 
-        return array('__isInitialized__', 'id', 'eventID', 'repeatWeek', 'repeatDay', 'repeatWeekday', 'event');
+        return array('__isInitialized__', 'id', 'eventID', 'repeatWeek', 'repeatDay', 'repeatWeekday', 'eventInstance');
     }
 
     /**
@@ -176,23 +176,23 @@ class EventRepeat extends \Concrete\Package\Schedulizer\Src\EventRepeat implemen
     /**
      * {@inheritDoc}
      */
-    public function setEventID($id)
+    public function setEventInstance(\Concrete\Package\Schedulizer\Src\Event $event)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEventID', array($id));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEventInstance', array($event));
 
-        return parent::setEventID($id);
+        return parent::setEventInstance($event);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setEventObject(\Concrete\Package\Schedulizer\Src\Event $event)
+    public function jsonSerialize()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEventObject', array($event));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'jsonSerialize', array());
 
-        return parent::setEventObject($event);
+        return parent::jsonSerialize();
     }
 
     /**
@@ -248,17 +248,6 @@ class EventRepeat extends \Concrete\Package\Schedulizer\Src\EventRepeat implemen
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'save', array());
 
         return parent::save();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function jsonSerialize()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'jsonSerialize', array());
-
-        return parent::jsonSerialize();
     }
 
 }

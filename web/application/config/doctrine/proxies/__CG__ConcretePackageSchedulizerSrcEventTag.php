@@ -64,10 +64,10 @@ class EventTag extends \Concrete\Package\Schedulizer\Src\EventTag implements \Do
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'tagName', 'events');
+            return array('__isInitialized__', 'id', 'tagName', 'taggedEvents');
         }
 
-        return array('__isInitialized__', 'id', 'tagName', 'events');
+        return array('__isInitialized__', 'id', 'tagName', 'taggedEvents');
     }
 
     /**

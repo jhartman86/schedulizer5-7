@@ -64,10 +64,10 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isOpenEnded', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'fileID', 'eventRepeaterSettings', 'id', 'createdUTC', 'modifiedUTC');
+            return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isOpenEnded', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'fileID', 'calendarInstance', 'eventRepeatSettings', 'eventTags', 'id', 'createdUTC', 'modifiedUTC');
         }
 
-        return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isOpenEnded', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'fileID', 'eventRepeaterSettings', 'id', 'createdUTC', 'modifiedUTC');
+        return array('__isInitialized__', 'calendarID', 'title', 'description', 'startUTC', 'endUTC', 'isOpenEnded', 'isAllDay', 'useCalendarTimezone', 'timezoneName', 'eventColor', 'isRepeating', 'repeatTypeHandle', 'repeatEvery', 'repeatIndefinite', 'repeatEndUTC', 'repeatMonthlyMethod', 'ownerID', 'fileID', 'calendarInstance', 'eventRepeatSettings', 'eventTags', 'id', 'createdUTC', 'modifiedUTC');
     }
 
     /**
@@ -176,6 +176,17 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     /**
      * {@inheritDoc}
      */
+    public function setCalendarInstance(\Concrete\Package\Schedulizer\Src\Calendar $calendar)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCalendarInstance', array($calendar));
+
+        return parent::setCalendarInstance($calendar);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function addRepeatSetting(\Concrete\Package\Schedulizer\Src\EventRepeat $repeater)
     {
 
@@ -187,12 +198,23 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function getRepeatSettings()
+    public function addTag(\Concrete\Package\Schedulizer\Src\EventTag $tag)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatSettings', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addTag', array($tag));
 
-        return parent::getRepeatSettings();
+        return parent::addTag($tag);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEventTags()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEventTags', array());
+
+        return parent::getEventTags();
     }
 
     /**
@@ -446,6 +468,17 @@ class Event extends \Concrete\Package\Schedulizer\Src\Event implements \Doctrine
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getFileID', array());
 
         return parent::getFileID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRepeatSettings()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRepeatSettings', array());
+
+        return parent::getRepeatSettings();
     }
 
     /**

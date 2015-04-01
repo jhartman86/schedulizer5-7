@@ -64,10 +64,10 @@ class Calendar extends \Concrete\Package\Schedulizer\Src\Calendar implements \Do
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'title', 'ownerID', 'defaultTimezone', 'id', 'createdUTC', 'modifiedUTC');
+            return array('__isInitialized__', 'title', 'ownerID', 'defaultTimezone', 'associatedEvents', 'id', 'createdUTC', 'modifiedUTC');
         }
 
-        return array('__isInitialized__', 'title', 'ownerID', 'defaultTimezone', 'id', 'createdUTC', 'modifiedUTC');
+        return array('__isInitialized__', 'title', 'ownerID', 'defaultTimezone', 'associatedEvents', 'id', 'createdUTC', 'modifiedUTC');
     }
 
     /**
@@ -182,6 +182,17 @@ class Calendar extends \Concrete\Package\Schedulizer\Src\Calendar implements \Do
         $this->__initializer__ && $this->__initializer__->__invoke($this, '__toString', array());
 
         return parent::__toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addEvent(\Concrete\Package\Schedulizer\Src\Event $event)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addEvent', array($event));
+
+        return parent::addEvent($event);
     }
 
     /**

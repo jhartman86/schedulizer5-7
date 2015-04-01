@@ -24,6 +24,7 @@
         protected $cNameEvent               = 'Concrete\Package\Schedulizer\Src\Event';
         protected $cNameEventRepeat         = 'Concrete\Package\Schedulizer\Src\EventRepeat';
         protected $cNameEventRepeatNullify  = 'Concrete\Package\Schedulizer\Src\EventRepeatNullify';
+        protected $cNameEventTag            = 'Concrete\Package\Schedulizer\Src\EventTag';
 
         protected $proxyClassesNukedAtStart = false;
 
@@ -159,6 +160,27 @@
             $columns = $metaDef->getColumnNames();
             $this->assertContains('eventID', $columns);
             $this->assertContains('hideOnDate', $columns);
+        }
+
+        /**
+         * EventTag metadata being parsed by Doctrine?
+         */
+        public function testEventTagClassEntityMetadataDetected(){
+            $this->assertContains(
+                $this->cNameEventTag,
+                array_keys($this->packageMetadatas()),
+                'Doctrine metadata parser failed to parse EventTag'
+            );
+        }
+
+        /**
+         * EventTag metadata being parsed AND correct?
+         */
+        public function testEventTagClassEntityMetadataCorrect(){
+            /** @var $metaDef \Doctrine\ORM\Mapping\ClassMetadata */
+            $metaDef = $this->packageEntityManager()->getClassMetadata($this->cNameEventRepeatNullify);
+            $columns = $metaDef->getColumnNames();
+            $this->assertContains('tagName', $columns);
         }
 
         /**

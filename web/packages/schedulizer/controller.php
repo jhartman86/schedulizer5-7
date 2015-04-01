@@ -43,6 +43,13 @@
         public function on_start(){
             define('SCHEDULIZER_IMAGE_PATH', DIR_REL . '/packages/' . $this->pkgHandle . '/images/');
 
+            // Make the package-specific entity manager accessible via "make"; Note that
+            // passing TRUE as the last argument to bind() has the effect of registering
+            // in the service container as a singleton!
+            \Core::bind('SchedulizerEntityManager', function(){
+                return \Package::getClass('schedulizer')->getDatabaseStructureManager()->getEntityManager();
+            }, true);
+
             // Composer Autoloader
             require __DIR__ . '/vendor/autoload.php';
 
