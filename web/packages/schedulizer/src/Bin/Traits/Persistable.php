@@ -37,7 +37,7 @@
         public function delete(){
             $this->entityManager()->remove($this);
             $this->entityManager()->flush();
-            $this->entityManager()->clear();
+            //$this->entityManager()->clear();
         }
 
         /**

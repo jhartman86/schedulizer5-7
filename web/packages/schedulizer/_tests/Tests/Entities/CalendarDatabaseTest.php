@@ -1,4 +1,4 @@
-<?php namespace Schedulizer\Tests\Calendar {
+<?php namespace Schedulizer\Tests\Entities {
 
     use Concrete\Package\Schedulizer\Src\Calendar;
 
@@ -9,27 +9,6 @@
     class CalendarDatabaseTest extends \Schedulizer\Tests\DatabaseTestCase {
 
         const TABLE_NAME = 'SchedulizerCalendar';
-
-        public static function setUpBeforeClass(){
-            $static = new self();
-            $static->packageEntityManager()->clear();
-            $static->destroySchema()->createSchema();
-        }
-
-        public static function tearDownAfterClass(){
-            //self::setUpBeforeClass();
-        }
-
-        /**
-         * Use Doctrine's destroy/create schema facilities to destroy and
-         * create for each test.
-         */
-        public function setUp(){
-            $this->execWithoutConstraints(function(){
-                parent::setUp();
-                $this->packageEntityManager()->clear();
-            });
-        }
 
         /**
          * GetByID method returns a calendar instance
@@ -87,16 +66,23 @@
                 'ownerID'           => 1999
             ));
 
-            // Load another dataset into a data set filter
-            $expectedTable = new \PHPUnit_Extensions_Database_DataSet_DataSetFilter($this->getDataSet('CalendarDatabaseUpdate'));
-            $expectedTable->setExcludeColumnsForTable('SchedulizerCalendar', array('modifiedUTC'));
+            $res = $this->getRawConnection()
+                        ->query("SELECT * FROM SchedulizerCalendar WHERE id = 1")
+                        ->fetch(\PDO::FETCH_OBJ);
 
-            // Query for result WITHOUT modifiedUTC column
-            $resultingTable = $this->getConnection()->createQueryTable(self::TABLE_NAME,
-                "SELECT id, title, ownerID, defaultTimezone, createdUTC FROM SchedulizerCalendar WHERE id = 1"
-            );
-
-            $this->assertTablesEqual($expectedTable->getTable(self::TABLE_NAME), $resultingTable);
+            $this->assertEquals('FancyPants', $res->title);
+            $this->assertEquals('Canada', $res->defaultTimezone);
+            $this->assertEquals(1999, $res->ownerID);
+//            // Load another dataset into a data set filter
+//            $expectedTable = new \PHPUnit_Extensions_Database_DataSet_DataSetFilter($this->getDataSet('_CalendarDatabaseUpdate'));
+//            $expectedTable->setExcludeColumnsForTable('SchedulizerCalendar', array('modifiedUTC'));
+//
+//            // Query for result WITHOUT modifiedUTC column
+//            $resultingTable = $this->getConnection()->createQueryTable(self::TABLE_NAME,
+//                "SELECT id, title, ownerID, defaultTimezone, createdUTC FROM SchedulizerCalendar WHERE id = 1"
+//            );
+//
+//            $this->assertTablesEqual($expectedTable->getTable(self::TABLE_NAME), $resultingTable);
         }
 
     }

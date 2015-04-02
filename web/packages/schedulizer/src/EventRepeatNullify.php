@@ -27,9 +27,9 @@
          */
         protected $hideOnDate;
 
-        public static function purgeByID( $id ){
-            Loader::db()->Execute("DELETE FROM SchedulizerEventRepeatNullify WHERE eventID = ?", array($id));
-        }
+//        public static function purgeByID( $id ){
+//            Loader::db()->Execute("DELETE FROM SchedulizerEventRepeatNullify WHERE eventID = ?", array($id));
+//        }
 
     }
 

@@ -1,4 +1,4 @@
-<?php namespace Schedulizer\Tests\Event {
+<?php namespace Schedulizer\Tests\Entities {
 
     use \Concrete\Package\Schedulizer\Src\Event;
     use \Concrete\Package\Schedulizer\Src\EventRepeat;

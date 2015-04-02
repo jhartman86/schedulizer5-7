@@ -10,6 +10,11 @@
     use \DateTime; /** @see \DateTime */
     use \DateTimeZone; /** @see \DateTimeZone */
 
+    /**
+     * Class Controller
+     * @package Concrete\Package\Schedulizer
+     * Make Doctrine suck less: http://labs.octivi.com/mastering-symfony2-performance-doctrine/
+     */
     class Controller extends Package {
 
         // Package handle

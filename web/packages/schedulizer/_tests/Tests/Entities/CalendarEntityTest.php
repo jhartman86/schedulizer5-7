@@ -1,4 +1,4 @@
-<?php namespace Schedulizer\Tests\Calendar {
+<?php namespace Schedulizer\Tests\Entities {
 
     use \Concrete\Package\Schedulizer\Src\Calendar;
 
@@ -6,7 +6,7 @@
 
         protected $calendarObj;
 
-        protected function setUp(){
+        public function setUp(){
             $this->calendarObj = new Calendar();
         }
 

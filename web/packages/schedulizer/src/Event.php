@@ -11,6 +11,7 @@
      *
      * @package Concrete\Package\Schedulizer\Src
      * @Entity
+     * @ChangeTrackingPolicy("NOTIFY")
      * @Table(name="SchedulizerEvent",indexes={
      *  @Index(name="createdUTC",columns="createdUTC"),
      *  @Index(name="modifiedUTC",columns="modifiedUTC"),
@@ -150,6 +151,7 @@
         protected $fileID;
 
         /**
+         * @var Calendar $calendarInstance
          * @ManyToOne(targetEntity="Concrete\Package\Schedulizer\Src\Calendar", inversedBy="associatedEvents")
          * @JoinColumn(name="calendarID", referencedColumnName="id", nullable=false)
          */
@@ -180,11 +182,29 @@
         }
 
         /**
+         * Bi-directional setting! As in; the addEvent method of a Calendar
+         * will automatically call this, but if we create an Event by itself
+         * and set the calendar, we need to update the events ArrayCollection
+         * in the Calendar instance.
+         * @param Calendar $calendar
+         */
+        public function setCalendarInstance( Calendar $calendar ){
+            $this->onPropertyChanged('calendarInstance', $this->calendarInstance, $calendar);
+            // Bi-directional...
+            if( ! $calendar->getEvents()->contains($this) ){
+                $calendar->getEvents()->add($this);
+            }
+            $this->calendarInstance = $calendar;
+        }
+
+        /**
          * @param EventRepeat $repeater
          */
         public function addRepeatSetting( EventRepeat $repeater ){
             $repeater->setEventInstance($this);
             $this->eventRepeatSettings->add($repeater);
+            // Notify property change AFTER array collection is updated
+            $this->onPropertyChanged('eventRepeatSettings', new ArrayCollection(), $this->eventRepeatSettings);
         }
 
         /**
@@ -246,40 +266,75 @@
             }
         }
 
+
         /**
-         * @PostPersist
-         * @PostUpdate
+         * @PostRemove
          */
-        public function postPersistEvent(){
-//            EventRepeat::purgeByID($this->id);
-//
-//            if( $this->isRepeating ){
-//                switch( $this->repeatTypeHandle ){
-//                    case self::REPEAT_TYPE_HANDLE_DAILY:
-//                    case self::REPEAT_TYPE_HANDLE_YEARLY:
-//                        EventRepeat::create(array('eventID' => $this->id));
-//                        break;
-//
-//                    case self::REPEAT_TYPE_HANDLE_WEEKLY:
-//                        if( is_object($this->repeatSettings) && !empty($this->repeatSettings->weekdayIndices) ){
-//                            foreach($this->repeatSettings->weekdayIndices AS $weekdayIndex){
-//                                EventRepeat::create(array('eventID' => $this->id, 'repeatWeekday' => $weekdayIndex));
-//                            }
-//                        }
-//                        break;
-//
-//                    case self::REPEAT_TYPE_HANDLE_MONTHLY:
-//                        // If its repeating only on a specific date(eg. "21st" of every month)
-//                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_SPECIFIC_DATE ){
-//                            EventRepeat::create(array('eventID' => $this->id, 'repeatDay' => $this->repeatSettings->monthlySpecificDay));
-//                            // Its repeating on an abstract (eg. "Second Thursday" of every month)
-//                        }else{
-//                            EventRepeat::create(array('eventID' => $this->id, 'repeatWeek' => $this->repeatSettings->monthlyDynamicWeek, 'repeatWeekday' => $this->repeatSettings->monthlyDynamicWeekday));
-//                        }
-//                        break;
-//                }
-//            }
+        public function lifecycleRemoveFromCalendarArrayCollection(){
+            $this->calendarInstance->removeEvent($this);
         }
+
+
+        /**
+         * @PrePersist
+         * @PreUpdate
+         */
+        public function stuff(){
+//            if( ! $this->getRepeatSettings()->isEmpty() ){
+//                echo 'not empty!';
+//            }
+//            foreach($this->eventRepeatSettings AS $repeater){
+//                $repeater->_dump();
+//            }
+
+//            echo 'FUCK';exit;
+//            \Doctrine\Common\Util\Debug::dump($this->eventRepeatSettings);
+//            exit;
+//            foreach($this->eventRepeatSettings AS $repeater){
+//                $repeater->_dump();
+//            }
+//            if( ! $this->eventRepeatSettings->isEmpty() ){
+//                echo $this->eventRepeatSettings->count();
+//                echo 'clear that shit out!';
+//            }
+//            echo 'here';exit;
+        }
+
+//        /**
+//         * @PostPersist
+//         * @PostUpdate
+//         */
+//        public function postPersistEvent(){
+//            echo 'wtf mate';
+////            EventRepeat::purgeByID($this->id);
+////
+////            if( $this->isRepeating ){
+////                switch( $this->repeatTypeHandle ){
+////                    case self::REPEAT_TYPE_HANDLE_DAILY:
+////                    case self::REPEAT_TYPE_HANDLE_YEARLY:
+////                        EventRepeat::create(array('eventID' => $this->id));
+////                        break;
+////
+////                    case self::REPEAT_TYPE_HANDLE_WEEKLY:
+////                        if( is_object($this->repeatSettings) && !empty($this->repeatSettings->weekdayIndices) ){
+////                            foreach($this->repeatSettings->weekdayIndices AS $weekdayIndex){
+////                                EventRepeat::create(array('eventID' => $this->id, 'repeatWeekday' => $weekdayIndex));
+////                            }
+////                        }
+////                        break;
+////
+////                    case self::REPEAT_TYPE_HANDLE_MONTHLY:
+////                        // If its repeating only on a specific date(eg. "21st" of every month)
+////                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_SPECIFIC_DATE ){
+////                            EventRepeat::create(array('eventID' => $this->id, 'repeatDay' => $this->repeatSettings->monthlySpecificDay));
+////                            // Its repeating on an abstract (eg. "Second Thursday" of every month)
+////                        }else{
+////                            EventRepeat::create(array('eventID' => $this->id, 'repeatWeek' => $this->repeatSettings->monthlyDynamicWeek, 'repeatWeekday' => $this->repeatSettings->monthlyDynamicWeekday));
+////                        }
+////                        break;
+////                }
+////            }
+//        }
 
 
         /**

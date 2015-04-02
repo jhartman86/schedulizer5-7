@@ -1,10 +1,12 @@
 <?php namespace Concrete\Package\Schedulizer\Src\Bin {
 
+    use \Doctrine\Common\NotifyPropertyChanged;
+
     /**
      * Class Base
      * @package Concrete\Package\Schedulizer\Src\Abstracts
      */
-    abstract class Persistable implements InterfacePersistable, \JsonSerializable {
+    abstract class Persistable implements InterfacePersistable, NotifyPropertyChanged, \JsonSerializable {
 
         const PACKAGE_HANDLE    = 'schedulizer';
         const TIMESTAMP_FORMAT  = 'Y-m-d H:i:s';

@@ -60,13 +60,18 @@
          * @return Calendar
          */
         public function addEvent( Event $event ){
-            // Normally we'd have method setCalendarInstance publicly accessible
-            // from the Event class, but that encourages creating an association
-            // from the non-owning side, so lets keep it with the array setter
-            $event->setPropertiesFromArray(array(
-                'calendarInstance' => $this
-            ));
-            $this->associatedEvents->add($event);
+            // Bi-directional!
+            if( ! $this->associatedEvents->contains($event) ){
+                $this->associatedEvents->add($event);
+                $event->setCalendarInstance($this);
+            }
+            return $this;
+        }
+
+        public function removeEvent( Event $event ){
+            if( $this->associatedEvents->contains($event) ){
+                $this->associatedEvents->removeElement($event);
+            }
             return $this;
         }
 
@@ -74,7 +79,7 @@
          * @return ArrayCollection
          */
         public function getEvents(){
-            return $this->associatedEvents;
+            return $this->associatedEvents->toArray();
         }
 
         /**

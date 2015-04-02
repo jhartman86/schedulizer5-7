@@ -10,11 +10,8 @@
         <!--<testsuite name="Schedulizer: Bin">-->
             <!--<directory>./Tests/Bin</directory>-->
         <!--</testsuite>-->
-        <!--<testsuite name="Schedulizer: Calendar">-->
-            <!--<directory>./Tests/Calendar</directory>-->
-        <!--</testsuite>-->
-        <testsuite name="Schedulizer: Event">
-            <directory>./Tests/Event</directory>
+        <testsuite name="Schedulizer: Entities">
+            <directory>./Tests/Entities</directory>
         </testsuite>
     </testsuites>
 </phpunit>

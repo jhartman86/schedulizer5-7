@@ -1,10 +1,7 @@
-<?php namespace Schedulizer\Tests\Event {
+<?php namespace Schedulizer\Tests\Entities {
 
     use Concrete\Package\Schedulizer\Src\Calendar;
     use Concrete\Package\Schedulizer\Src\Event;
-    use Concrete\Package\Schedulizer\Src\EventRepeat;
-    use Concrete\Package\Schedulizer\Src\EventRepeatNullify;
-    use Concrete\Package\Schedulizer\Src\EventTag;
 
     /**
      * Class EventDatabaseTest
@@ -12,13 +9,8 @@
      */
     class EventDatabaseTest extends \Schedulizer\Tests\DatabaseTestCase {
 
-        use \Schedulizer\Tests\EntityManagerTrait;
-
-        const TABLE_NAME_EVENT              = 'SchedulizerEvent';
-        const TABLE_NAME_EVENTREPEAT        = 'SchedulizerEventRepeat';
-        const TABLE_NAME_EVENTREPEATNULLIFY = 'SchedulizerEventRepeatNullify';
-        const TABLE_NAME_EVENTTAG           = 'SchedulizerEventTag';
-        const TABLE_NAME_TAGGEDEVENTS       = 'SchedulizerTaggedEvents'; // the join table
+        const TABLE_NAME_CALENDAR = 'SchedulizerCalendar';
+        const TABLE_NAME_EVENT    = 'SchedulizerEvent';
 
         /** @var $calendarObj Calendar */
         protected $calendarObj;
@@ -35,25 +27,12 @@
             'ownerID'               => 14
         );
 
-        public static function setUpBeforeClass(){
-            $static = new self();
-            $static->packageEntityManager()->clear();
-            $static->destroySchema()->createSchema();
-        }
-
-        public static function tearDownAfterClass(){
-            //self::setUpBeforeClass();
-        }
-
         /**
          * Use Doctrine's destroy/create schema facilities to destroy and
          * create for each test.
          */
         public function setUp(){
-            $this->execWithoutConstraints(function(){
-                parent::setUp();
-                $this->packageEntityManager()->clear();
-            });
+            parent::setUp();
             $this->calendarObj = Calendar::getByID(1);
         }
 
@@ -108,11 +87,10 @@
          * event.
          */
         public function testPersistingOneEventByCascadingCalendarSave(){
-            $rowsBefore = $this->getConnection()->getRowCount('SchedulizerEvent');
-            $event1 = new Event(self::$newEventSettingSample);
-            $this->calendarObj->addEvent($event1);
+            $rowsBefore = $this->getConnection()->getRowCount(self::TABLE_NAME_EVENT);
+            $this->calendarObj->addEvent(new Event(self::$newEventSettingSample));
             $this->calendarObj->save();
-            $this->assertEquals(($rowsBefore + 1), $this->getConnection()->getRowCount('SchedulizerEvent'));
+            $this->assertEquals(($rowsBefore + 1), $this->getConnection()->getRowCount(self::TABLE_NAME_EVENT));
         }
 
         /**
@@ -120,15 +98,12 @@
          * events.
          */
         public function testPersistingMultipleEventsByCascadingCalendarSave(){
-            $rowsBefore = $this->getConnection()->getRowCount('SchedulizerEvent');
-            $event1 = new Event(self::$newEventSettingSample);
-            $this->calendarObj->addEvent($event1);
-            $event2 = new Event(self::$newEventSettingSample);
-            $this->calendarObj->addEvent($event2);
-            $event3 = new Event(self::$newEventSettingSample);
-            $this->calendarObj->addEvent($event3);
+            $rowsBefore = $this->getConnection()->getRowCount(self::TABLE_NAME_EVENT);
+            $this->calendarObj->addEvent(new Event(self::$newEventSettingSample));
+            $this->calendarObj->addEvent(new Event(self::$newEventSettingSample));
+            $this->calendarObj->addEvent(new Event(self::$newEventSettingSample));
             $this->calendarObj->save();
-            $this->assertEquals(($rowsBefore + 3), $this->getConnection()->getRowCount('SchedulizerEvent'));
+            $this->assertEquals(($rowsBefore + 3), $this->getConnection()->getRowCount(self::TABLE_NAME_EVENT));
         }
 
         /**
@@ -140,6 +115,7 @@
             $event1 = new Event(self::$newEventSettingSample);
             $this->calendarObj->addEvent($event1)->save();
             $this->assertEquals(3, $this->calendarObj->getEvents()->count());
+            $this->assertEquals(true, $this->calendarObj->getEvents()->contains($event1));
         }
 
         /**
@@ -157,13 +133,53 @@
             ));
 
             $res = $this->getRawConnection()
-                        ->query("SELECT * FROM SchedulizerEvent WHERE id = 3")
+                        ->query("SELECT * FROM ".self::TABLE_NAME_EVENT." WHERE id = 3")
                         ->fetch(\PDO::FETCH_OBJ);
 
             $this->assertEquals('MyNewTitle', $res->title);
             $this->assertEquals(1, $res->openEnded);
             $this->assertEquals(0, $res->useCalendarTimezone);
             $this->assertEquals('America/New_York', $res->timezoneName);
+        }
+
+        /**
+         * Delete a single event and don't look at the state of anything else (just
+         * the database)
+         */
+        public function testDeletingASingleEvent(){
+            $rowsBefore = $this->getConnection()->getRowCount(self::TABLE_NAME_EVENT);
+            Event::getByID(1)->delete();
+            $this->assertEquals(($rowsBefore - 1), $this->getConnection()->getRowCount(self::TABLE_NAME_EVENT));
+        }
+
+        /**
+         * After deleting an event, if we try to refetch it with getByID(), it should
+         * be returned as Null and not cached by the entity manager.
+         */
+        public function testDeleteSingleEventEntityManagerInSync(){
+            /** @var $eventObj Event */
+            $eventObj = Event::getByID(1);
+            $eventObj->delete();
+            $this->assertEquals(null, Event::getByID(1));
+        }
+
+        /**
+         * Even more complex than above - when we delete an event, we need to ensure
+         * that the association via the ArrayCollection property of the calendar is updated.
+         */
+        public function testDeleteSingleEventThenCheckAssociationsFromCalendarSide(){
+            /** @var $eventObj Event */
+            $eventObj = Event::getByID(1);
+            // Get the Calendar object
+            $calendar = $eventObj->getCalendar();
+            // Count that, BEFORE DELETION, the number of events matches 2
+            $this->assertEquals(2, $calendar->getEvents()->count());
+            // NOW delete the event
+            $eventObj->delete();
+            // Now, from the $calendar entity, check that the event count is correct (ie,
+            // deleting the event entity is communicated to the ArrayCollection of the
+            // the calendar)
+            $this->assertEquals(1, $calendar->getEvents()->count());
         }
 
         /**
@@ -176,12 +192,12 @@
 
             // Count rows in SchedulizerCalendar table with ID of one just deleted
             $calendarRowCount = $this->getRawConnection()
-                                     ->query("SELECT * FROM SchedulizerCalendar WHERE id = {$calendarID}")
+                                     ->query("SELECT * FROM ".self::TABLE_NAME_CALENDAR." WHERE id = {$calendarID}")
                                      ->rowCount();
 
             // Count rows in SchedulizerEvent table with calendarID of one just deleted
             $eventRowCount = $this->getRawConnection()
-                                  ->query("SELECT * FROM SchedulizerEvent WHERE calendarID = {$calendarID}")
+                                  ->query("SELECT * FROM ".self::TABLE_NAME_EVENT." WHERE calendarID = {$calendarID}")
                                   ->rowCount();
 
             $this->assertEquals(0, $calendarRowCount);
