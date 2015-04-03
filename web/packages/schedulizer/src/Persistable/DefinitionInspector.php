@@ -5,7 +5,7 @@
     use \ReflectionClass;
     use \ReflectionObject;
     use \ReflectionProperty;
-    use Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspectorException;
+    use \Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspectorException;
 
     class DefinitionInspector {
 
@@ -70,6 +70,16 @@
                 }
             }
             return $this->_propertyDefinitions;
+        }
+
+        /**
+         * Get a single property definition
+         * @param $propertyName
+         * @return mixed
+         * @throws DefinitionInspectorException
+         */
+        public function definitionForProperty( $propertyName ){
+            return $this->propertyDefinitions()[$propertyName];
         }
 
         /**
@@ -160,26 +170,29 @@
         protected function setReflectedPropertyOnObject( ReflectionProperty $property, $definition, $object, $value ){
             $dtzUTC = new DateTimeZone('UTC');
 
+            $castedValue = null;
+
             switch( $definition->cast ){
                 case 'int':
-                    $property->setValue($object, (int)$value); break;
+                    $castedValue = (int)$value; break;
 
                 case 'bool':
-                    $property->setValue($object, (bool)(int)$value); break;
+                    $castedValue = (bool)(int)$value; break;
 
                 case 'datetime':
                     if( $value instanceof DateTime ){
                         $value->setTimezone($dtzUTC);
-                        $property->setValue($object, $value);
+                        $castedValue = $value;
                         break;
                     }
-                    $property->setValue($object, new DateTime($value, $dtzUTC));
+                    $castedValue = new DateTime($value, $dtzUTC);
                     break;
 
                 case 'string':
-                    $property->setValue($object, $value);
-                    break;
+                    $castedValue = $value; break;
             }
+
+            $property->setValue($object, $castedValue);
         }
 
     }

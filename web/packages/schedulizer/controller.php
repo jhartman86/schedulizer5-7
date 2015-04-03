@@ -57,7 +57,7 @@
             }, true);
 
             // Composer Autoloader
-            //require __DIR__ . '/vendor/autoload.php';
+            require __DIR__ . '/vendor/autoload.php';
 
             // @todo: add installation support tests for current timezone and provide notifications
             if( @date_default_timezone_get() !== 'UTC' ){

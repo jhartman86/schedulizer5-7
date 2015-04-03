@@ -4,15 +4,16 @@
         <testsuite name="_api">
             <directory>./Tests/Api</directory>
         </testsuite>
-        <testsuite name="_package">
-            <directory>./Tests/Package</directory>
-        </testsuite>
         <testsuite name="_bin">
             <directory>./Tests/Bin</directory>
         </testsuite>
-        <testsuite name="_entities">
-            <directory>./Tests/Entities</directory>
+        <testsuite name="_package">
+            <directory>./Tests/Package</directory>
         </testsuite>
+
+        <!--<testsuite name="_entities">
+            <directory>./Tests/Entities</directory>
+        </testsuite>-->
         <testsuite name="_persistable">
             <directory>./Tests/Persistable</directory>
         </testsuite>

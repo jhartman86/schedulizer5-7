@@ -1,16 +1,15 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
-    use \Doctrine\Common\Collections\ArrayCollection;
+    use Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant;
+    use Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
 
     /**
      * Class EventTag
      * @package Concrete\Package\Schedulizer\Src
-     * @Entity
-     * @Table(name="SchedulizerEventTag")
      */
-    class EventTag extends Bin\Persistable {
+    class EventTag extends Persistant {
 
-        use Bin\Traits\Persistable;
+        use Crud;
 
         /**
          * @Id @Column(type="integer") @GeneratedValue(strategy="IDENTITY")
@@ -55,21 +54,6 @@
          */
         public function getID(){
             return $this->id;
-        }
-
-        /**
-         * @param $id
-         * @return null|object
-         * @throws \Doctrine\ORM\ORMException
-         * @throws \Doctrine\ORM\OptimisticLockException
-         * @throws \Doctrine\ORM\TransactionRequiredException
-         */
-        public static function getByID( $id ){
-            return self::entityManager()->find(__CLASS__, $id);
-        }
-
-        public static function findAll(){
-            return self::entityManager()->getRepository(__CLASS__)->findAll();
         }
     }
 

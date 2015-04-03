@@ -13,80 +13,67 @@
 
         use Crud;
 
-        /** @definition({"cast":"int", "declarable":false}) */
+        /**
+         * @var $id int
+         * @definition({"cast":"int", "declarable":false})
+         */
         protected $id;
 
-        /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]}) */
+        /**
+         * @var $createdUTC \DateTime
+         * @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]})
+         */
         protected $createdUTC;
 
-        /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate","onUpdate"]}) */
+        /**
+         * @var $modifiedUTC \DateTime
+         * @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate","onUpdate"]})
+         */
         protected $modifiedUTC;
 
-        /** @definition({"cast":"string","nullable":true}) */
+        /**
+         * @var $title string
+         * @definition({"cast":"string","nullable":true})
+         */
         protected $title;
 
-        /** @definition({"cast":"int"}) */
+        /**
+         * @var $ownerID int
+         * @definition({"cast":"int"})
+         */
         protected $ownerID;
 
-        /** @definition({"cast":"string"}) */
+        /**
+         * @var $defaultTimezone string
+         * @definition({"cast":"string"})
+         */
         protected $defaultTimezone = 'UTC';
 
-        /**
-         * Constructor
-         * @param $setters
-         */
+        /** @param $setters */
         public function __construct( $setters = null ){
             $this->mergePropertiesFrom( $setters );
         }
 
-        /**
-         * @return string
-         */
-        public function __toString(){
-            return ucwords( $this->title );
-        }
+        /** @return string */
+        public function __toString(){ return ucwords( $this->title ); }
 
-        /**
-         * @return int|null
-         */
-        public function getID(){
-            return $this->id;
-        }
+        /** @return int|null */
+        public function getID(){ return $this->id; }
 
-        /**
-         * @return DateTime
-         */
-        public function getModifiedUTC(){
-            return $this->modifiedUTC;
-        }
+        /** @return DateTime|null */
+        public function getModifiedUTC(){ return $this->modifiedUTC; }
 
-        /**
-         * @return DateTime
-         */
-        public function getCreatedUTC(){
-            return $this->createdUTC;
-        }
+        /** @return DateTime|null */
+        public function getCreatedUTC(){ return $this->createdUTC; }
 
-        /**
-         * @return string
-         */
-        public function getTitle(){
-            return $this->title;
-        }
+        /** @return string|null */
+        public function getTitle(){ return $this->title; }
 
-        /**
-         * @return Int
-         */
-        public function getOwnerID(){
-            return $this->ownerID;
-        }
+        /** @return int|null */
+        public function getOwnerID(){ return $this->ownerID; }
 
-        /**
-         * @return string
-         */
-        public function getDefaultTimezone(){
-            return $this->defaultTimezone;
-        }
+        /** @return string */
+        public function getDefaultTimezone(){ return $this->defaultTimezone; }
 
         /**
          * @return DateTimeZone
@@ -97,7 +84,6 @@
             }
             return $this->_calendarTimezoneObj;
         }
-
 
         /**
          * Return properties for JSON serialization
