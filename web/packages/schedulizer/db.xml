@@ -11,11 +11,14 @@
             <NOTNULL/>
         </field>
         <field name="modifiedUTC" type="T">
-            <NOTNULL/>
+            <notnull/>
+            <!--<deftimestamp/>-->
         </field>
-
         <field name="title" type="C" size="255" />
-        <field name="defaultTimezone" type="C" size="255" />
+        <field name="defaultTimezone" type="C" size="255">
+            <NOTNULL/>
+            <DEFAULT value="UTC"/>
+        </field>
         <field name="ownerID" type="I">
             <KEY/>
             <UNSIGNED />
@@ -34,6 +37,8 @@
         <index name="ownerID">
             <col>ownerID</col>
         </index>
+        <opt platform="mysql">ENGINE=INNODB</opt>
+        <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
     <table name="SchedulizerEvent">
@@ -47,11 +52,15 @@
         </field>
         <field name="modifiedUTC" type="T">
             <NOTNULL/>
+            <!--<deftimestamp/>-->
         </field>
-
+        <!--<field name="modifiedUTC" type="T">
+            <NOTNULL/>
+        </field>-->
         <field name="calendarID" type="I" size="11">
             <NOTNULL/>
             <unsigned />
+            <KEY/>
         </field>
         <field name="title" type="C" size="255" />
         <field name="description" type="X2" />
@@ -61,20 +70,26 @@
         <field name="endUTC" type="T">
             <NOTNULL/>
         </field>
-        <field name="isAllDay" type="I1">
-            <unsigned />
+        <field name="isOpenEnded" type="I1">
             <notnull />
-            <default value="1" />
+            <default value="0" />
+        </field>
+        <field name="isAllDay" type="I1">
+            <notnull />
+            <default value="0" />
         </field>
         <field name="useCalendarTimezone" type="I1">
-            <unsigned />
-            <notnull />
+            <NOTNULL/>
             <default value="1" />
         </field>
-        <field name="timezoneName" type="C" size="255" />
-        <field name="eventColor" type="C" size="10" />
+        <field name="timezoneName" type="C" size="255">
+            <NOTNULL />
+            <default value="UTC" />
+        </field>
+        <field name="eventColor" type="C" size="10">
+            <default value="#E1E1E1" />
+        </field>
         <field name="isRepeating" type="I1">
-            <unsigned />
             <notnull />
             <default value="0" />
         </field>
@@ -83,7 +98,6 @@
             <unsigned />
         </field>
         <field name="repeatIndefinite" type="I1">
-            <unsigned />
             <notnull />
             <default value="0" />
         </field>
@@ -99,6 +113,13 @@
             <NOTNULL />
             <DEFAULT value="0"/>
         </field>
+        <field name="fileID" type="I">
+            <UNSIGNED />
+        </field>
+
+        <index name="calendarID">
+            <col>calendarID</col>
+        </index>
         <index name="createdUTC">
             <col>createdUTC</col>
         </index>
@@ -110,9 +131,6 @@
         </index>
         <index name="endUTC">
             <col>endUTC</col>
-        </index>
-        <index name="calendarID">
-            <col>calendarID</col>
         </index>
         <index name="title">
             <col>title</col>
@@ -126,14 +144,17 @@
         <index name="ownerID">
             <col>ownerID</col>
         </index>
-        <index name="description">
-            <col>description</col>
-            <FULLTEXT />
-        </index>
+        <opt platform="mysql">ENGINE=INNODB</opt>
+        <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
 
     <table name="SchedulizerEventRepeat">
+        <field name="id" type="I">
+            <autoincrement />
+            <key />
+            <unsigned />
+        </field>
         <field name="eventID" type="I" size="11">
             <unsigned />
         </field>
@@ -160,10 +181,17 @@
         <index name="repeatWeekday">
             <col>repeatWeekday</col>
         </index>
+        <opt platform="mysql">ENGINE=INNODB</opt>
+        <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
 
     <table name="SchedulizerEventRepeatNullify">
+        <field name="id" type="I">
+            <autoincrement />
+            <key />
+            <unsigned />
+        </field>
         <field name="eventID" type="I" size="11">
             <unsigned />
         </field>
@@ -178,6 +206,8 @@
         <index name="hideOnDate">
             <col>hideOnDate</col>
         </index>
+        <opt platform="mysql">ENGINE=INNODB</opt>
+        <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
 </schema>

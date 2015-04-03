@@ -3,6 +3,7 @@
 
     /** @link https://github.com/concrete5/concrete5-5.7.0/blob/develop/web/concrete/config/app.php#L10-L90 Aliases */
     use Package; /** @see \Concrete\Core\Package\Package */
+    use Database;
     use Config; /** @see \Concrete\Core */
     use Loader; /** @see \Concrete\Core\Legacy\Loader */
     use BlockType; /** @see \Concrete\Core\Block\BlockType\BlockType */
@@ -51,12 +52,12 @@
             // Make the package-specific entity manager accessible via "make"; Note that
             // passing TRUE as the last argument to bind() has the effect of registering
             // in the service container as a singleton!
-            \Core::bind('SchedulizerEntityManager', function(){
-                return \Package::getClass('schedulizer')->getDatabaseStructureManager()->getEntityManager();
+            \Core::bind('SchedulizerDB', function(){
+                return Database::connection(Database::getDefaultConnection())->getWrappedConnection();
             }, true);
 
             // Composer Autoloader
-            require __DIR__ . '/vendor/autoload.php';
+            //require __DIR__ . '/vendor/autoload.php';
 
             // @todo: add installation support tests for current timezone and provide notifications
             if( @date_default_timezone_get() !== 'UTC' ){
@@ -93,19 +94,12 @@
         public function uninstall(){
             parent::uninstall();
 
-            try {
-                //$em = $this->getDatabaseStructureManager()->getEntityManager();
-
-//                // delete mysql tables
-//                $db = Loader::db();
-//                $db->Execute("DROP TABLE SchedulizerCalendar");
-//                //$db->Execute("DROP TABLE SchedulizerCalendarAttributeValues");
-//                $db->Execute("DROP TABLE SchedulizerEvent");
-//                $db->Execute("DROP TABLE SchedulizerEventRepeat");
-//                //$db->Execute("DROP TABLE SchedulizerEventRepeatNullify");
-//                //$db->Execute("DROP TABLE SchedulizerCalendarSearchIndexAttributes");
-            }catch(Exception $e){
-                // fail gracefully
+            $database = Loader::db();
+            $tables   = array('SchedulizerCalendar', 'SchedulizerEvent', 'SchedulizerEventRepeat', 'SchedulizerEventRepeatNullify');
+            foreach($tables AS $name){
+                try {
+                    $database->Execute(sprintf("DROP TABLE %s", $name));
+                }catch(\Exception $e){ /* do nothing */ }
             }
         }
 
@@ -117,27 +111,27 @@
          * @throws \Exception
          */
         private function checkDependencies(){
-            $support = new Src\Install\Support(Loader::db());
-
-            if( ! $support->phpVersion() ){
-                throw new \Exception(t("Schedulizer requires PHP 5.4 or greater; you are running %s.", phpversion()));
-                return false;
-            }
-
-            if( ! $support->mysqlHasTimezoneTables() ){
-                throw new \Exception('Schedulizer requires that MySQL has timezone tables installed, which they appear not to be. Please contact your hosting provider.');
-                return false;
-            }
-
-            if( ! $support->phpDateTimeZoneConversionsCorrect() ){
-                throw new \Exception('The DateTime class in PHP is not making correct conversions. Please ensure your PHP version is >= 5.4.');
-                return false;
-            }
-
-            if( ! $support->phpDateTimeSupportsOrdinals() ){
-                throw new \Exception('Your PHP version/installation does not support DateTime ordinals (relative) words. Please ensure your version is >= 5.4.');
-                return false;
-            }
+//            $support = new Src\Install\Support(Loader::db());
+//
+//            if( ! $support->phpVersion() ){
+//                throw new \Exception(t("Schedulizer requires PHP 5.4 or greater; you are running %s.", phpversion()));
+//                return false;
+//            }
+//
+//            if( ! $support->mysqlHasTimezoneTables() ){
+//                throw new \Exception('Schedulizer requires that MySQL has timezone tables installed, which they appear not to be. Please contact your hosting provider.');
+//                return false;
+//            }
+//
+//            if( ! $support->phpDateTimeZoneConversionsCorrect() ){
+//                throw new \Exception('The DateTime class in PHP is not making correct conversions. Please ensure your PHP version is >= 5.4.');
+//                return false;
+//            }
+//
+//            if( ! $support->phpDateTimeSupportsOrdinals() ){
+//                throw new \Exception('Your PHP version/installation does not support DateTime ordinals (relative) words. Please ensure your version is >= 5.4.');
+//                return false;
+//            }
 
             return true;
         }

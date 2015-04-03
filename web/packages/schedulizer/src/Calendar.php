@@ -1,50 +1,43 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
     use DateTimeZone;
-    use \Doctrine\Common\Collections\ArrayCollection;
 
     /**
      * Class Calendar
      * @package Concrete\Package\Schedulizer\Src
-     * @Entity
-     * @Table(name="SchedulizerCalendar",indexes={
-     *  @Index(name="createdUTC",columns="createdUTC"),
-     *  @Index(name="modifiedUTC",columns="modifiedUTC"),
-     *  @Index(name="title",columns="title"),
-     *  @Index(name="ownerID",columns="ownerID")
-     * })
-     * @HasLifecycleCallbacks
+     * @definition({"table":"SchedulizerCalendar"})
      */
-    class Calendar extends Bin\Persistable {
+    class Calendar {
 
-        use Bin\Traits\Persistable, Bin\Traits\Unique;
+        use Persistable\Mixins\Persistable;
 
-        /**
-         * @Column(type="string", length=255, nullable=true)
-         */
+        /** @definition({"cast":"integer", "declarable":false}) */
+        protected $id;
+
+        /** @definition({"cast":"datetime", "declarable":false, "onCreateValue":"auto"}) */
+        protected $createdUTC;
+
+        /** @definition({"cast":"datetime", "declarable":false}) */
+        protected $modifiedUTC;
+
+        /** @definition({"cast":"string"}) */
         protected $title;
 
-        /**
-         * @Column(type="integer", nullable=false, options={"unsigned":true,"default":1})
-         */
+        /** @definition({"cast":"integer"}) */
         protected $ownerID;
 
-        /**
-         * @Column(type="string", length=255, nullable=false)
-         */
-        protected $defaultTimezone;
+        /** @definition({"cast":"string"}) */
+        protected $defaultTimezone = 'UTC';
 
-        /**
-         * @OneToMany(targetEntity="Concrete\Package\Schedulizer\Src\Event", mappedBy="calendarInstance", cascade={"all"})
-         */
-        protected $associatedEvents;
+        protected function onAfterFetch( $record ){
+            //$this->modifiedUTC = new \DateTime($record->modifiedUTC, new DateTimeZone('UTC'));
+        }
 
         /**
          * Constructor
          */
-        public function __construct(){
-            $this->associatedEvents = new ArrayCollection();
-            $this->defaultTimezone  = self::DEFAULT_TIMEZONE;
+        public function __construct( $setters = null ){
+            $this->mergePropertiesFrom( $setters );
         }
 
         /**
@@ -52,34 +45,6 @@
          */
         public function __toString(){
             return ucwords( $this->title );
-        }
-
-        /**
-         * Add an event.
-         * @param Event $event
-         * @return Calendar
-         */
-        public function addEvent( Event $event ){
-            // Bi-directional!
-            if( ! $this->associatedEvents->contains($event) ){
-                $this->associatedEvents->add($event);
-                $event->setCalendarInstance($this);
-            }
-            return $this;
-        }
-
-        public function removeEvent( Event $event ){
-            if( $this->associatedEvents->contains($event) ){
-                $this->associatedEvents->removeElement($event);
-            }
-            return $this;
-        }
-
-        /**
-         * @return ArrayCollection
-         */
-        public function getEvents(){
-            return $this->associatedEvents->toArray();
         }
 
         /**
@@ -117,9 +82,9 @@
          * @param $id Int
          * @return mixed SchedulizerCalendar|null
          */
-        public static function getByID( $id ){
-            return self::entityManager()->find(__CLASS__, $id);
-        }
+//        public static function getByID( $id ){
+//            return self::entityManager()->find(__CLASS__, $id);
+//        }
 
 
         /**
@@ -138,38 +103,6 @@
             $properties->createdUTC     = $properties->createdUTC->format('c');
             $properties->modifiedUTC    = $properties->modifiedUTC->format('c');
             return $properties;
-        }
-
-
-        /****************************************************************
-         * List queries
-         ***************************************************************/
-
-        /**
-         * @return array
-         */
-        public static function findAll(){
-            return self::entityManager()->getRepository(__CLASS__)->findAll();
-        }
-
-        /**
-         * @param $title string
-         * @return array
-         */
-        public static function findByTitle( $title ){
-            return self::entityManager()->getRepository(__CLASS__)->createQueryBuilder('cal')
-                ->where('cal.title LIKE :title')
-                ->setParameter('title', "%{$title}%")
-                ->getQuery()
-                ->getResult();
-        }
-
-        /**
-         * @param $ownerID int
-         * @return mixed
-         */
-        public static function findByOwnerID( $ownerID ){
-            return self::entityManager()->getRepository(__CLASS__)->findByOwnerID( $ownerID );
         }
     }
 

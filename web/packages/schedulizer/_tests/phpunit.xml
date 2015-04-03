@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="./bootstrap.php" colors="true" backupGlobals="false">
     <testsuites>
-        <!--<testsuite name="Schedulizer: API">-->
-            <!--<directory>./Tests/Api</directory>-->
-        <!--</testsuite>-->
-        <!--<testsuite name="Schedulizer: Package">-->
-            <!--<directory>./Tests/Package</directory>-->
-        <!--</testsuite>-->
-        <!--<testsuite name="Schedulizer: Bin">-->
-            <!--<directory>./Tests/Bin</directory>-->
-        <!--</testsuite>-->
-        <testsuite name="Schedulizer: Entities">
+        <testsuite name="_api">
+            <directory>./Tests/Api</directory>
+        </testsuite>
+        <testsuite name="_package">
+            <directory>./Tests/Package</directory>
+        </testsuite>
+        <testsuite name="_bin">
+            <directory>./Tests/Bin</directory>
+        </testsuite>
+        <testsuite name="_entities">
             <directory>./Tests/Entities</directory>
+        </testsuite>
+        <testsuite name="_persistable">
+            <directory>./Tests/Persistable</directory>
         </testsuite>
     </testsuites>
 </phpunit>

@@ -1,9 +1,10 @@
 <?php namespace Schedulizer\Tests\Package {
 
-    use \Concrete\Core\Package\Package;
+    use Package;
 
     /**
      * Class PackageInstallationTest
+     * @group package
      * @package Schedulizer\Tests\Package
      * @todo:
      * ✓ Package installs OK
@@ -15,8 +16,11 @@
      */
     class PackageInstallationTest extends \PHPUnit_Framework_TestCase {
 
-        public function testSomething(){
-
+        public function testInstall(){
+            if( Package::getByHandle('schedulizer') ){
+                Package::getByHandle('schedulizer')->uninstall();
+            }
+            Package::getClass('schedulizer')->install();
         }
 
     }

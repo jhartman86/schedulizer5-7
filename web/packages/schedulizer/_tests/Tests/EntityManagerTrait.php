@@ -33,7 +33,7 @@
          */
         protected function packageEntityManager(){
             if( $this->_packageEntityManager === null ){
-                $this->_packageEntityManager = \Core::make('SchedulizerEntityManager'); //$this->packageStructManager()->getEntityManager();
+                $this->_packageEntityManager = $this->packageStructManager()->getEntityManager();
             }
             return $this->_packageEntityManager;
         }

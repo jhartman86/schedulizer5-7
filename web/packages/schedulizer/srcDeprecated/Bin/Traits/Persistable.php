@@ -9,7 +9,7 @@
      */
     trait Persistable {
 
-        //use SettersSerializers;
+        use SettersSerializers;
 
         /**
          * @param array $data
