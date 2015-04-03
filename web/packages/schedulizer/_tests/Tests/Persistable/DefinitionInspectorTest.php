@@ -1,7 +1,10 @@
 <?php namespace Schedulizer\Tests\Persistable {
 
     use \Concrete\Package\Schedulizer\Src\Calendar;
-    use \Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspector;
+    use \Concrete\Package\Schedulizer\Src\Event;
+    use \Concrete\Package\Schedulizer\Src\EventRepeat;
+    use Concrete\Package\Schedulizer\Src\EventRepeatNullify;
+    use Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspector;
 
     /**
      * @group persistable
@@ -20,24 +23,48 @@
             //$parsed = DefinitionInspector::parse(new Calendar());
         }
 
-//        public function testCalendarGet(){
-//            $calendar = Calendar::getByID(1);
-//            print_r($calendar);
+//        public function testCreateEvent(){
+//            Event::create(array(
+//                'title' => 'frack ya',
+//                'calendarID' => 'mk'
+//            ));
 //        }
 
-        public function testCalendarCreate(){
-            Calendar::create(array(
-                'id'    => 13,
-                'title' => 'yolodsf',
-                'createdUTC' => '2015-02-01 17:30:34'
-            ));
+        public function testSomething(){
+            try {
+                Event::getByID(1);
+            }catch(\Exception $e){
+                echo $e->getMessage();
+            }
+
         }
+
+//        /**
+//         * @expectedException \Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspectorException
+//         */
+//        public function testCalendarGet(){
+//            Event::getByID(1);
+//        }
+
+//        public function testCalendarCreate(){
+//            $cal = Calendar::create(array(
+//                'title' => 'yolodsf',
+//                'ownerID' => 22
+//            ));
+//            print_r($cal);
+//            exit;
+//        }
 //
 //        public function testCalendarUpdate(){
-//            $cal = Calendar::getByID(2);
+//            $cal = Calendar::getByID(3);
 //            if(is_object($cal)){
-//                $cal->update(array('title' => 'wtf mate'));
+//                $cal->update(array('title' => 'wtf mateasdfew'));
 //            }
+//            print_r($cal);
+//        }
+
+//        public function testCalendarDelete(){
+//            Calendar::getByID(2)->delete();
 //        }
 
     }

@@ -5,18 +5,20 @@
     use \ReflectionClass;
     use \ReflectionObject;
     use \ReflectionProperty;
+    use Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspectorException;
 
     class DefinitionInspector {
 
         protected static $parsedCache = array();
 
-        protected $reflectionObject;
+        protected $reflectionClass;
         protected $_propertyDefinitions;
         protected $_classDefinition;
         protected $_declarablePropertyDefinitions;
+        protected $_persistablePropertyDefinitions;
 
         protected function __construct( $object ){
-            $this->reflectionObject = new ReflectionClass($object);
+            $this->reflectionClass = new ReflectionClass($object);
         }
 
         /**
@@ -33,11 +35,14 @@
         /**
          * Analyze comments marked as @definition({ ..VALID_JSON.. }) on class
          * @return mixed|null
+         * @throws DefinitionInspectorException
          */
         public function classDefinition(){
             if( $this->_classDefinition === null ){
-                if( preg_match('/@definition\((.*)\)/', $this->reflectionObject->getDocComment(), $def) ){
+                if( preg_match('/@definition\((.*)\)/', $this->reflectionClass->getDocComment(), $def) ){
                     $this->_classDefinition = json_decode($def[1]);
+                }else{
+                    throw DefinitionInspectorException::classNotAnnotated($this->reflectionClass);
                 }
             }
             return $this->_classDefinition;
@@ -46,16 +51,19 @@
         /**
          * Analyze comments marked as @definition({ ..VALID_JSON.. }) on properties
          * @return array
+         * @throws DefinitionInspectorException
          */
         public function propertyDefinitions(){
             if( $this->_propertyDefinitions === null ){
                 $this->_propertyDefinitions = array();
-                foreach( $this->reflectionObject->getProperties() AS $reflProp ){
+                foreach( $this->reflectionClass->getProperties() AS $reflProp ){
                     if( $reflProp->isDefault() ){
                         if( preg_match('/@definition\((.*)\)/', $reflProp->getDocComment(), $def) ){
                             $declaration = json_decode($def[1]);
                             if( $declaration ){
                                 $this->_propertyDefinitions[$reflProp->getName()] = $declaration;
+                            }else{
+                                throw DefinitionInspectorException::invalidPropertyAnnotation($reflProp);
                             }
                         }
                     }
@@ -66,8 +74,7 @@
 
         /**
          * Using the already parsed property definitions, filter out properties
-         * that should not have their values passed to the database on persisting
-         * (eg. id, modifiedUTC)
+         * that should not have their values set on an instance (eg. id, modifiedUTC)
          * @return array
          */
         public function declarablePropertyDefinitions(){
@@ -83,27 +90,52 @@
             return $this->_declarablePropertyDefinitions;
         }
 
-//        public function declarableOnUpdateOnlyProperties(){
-//            if( $this->_declarableOnUpdateOnlyProperties === null ){
-//                $this->_declarableOnUpdateOnlyProperties = array_filter($this->declarableOnPersistProperties(),
-//                    function( $definition ){
-//                        if( !($definition->declarableOnPersist === "createOnly") ){
-//                            return true;
-//                        }
-//                    }
-//                );
-//            }
-//            return $this->_declarableOnUpdateOnlyProperties;
-//        }
+        /**
+         * Using the already parsed property definitions, filter out properties
+         * that should not have their values passed to the database on persisting
+         * (eg. id)
+         * @return array
+         */
+        public function persistablePropertyDefinitions(){
+            if( $this->_persistablePropertyDefinitions === null ){
+                $this->_persistablePropertyDefinitions = array_filter($this->propertyDefinitions(),
+                    function( $definition ){
+                        if( ($definition->declarable === false) && empty($definition->autoSet) ){
+                            return false;
+                        }
+                        return true;
+                    }
+                );
+            }
+            return $this->_persistablePropertyDefinitions;
+        }
 
+        /**
+         * Properties that can be set on an object (eg. NOT id)
+         * @param $object
+         * @param array $data
+         */
         public function reflectSettablesOntoInstance( $object, $data = array() ){
             $this->reflectWith($this->declarablePropertyDefinitions(), $object, $data);
         }
 
+        /**
+         * Reflect onto any property (ignore declarable restriction; for
+         * internal use like setting ID and such)
+         * @param $object
+         * @param array $data
+         * @internal
+         */
         public function reflectAllOntoInstance( $object, $data = array() ){
             $this->reflectWith($this->propertyDefinitions(), $object, $data);
         }
 
+        /**
+         * List of $properties to set, against which $object, merging what $data
+         * @param $properties
+         * @param $object
+         * @param $data
+         */
         protected function reflectWith( $properties, $object, $data ){
             $reflection = new ReflectionObject($object);
             $data       = (is_object($data)) ? $data : (object) $data;
@@ -127,11 +159,12 @@
          */
         protected function setReflectedPropertyOnObject( ReflectionProperty $property, $definition, $object, $value ){
             $dtzUTC = new DateTimeZone('UTC');
+
             switch( $definition->cast ){
-                case 'integer':
+                case 'int':
                     $property->setValue($object, (int)$value); break;
 
-                case 'boolean':
+                case 'bool':
                     $property->setValue($object, (bool)(int)$value); break;
 
                 case 'datetime':
@@ -142,6 +175,7 @@
                     }
                     $property->setValue($object, new DateTime($value, $dtzUTC));
                     break;
+
                 case 'string':
                     $property->setValue($object, $value);
                     break;

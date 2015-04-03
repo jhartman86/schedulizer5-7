@@ -1,40 +1,39 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
     use DateTimeZone;
+    use Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant;
+    use Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
 
     /**
      * Class Calendar
      * @package Concrete\Package\Schedulizer\Src
      * @definition({"table":"SchedulizerCalendar"})
      */
-    class Calendar {
+    class Calendar extends Persistant {
 
-        use Persistable\Mixins\Persistable;
+        use Crud;
 
-        /** @definition({"cast":"integer", "declarable":false}) */
+        /** @definition({"cast":"int", "declarable":false}) */
         protected $id;
 
-        /** @definition({"cast":"datetime", "declarable":false, "onCreateValue":"auto"}) */
+        /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]}) */
         protected $createdUTC;
 
-        /** @definition({"cast":"datetime", "declarable":false}) */
+        /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate","onUpdate"]}) */
         protected $modifiedUTC;
 
-        /** @definition({"cast":"string"}) */
+        /** @definition({"cast":"string","nullable":true}) */
         protected $title;
 
-        /** @definition({"cast":"integer"}) */
+        /** @definition({"cast":"int"}) */
         protected $ownerID;
 
         /** @definition({"cast":"string"}) */
         protected $defaultTimezone = 'UTC';
 
-        protected function onAfterFetch( $record ){
-            //$this->modifiedUTC = new \DateTime($record->modifiedUTC, new DateTimeZone('UTC'));
-        }
-
         /**
          * Constructor
+         * @param $setters
          */
         public function __construct( $setters = null ){
             $this->mergePropertiesFrom( $setters );
@@ -45,6 +44,27 @@
          */
         public function __toString(){
             return ucwords( $this->title );
+        }
+
+        /**
+         * @return int|null
+         */
+        public function getID(){
+            return $this->id;
+        }
+
+        /**
+         * @return DateTime
+         */
+        public function getModifiedUTC(){
+            return $this->modifiedUTC;
+        }
+
+        /**
+         * @return DateTime
+         */
+        public function getCreatedUTC(){
+            return $this->createdUTC;
         }
 
         /**
@@ -77,14 +97,6 @@
             }
             return $this->_calendarTimezoneObj;
         }
-
-        /**
-         * @param $id Int
-         * @return mixed SchedulizerCalendar|null
-         */
-//        public static function getByID( $id ){
-//            return self::entityManager()->find(__CLASS__, $id);
-//        }
 
 
         /**
