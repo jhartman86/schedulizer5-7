@@ -44,7 +44,7 @@
             $this->createStatement()->execute();
             $reflPropID = $this->entityReflection->getProperty('id');
             $reflPropID->setAccessible(true);
-            $reflPropID->setValue($this->entity, $this->connection()->lastInsertId());
+            $reflPropID->setValue($this->entity, (int)$this->connection()->lastInsertId());
         }
 
         /**

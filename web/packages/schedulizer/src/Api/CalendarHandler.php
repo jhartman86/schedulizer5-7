@@ -90,6 +90,7 @@
         /**
          * Delete a calendar
          * @param $id
+         * @return stdObject
          */
         public function delete( $id ){
             Calendar::getByID( $id )->delete();

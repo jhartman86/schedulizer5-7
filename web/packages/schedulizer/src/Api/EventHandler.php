@@ -71,8 +71,8 @@
                 throw new Exception("Calendar does not exist.");
             }
             $postData->ownerID      = ($user->getUserID() >= 1) ? $user->getUserID() : 0;
-            $postData->timezoneName = isset($postData->timezoneName) ? $postData->timezoneName : $calendarObj->getDefaultTimezone();
             $eventObj               = Event::create($postData);
+            $eventObj->setRepeaters($postData->repeatSettings);
             // Set response data
             $this->_response->setData($eventObj);
             $this->_response->setStatusCode(JsonResponse::HTTP_CREATED);
@@ -89,6 +89,7 @@
                 throw new Exception("Event with ID: {$id} does not exist.");
             }
             $eventObj->update($postData);
+            $eventObj->setRepeaters($postData->repeatSettings);
             // Set response data
             $this->_response->setData($eventObj);
             $this->_response->setStatusCode(JsonResponse::HTTP_OK);
@@ -100,6 +101,7 @@
          * @throws \Exception
          */
         public function delete( $id ){
+            /** @var $eventObj Event */
             $eventObj = Event::getByID($id);
             if( ! $eventObj ){
                 throw new Exception("Event with ID: {$id} does not exist.");

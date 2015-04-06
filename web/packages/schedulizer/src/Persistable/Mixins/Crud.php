@@ -14,12 +14,13 @@
         use Fetchers, Hooks, SettersSerializers;
 
         /**
-         * Is the entity persisted?
-         * @return bool
+         * @var $id int
+         * @definition({"cast":"int", "declarable":false})
          */
-        public function isPersisted(){
-            return (bool)((int)$this->id >= 1);
-        }
+        protected $id;
+
+        /** @return int|null */
+        public function getID(){ return $this->id; }
 
         /**
          * Get an instance by ID
@@ -32,6 +33,14 @@
                 $statement->bindValue(':id', $id);
                 return $statement;
             });
+        }
+
+        /**
+         * Is the entity persisted?
+         * @return bool
+         */
+        public function isPersisted(){
+            return (bool)((int)$this->id >= 1);
         }
 
         /**
@@ -73,10 +82,12 @@
          */
         public function delete(){
             $this->onBeforeDelete();
-            $definition = DefinitionInspector::parse($this);
-            $statement  = \Core::make('SchedulizerDB')->prepare("DELETE FROM {$definition->classDefinition()->table} WHERE id=:id");
-            $statement->bindValue(':id', $this->id);
-            $statement->execute();
+            $id = $this->id;
+            self::adhocQuery(function(\PDO $connection, $tableName) use ($id){
+                $statement = $connection->prepare("DELETE FROM {$tableName} WHERE id=:id");
+                $statement->bindValue(':id', $id);
+                return $statement;
+            });
             $this->onAfterDelete();
         }
 

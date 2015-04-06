@@ -13,40 +13,19 @@
 
         use Crud;
 
-        /**
-         * @var $id int
-         * @definition({"cast":"int", "declarable":false})
-         */
-        protected $id;
-
-        /**
-         * @var $createdUTC \DateTime
-         * @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]})
-         */
+        /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]}) */
         protected $createdUTC;
 
-        /**
-         * @var $modifiedUTC \DateTime
-         * @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate","onUpdate"]})
-         */
+        /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate","onUpdate"]}) */
         protected $modifiedUTC;
 
-        /**
-         * @var $title string
-         * @definition({"cast":"string","nullable":true})
-         */
+        /** @definition({"cast":"string","nullable":true}) */
         protected $title;
 
-        /**
-         * @var $ownerID int
-         * @definition({"cast":"int"})
-         */
+        /** @definition({"cast":"int"}) */
         protected $ownerID;
 
-        /**
-         * @var $defaultTimezone string
-         * @definition({"cast":"string"})
-         */
+        /** @definition({"cast":"string"}) */
         protected $defaultTimezone = 'UTC';
 
         /** @param $setters */
@@ -56,9 +35,6 @@
 
         /** @return string */
         public function __toString(){ return ucwords( $this->title ); }
-
-        /** @return int|null */
-        public function getID(){ return $this->id; }
 
         /** @return DateTime|null */
         public function getModifiedUTC(){ return $this->modifiedUTC; }
@@ -90,17 +66,27 @@
          * @return array|mixed
          */
         public function jsonSerialize(){
-            if( $this->id === null ){
+            if( ! $this->isPersisted() ){
                 $properties = (object) get_object_vars($this);
+                unset($properties->id);
                 unset($properties->createdUTC);
                 unset($properties->modifiedUTC);
-                unset($properties->id);
                 return $properties;
             }
             $properties                 = (object) get_object_vars($this);
             $properties->createdUTC     = $properties->createdUTC->format('c');
             $properties->modifiedUTC    = $properties->modifiedUTC->format('c');
             return $properties;
+        }
+
+        /****************************************************************
+         * Fetch Methods
+         ***************************************************************/
+
+        public static function fetchAll(){
+            return (array) self::fetchMultipleBy(function( \PDO $connection, $tableName ){
+                return $connection->prepare("SELECT * FROM {$tableName}");
+            });
         }
     }
 

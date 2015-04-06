@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="./bootstrap.php" colors="true" backupGlobals="false">
     <testsuites>
+        <testsuite name="_package">
+            <directory>./Tests/Package</directory>
+        </testsuite>
         <testsuite name="_api">
             <directory>./Tests/Api</directory>
         </testsuite>
         <testsuite name="_bin">
             <directory>./Tests/Bin</directory>
         </testsuite>
-        <testsuite name="_package">
-            <directory>./Tests/Package</directory>
-        </testsuite>
-
-        <!--<testsuite name="_entities">
+        <testsuite name="_entities">
             <directory>./Tests/Entities</directory>
-        </testsuite>-->
+        </testsuite>
         <testsuite name="_persistable">
             <directory>./Tests/Persistable</directory>
         </testsuite>

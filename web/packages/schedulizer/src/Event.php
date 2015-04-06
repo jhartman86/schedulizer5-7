@@ -17,11 +17,11 @@
         const   USE_CALENDAR_TIMEZONE_TRUE      = true,
                 USE_CALENDAR_TIMEZONE_FALSE     = false,
                 // open ended?
-                OPEN_ENDED_TRUE                 = true,
-                OPEN_ENDED_FALSE                = false,
+                IS_OPEN_ENDED_TRUE              = true,
+                IS_OPEN_ENDED_FALSE             = false,
                 // all day booleans
-                ALL_DAY_TRUE                    = true,
-                ALL_DAY_FALSE                   = false,
+                IS_ALL_DAY_TRUE                 = true,
+                IS_ALL_DAY_FALSE                = false,
                 // is recurring booleans
                 IS_REPEATING_TRUE               = true,
                 IS_REPEATING_FALSE              = false,
@@ -41,9 +41,6 @@
                 // alias? (only used when editing recurring events that are not the original)
                 IS_ALIAS_TRUE                   = true,
                 IS_ALIAS_FALSE                  = false;
-
-        /** @definition({"cast":"int", "declarable":false}) */
-        protected $id;
 
         /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]}) */
         protected $createdUTC;
@@ -67,10 +64,10 @@
         protected $endUTC;
 
         /** @definition({"cast":"bool","nullable":true}) */
-        protected $isOpenEnded = self::OPEN_ENDED_FALSE;
+        protected $isOpenEnded = self::IS_OPEN_ENDED_FALSE;
 
         /** @definition({"cast":"bool","nullable":true}) */
-        protected $isAllDay = self::ALL_DAY_FALSE;
+        protected $isAllDay = self::IS_ALL_DAY_FALSE;
 
         /** @definition({"cast":"bool","nullable":false}) */
         protected $useCalendarTimezone = self::USE_CALENDAR_TIMEZONE_TRUE;
@@ -114,22 +111,33 @@
             $this->mergePropertiesFrom($setters);
         }
 
+        /**
+         * Execute before persisting to the database.
+         * @throws \Exception
+         */
         protected function onBeforePersist(){
-            if( !($this->startUTC instanceof DateTime) ){
+            // If no calendar ID is set, throw an exception
+            if( $this->calendarID === null ){
+                throw new \Exception('Event cannot be saved without a CalendarID');
+            }
+            // Set startUTC if not already set
+            if( ! $this->startUTC ){
                 $this->startUTC = new DateTime($this->startUTC, new DateTimeZone('UTC'));
             }
-            if( !($this->endUTC instanceof DateTime) ){
+            // Set endUTC if not already set
+            if( ! $this->endUTC ){
                 $this->endUTC = new DateTime($this->endUTC, new DateTimeZone('UTC'));
             }
-            if( !($this->repeatEndUTC instanceof DateTime) ){
+            // Set repeatEndUTC if not already set
+            if( ! $this->repeatEndUTC ){
                 $this->repeatEndUTC = new DateTime($this->repeatEndUTC, new DateTimeZone('UTC'));
             }
-//            if( $this->useCalendarTimezone === self::USE_CALENDAR_TIMEZONE_TRUE ){
-//                if( ! $this->calendarInstance ){
-//                    throw new \Exception('Events require a Calendar association');
-//                }
-//                $this->timezoneName = $this->calendarInstance->getDefaultTimezone();
-//            }
+            // If event should inherit calendar timezone. Note, when trying to fetch the calendar,
+            // if the calendarID is invalid (calendar record doesn't exist), an exception will
+            // implicitly be thrown.
+            if( $this->useCalendarTimezone === self::USE_CALENDAR_TIMEZONE_TRUE ){
+                $this->timezoneName = $this->getCalendar()->getDefaultTimezone();
+            }
         }
 
         /**
@@ -138,6 +146,12 @@
         public function __toString(){
             return ucwords( $this->title );
         }
+
+        /** @return DateTime|null */
+        public function getModifiedUTC(){ return $this->modifiedUTC; }
+
+        /** @return DateTime|null */
+        public function getCreatedUTC(){ return $this->createdUTC; }
 
         /**
          * @return int|null
@@ -148,9 +162,16 @@
 
         /**
          * @return Calendar
+         * @throws \Exception
          */
         public function getCalendar(){
-            return $this->calendarInstance;
+            if( $this->_calendar === null ){
+                $this->_calendar = Calendar::getByID($this->calendarID);
+                if( ! $this->_calendar ){
+                    throw new \Exception('Calendar associated with Event does not exist');
+                }
+            }
+            return $this->_calendar;
         }
 
         /**
@@ -272,18 +293,75 @@
             return $this->fileID;
         }
 
+        public function getTimezoneObj(){
+            if( $this->_timezoneObj ){
+                $this->_timezoneObj = new DateTimeZone($this->timezoneName);
+            }
+            return $this->_timezoneObj;
+        }
+
+
+        /**
+         * Convenience method for creating/updating events when updating via the API
+         * and passing repeat settings...
+         * @param $repeatSettings
+         * @return void
+         */
+        public function setRepeaters( $repeatSettings = null ){
+            EventRepeat::purgeAllByEventID($this->id);
+
+            if( $this->isRepeating ){
+                switch( $this->repeatTypeHandle ){
+                    // Repeat daily or yearly...
+                    case self::REPEAT_TYPE_HANDLE_DAILY:
+                    case self::REPEAT_TYPE_HANDLE_YEARLY:
+                        EventRepeat::create(array('eventID' => $this->id));
+                        break;
+
+                    // Repeat weekly...
+                    case self::REPEAT_TYPE_HANDLE_WEEKLY:
+                        if( is_object($repeatSettings) && (is_array($repeatSettings->weekdayIndices) && !empty($repeatSettings->weekdayIndices)) ){
+                            foreach($repeatSettings->weekdayIndices AS $weekdayIndex){
+                                EventRepeat::create(array('eventID' => $this->id, 'repeatWeekday' => $weekdayIndex));
+                            }
+                        }
+                        break;
+
+                    // Repeat monthly...
+                    case self::REPEAT_TYPE_HANDLE_MONTHLY:
+                        // If its repeating only on a specific date(eg. "21st" of every month)
+                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_METHOD_SPECIFIC ){
+                            EventRepeat::create(array('eventID' => $this->id, 'repeatDay' => $repeatSettings->monthlySpecificDay));
+                        }
+                        // Its repeating on an abstract (eg. "Second Thursday" of every month)
+                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_METHOD_ORDINAL ){
+                            EventRepeat::create(array('eventID' => $this->id, 'repeatWeek' => $repeatSettings->monthlyDynamicWeek, 'repeatWeekday' => $repeatSettings->monthlyDynamicWeekday));
+                        }
+                        break;
+                }
+            }
+        }
+
 
         /**
          * Return properties for JSON serialization
          * @return array|mixed
          */
         public function jsonSerialize(){
+            if( ! $this->isPersisted() ){
+                $properties = (object) get_object_vars($this);
+                unset($properties->id);
+                unset($properties->createdUTC);
+                unset($properties->modifiedUTC);
+                return $properties;
+            }
             $properties                 = (object) get_object_vars($this);
             $properties->startUTC       = $properties->startUTC->format('c');
             $properties->endUTC         = $properties->endUTC->format('c');
             $properties->repeatEndUTC   = $properties->repeatEndUTC->format('c');
             $properties->createdUTC     = $properties->createdUTC->format('c');
             $properties->modifiedUTC    = $properties->modifiedUTC->format('c');
+            $properties->_repeaters     = (array) EventRepeat::getAllByEventID($this->id);
             return $properties;
         }
 

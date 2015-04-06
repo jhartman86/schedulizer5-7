@@ -6,16 +6,13 @@
      */
     abstract class DatabaseTestCase extends \PHPUnit_Extensions_Database_TestCase {
 
-        use DatabaseConnectionTrait, EntityManagerTrait;
+        use DatabaseConnectionTrait, PackageTrait;
 
         /**
          * PHPUnit fixture setup.
          */
         public static function setUpBeforeClass(){
-            $klass = get_called_class();
-            $static = new $klass;
-            $static->packageEntityManager()->clear();
-            $static->destroySchema()->createSchema();
+            // Destroy and recreate entire schema?
         }
 
         /**
@@ -33,7 +30,6 @@
         public function setUp(){
             $this->execWithoutConstraints(function(){
                 parent::setUp();
-                //$this->packageEntityManager()->clear();
             });
         }
 

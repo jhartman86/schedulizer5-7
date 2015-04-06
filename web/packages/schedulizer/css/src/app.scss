@@ -41,6 +41,7 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
 
 // Custom modal
 [modal-window]{font-family:$font-family-sans-serif;font-size:16px;width:100%;height:100%;visibility:hidden;opacity:0;display:table;position:fixed;top:0;left:0;background:rgba(255,255,255,0.95);z-index:-1;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;@include transform(translateX(-100%) translateZ(0));@include transition(all 0.25s ease);
+  a {cursor:pointer;}
   &.open {visibility:visible;opacity:1;z-index:999;@include transform(translateX(0) translateZ(0));}
   .icon-close {position:absolute;top:49px;right:0;font-size:3rem;line-height:1;padding:0;z-index:2;cursor:pointer;@include transform(rotate(0));@include transition(all 0.25s ease);
     &:hover {text-decoration:none;@include transform(rotate(-90deg));}
@@ -48,7 +49,7 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
   .loading {
     img {padding-bottom:20px;}
   }
-  .modal-inner {display:table-cell;width:100%;height:100%;vertical-align:middle;text-align:center;}
+  .modal-inner {padding-top:34px;display:table-cell;width:100%;height:100%;vertical-align:middle;text-align:center;}
   .container-fluid {width:75%;max-width:700px;text-align:left;}
 
   form {
@@ -71,9 +72,24 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
       }
       .input-title {font-weight:200;border:0;outline:0;padding:0;height:auto;font-size:180%;background:transparent;@include box-shadow(none);}
       .form-group {position:relative;}
-      .time-widgets {
+
+      // start/end time display
+      .row {
         &.is-all-day {
-          .form-group:nth-child(2){display:none;}
+          .form-group {display:none;}
+          .form-group:first-of-type {display:block;width:auto;}
+          .end-dt {display:none;}
+        }
+        &.is-open-ended {
+          .end-dt {display:none;}
+        }
+      }
+
+      // Nullifiers
+      .has-nullifiers {font-size:13px;display:inline-block;padding:0 5px;}
+      .nullifiers-list {
+        .btn {width:25%;position:relative;
+          i {position:absolute;font-size:20px;right:4px;top:4px;}
         }
       }
     }
@@ -88,10 +104,12 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
         .form-group {display:inline-block;width:50%;font-size:$font-size-base;line-height:1;
           &:nth-of-type(2) input {border-left:0;}
         }
-        &.is-all-day {
-          .form-group {width:100%;}
-        }
       }
     }
   }
+}
+
+// Overflow stuff for the modal
+html.schedulizer-modal {overflow-y:hidden;
+  .event-form-wrapper {padding:15px 0;max-height:100%;width:100%;overflow-y:scroll;}
 }

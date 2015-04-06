@@ -35,6 +35,10 @@ angular.module('schedulizer.app').
                         scope.$apply(Controller.$setViewValue(this.get()));
                     }
                 }));
+
+                if( Controller.$viewValue ){
+                    $elem.redactor('set', Controller.$viewValue);
+                }
             };
         }
 

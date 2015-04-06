@@ -38,7 +38,7 @@
             // Create event list
             $this->eventListObj = new EventList(array($calendarID));
             $this->eventListObj->setStartDate(new DateTime($this->requestParams()->start, new DateTimeZone('UTC')));
-            //$this->eventListObj->setEndDate(new DateTime($this->requestParams()->end, new DateTimeZone('UTC')));
+            $this->eventListObj->setEndDate(new DateTime($this->requestParams()->end, new DateTimeZone('UTC')));
             $results = $this->eventListObj->get();
             $this->responseObj->setData(new EventFeedFormat($results));
             $this->responseObj->setStatusCode(JsonResponse::HTTP_OK);

@@ -5,6 +5,24 @@
     trait Fetchers {
 
         /**
+         * Adhoc queries are different in that an executed PDOStatement will be returned
+         * instead of having the results be transformed automatically into relevant objects.
+         * Reason, for example, would be a delete statement.
+         * @param callable $callback
+         * @return mixed
+         * @throws \Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspectorException
+         */
+        public static function adhocQuery( \Closure $callback ){
+            $instance   = new self();
+            $definition = DefinitionInspector::parse($instance);
+            $connection = \Core::make('SchedulizerDB');
+
+            $statement = $callback( $connection, $definition->classDefinition()->table, $definition );
+            $statement->execute();
+            return $statement;
+        }
+
+        /**
          * Pass in an anonymous function that receives three arguments (a \PDOConnection object,
          * the table name, and optionally the full definition inspection), and pass back a
          * prepared statement. The statement will be executed and the results from the record

@@ -87,6 +87,7 @@ angular.module('schedulizer.app').
          */
         function _link( scope, $elem, attrs ){
             scope.$watch('manager.classes.open', function(_val){
+                angular.element(document.documentElement).toggleClass('schedulizer-modal', _val);
                 if( ! _val ){
                     scope.manager.data = null;
                 }

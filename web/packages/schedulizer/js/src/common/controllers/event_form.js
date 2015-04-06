@@ -5,14 +5,23 @@ angular.module('schedulizer.app').
 
             $scope._ready                               = false;
             $scope._requesting                          = false;
-            $scope.repeatTypeHandleOptions              = Helpers.eventDefaults.repeatTypeHandleOptions;
-            $scope.repeatIndefiniteOptions              = Helpers.eventDefaults.repeatIndefiniteOptions;
-            $scope.weekdayRepeatOptions                 = Helpers.eventDefaults.weekdayRepeatOptions;
-            $scope.repeatMonthlyMethodOptions           = Helpers.eventDefaults.repeatMonthlyMethodOptions;
+            $scope.repeatTypeHandleOptions              = Helpers.repeatTypeHandleOptions();
+            $scope.repeatIndefiniteOptions              = Helpers.repeatIndefiniteOptions();
+            $scope.weekdayRepeatOptions                 = Helpers.weekdayRepeatOptions();
+            $scope.repeatMonthlyMethodOptions           = Helpers.repeatMonthlyMethodOptions();
             $scope.repeatMonthlySpecificDayOptions      = Helpers.range(1,31);
-            $scope.repeatMonthlyDynamicWeekOptions      = Helpers.eventDefaults.repeatMonthlyDynamicWeekOptions;
-            $scope.repeatMonthlyDynamicWeekdayOptions   = Helpers.eventDefaults.repeatMonthlyDynamicWeekdayOptions;
-            $scope.eventColorOptions                    = Helpers.eventDefaults.eventColorOptions;
+            $scope.repeatMonthlyDynamicWeekOptions      = Helpers.repeatMonthlyDynamicWeekOptions();
+            $scope.repeatMonthlyDynamicWeekdayOptions   = Helpers.repeatMonthlyDynamicWeekdayOptions();
+            $scope.eventColorOptions                    = Helpers.eventColorOptions();
+
+            // Default repeat settings. These don't map directly to an eventObj;
+            // but are used in defining it
+            $scope.repeatSettings = {
+                weekdayIndices          : [],
+                monthlySpecificDay      : 1,
+                monthlyDynamicWeek      : $scope.repeatMonthlyDynamicWeekOptions[0].value,
+                monthlyDynamicWeekday   : $scope.repeatMonthlyDynamicWeekdayOptions[0].value
+            };
 
             // Did the user click to edit an event that's an alias?
             $scope.warnAliased = ModalManager.data.eventObj.aliased || false;
@@ -37,6 +46,7 @@ angular.module('schedulizer.app').
                         description                 : null,
                         startUTC                    : _moment(),
                         endUTC                      : _moment(),
+                        isOpenEnded                 : false,
                         isAllDay                    : false,
                         useCalendarTimezone         : true,
                         timezoneName                : returned[1].defaultTimezone,
@@ -68,6 +78,37 @@ angular.module('schedulizer.app').
                     $scope.timezoneOptions = returned[0];
                     $scope.entity = returned[1];
 
+                    // Handle passed repeat settings. this is not superb...
+                    if( angular.isArray($scope.entity._repeaters) ){
+                        switch($scope.entity.repeatTypeHandle){
+                            case 'weekly':
+                                var values = $scope.entity._repeaters.map(function( record ){
+                                    return record.repeatWeekday;
+                                });
+                                angular.forEach($scope.weekdayRepeatOptions, function( obj ){
+                                    obj.checked = values.indexOf(obj.value) > -1;
+                                });
+                                break;
+                            case 'monthly':
+                                // "Repeat monthly specific"
+                                if( $scope.entity.repeatMonthlyMethod === true ){
+                                    $scope.repeatSettings.monthlySpecificDay = $scope.entity._repeaters[0].repeatDay;
+                                    // "Repeat monthly ordinal"
+                                }else{
+                                    $scope.repeatSettings.monthlyDynamicWeek = $scope.entity._repeaters[0].repeatWeek;
+                                    $scope.repeatSettings.monthlyDynamicWeekday = $scope.entity._repeaters[0].repeatWeekday;
+                                }
+                                break;
+                            case 'yearly':
+                                break;
+                            default:
+                                // daily, do nothing
+                                break;
+                        }
+                        // Execute scope.selected weekdays function to apply the settings above
+                        $scope.selectedWeekdays();
+                    }
+
                     jQuery('[data-file-selector="fileID"]').concreteFileSelector({
                         'inputName': 'fileID',
                         'fID': $scope.entity.fileID,
@@ -77,14 +118,6 @@ angular.module('schedulizer.app').
                     $scope._ready = true;
                 });
             }
-
-            // These don't map directly to an eventObj; but are used in defining it
-            $scope.repeatSettings = {
-                weekdayIndices          : [],
-                monthlySpecificDay      : 1,
-                monthlyDynamicWeek      : $scope.repeatMonthlyDynamicWeekOptions[0].value,
-                monthlyDynamicWeekday   : $scope.repeatMonthlyDynamicWeekdayOptions[0].value
-            };
 
             $scope.selectedWeekdays = function(){
                 var selected = $filter('filter')($scope.weekdayRepeatOptions, {checked: true});
@@ -149,6 +182,46 @@ angular.module('schedulizer.app').
             $scope.deleteEvent = function(){
                 $scope.entity.$delete().then(function( resp ){
                     if( resp.ok ){
+                        $rootScope.$emit('calendar.refresh');
+                        ModalManager.classes.open = false;
+                    }
+                });
+            };
+
+            // Nullifiers
+            API.eventNullify.query({eventID:ModalManager.data.eventObj.id}, function( resp ){
+                $scope.hasNullifiers  = resp.length >= 1;
+                $scope.showNullifiers = false;
+                resp.forEach(function( resource ){
+                    resource._moment = _moment.utc(resource.hideOnDate);
+                });
+                $scope.configuredNullifiers = resp;
+            });
+
+            /**
+             * Delete an existing nullifier record.
+             * @param resource
+             */
+            $scope.cancelNullifier = function( resource ){
+                resource.$delete(function( resp ){
+                    $rootScope.$emit('calendar.refresh');
+                });
+            };
+
+            /**
+             * Hide a single event from a day series (this is called when the event repeat warning
+             * message pops up, nowhere else)
+             */
+            $scope.nullifyInSeries = function(){
+                // Setup resource
+                var nullifier = new API.eventNullify({
+                    eventID: ModalManager.data.eventObj.id,
+                    hideOnDate: ModalManager.data.eventObj.record.startLocalized
+                });
+                // Persist it
+                nullifier.$save().then(function( resp ){
+                    if( resp.id ){
+                        $scope._requesting = false;
                         $rootScope.$emit('calendar.refresh');
                         ModalManager.classes.open = false;
                     }

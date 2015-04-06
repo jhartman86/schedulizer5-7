@@ -8,20 +8,8 @@
     class Calendars extends DashboardController {
 
         public function view(){
-            $this->set('calendars', Calendar::findAll());
+            $this->set('calendars', Calendar::fetchAll());
             $this->set('conversionHelper', new TimeConversion());
-        }
-
-        /**
-         * @deprecate: User the API
-         */
-        public function add(){
-            $calendarObj = Calendar::create(array(
-                'title'             => 'Untitled',
-                'defaultTimezone'   => Config::get('app.timezone'),
-                'ownerID'           => $this->currentUser()->getUserID()
-            ));
-            $this->redirect('/dashboard/schedulizer/calendars/manage', $calendarObj->getID());
         }
 
     }

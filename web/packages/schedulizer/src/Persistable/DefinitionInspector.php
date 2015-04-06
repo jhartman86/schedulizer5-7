@@ -73,7 +73,7 @@
         }
 
         /**
-         * Get a single property definition
+         *
          * @param $propertyName
          * @return mixed
          * @throws DefinitionInspectorException
@@ -151,7 +151,7 @@
             $data       = (is_object($data)) ? $data : (object) $data;
 
             foreach($properties AS $prop => $definition){
-                if( $data->{$prop} ){
+                if( property_exists($data, $prop) ){
                     $property = $reflection->getProperty($prop);
                     $property->setAccessible(true);
                     $this->setReflectedPropertyOnObject($property, $definition, $object, $data->{$prop});

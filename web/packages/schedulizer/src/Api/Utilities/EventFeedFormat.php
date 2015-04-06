@@ -34,7 +34,7 @@
 //                    'startUTC'          => $eventData['startUTC'],
 //                    'endUTC'            => $eventData['endUTC'],
 //                    'startLocalized'    => $eventData['startLocalized'],
-//                    'endLocalized'      => $eventData['endLocalized'],
+//                    'endLocalized'      => $eventData['endLocalized']
                 ));
             }
         }

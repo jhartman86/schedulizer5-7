@@ -14,6 +14,8 @@
                     $this->set('pageTitle', $calendarObj->getTitle());
                     return;
                 }
+                // Otherwise, go back to all calendars
+                $this->redirect('/dashboard/schedulizer/calendars');
             }catch(\Exception $e){
                 $this->redirect('/dashboard/schedulizer/calendars');
             }

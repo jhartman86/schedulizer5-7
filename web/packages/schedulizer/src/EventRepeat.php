@@ -18,13 +18,13 @@
         /** @definition({"cast":"int"}) */
         protected $eventID;
 
-        /** @definition({"cast":"int"}) */
+        /** @definition({"cast":"int","nullable":true}) */
         protected $repeatWeek;
 
-        /** @definition({"cast":"int"}) */
+        /** @definition({"cast":"int","nullable":true}) */
         protected $repeatDay;
 
-        /** @definition({"cast":"int"}) */
+        /** @definition({"cast":"int","nullable":true}) */
         protected $repeatWeekday;
 
         /**
@@ -49,14 +49,28 @@
         }
 
         /**
+         * Purge repeat settings associated with a given event.
+         * @param $eventID
+         * @throws \Exception
+         */
+        public static function purgeAllByEventID( $eventID ){
+            self::adhocQuery(function( \PDO $connection, $tableName ) use ($eventID){
+                $statement = $connection->prepare("DELETE FROM {$tableName} WHERE eventID=:eventID");
+                $statement->bindValue(':eventID', $eventID);
+                return $statement;
+            });
+        }
+
+        /**
          * Return properties for JSON serialization
          * @return array|mixed
          */
-//        public function jsonSerialize(){
-//            $properties = (object) get_object_vars($this);
-//            unset($properties->eventInstance);
-//            return $properties;
-//        }
+        public function jsonSerialize(){
+            $properties = (object) get_object_vars($this);
+            unset($properties->id);
+            unset($properties->eventID);
+            return $properties;
+        }
 
     }
 

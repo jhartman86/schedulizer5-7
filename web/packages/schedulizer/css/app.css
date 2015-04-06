@@ -2176,6 +2176,8 @@
   -webkit-transition: all 0.25s ease;
   -o-transition: all 0.25s ease;
   transition: all 0.25s ease; }
+  [modal-window] a {
+    cursor: pointer; }
   [modal-window].open {
     visibility: visible;
     opacity: 1;
@@ -2209,6 +2211,7 @@
   [modal-window] .loading img {
     padding-bottom: 20px; }
   [modal-window] .modal-inner {
+    padding-top: 34px;
     display: table-cell;
     width: 100%;
     height: 100%;
@@ -2291,8 +2294,27 @@
     box-shadow: none; }
   [modal-window] form.event .form-group {
     position: relative; }
-  [modal-window] form.event .time-widgets.is-all-day .form-group:nth-child(2) {
+  [modal-window] form.event .row.is-all-day .form-group {
     display: none; }
+  [modal-window] form.event .row.is-all-day .form-group:first-of-type {
+    display: block;
+    width: auto; }
+  [modal-window] form.event .row.is-all-day .end-dt {
+    display: none; }
+  [modal-window] form.event .row.is-open-ended .end-dt {
+    display: none; }
+  [modal-window] form.event .has-nullifiers {
+    font-size: 13px;
+    display: inline-block;
+    padding: 0 5px; }
+  [modal-window] form.event .nullifiers-list .btn {
+    width: 25%;
+    position: relative; }
+    [modal-window] form.event .nullifiers-list .btn i {
+      position: absolute;
+      font-size: 20px;
+      right: 4px;
+      top: 4px; }
 
 @media screen and (min-width: 768px) {
   [modal-window] form.event .delete-event {
@@ -2309,8 +2331,13 @@
       font-size: 14px;
       line-height: 1; }
       [modal-window] form.event .time-widgets .form-group:nth-of-type(2) input {
-        border-left: 0; }
-    [modal-window] form.event .time-widgets.is-all-day .form-group {
-      width: 100%; } }
+        border-left: 0; } }
+html.schedulizer-modal {
+  overflow-y: hidden; }
+  html.schedulizer-modal .event-form-wrapper {
+    padding: 15px 0;
+    max-height: 100%;
+    width: 100%;
+    overflow-y: scroll; }
 
 /*# sourceMappingURL=app.css.map */

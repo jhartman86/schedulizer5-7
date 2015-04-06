@@ -83,6 +83,12 @@
                     'trailingSlash' => '/'
                 ), array('id' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET','POST','PUT','DELETE')));
 
+                $routes->add('schedulizer_event_nullify', new \Symfony\Component\Routing\Route('/_schedulizer/event_nullify/{id}{trailingSlash}', array(
+                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\EventNullifyHandler::dispatch',
+                    'id'            => null,
+                    'trailingSlash' => '/'
+                ), array('id' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET','POST','PUT','DELETE')));
+
                 $routes->add('schedulizer_timezones', new \Symfony\Component\Routing\Route('/_schedulizer/timezones{trailingSlash}', array(
                     '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\TimezonesHandler::getList',
                     'trailingSlash' => '/'
@@ -94,44 +100,43 @@
         public function uninstall(){
             parent::uninstall();
 
-            $database = Loader::db();
             $tables   = array('SchedulizerCalendar', 'SchedulizerEvent', 'SchedulizerEventRepeat', 'SchedulizerEventRepeatNullify');
-            foreach($tables AS $name){
-                try {
-                    $database->Execute(sprintf("DROP TABLE %s", $name));
-                }catch(\Exception $e){ /* do nothing */ }
-            }
+            try {
+                $database = Loader::db();
+                $database->Execute(sprintf("SET foreign_key_checks = 0; DROP TABLE IF EXISTS %s; SET foreign_key_checks = 1", join(',', $tables)));
+            }catch(\Exception $e){ /* do nothing */ }
         }
 
 
         /**
          * Ensure system dependencies are met (specifically, MySQL timezone tables and PHP datetime classes are working
          * correctly).
+         * @todo: Tests for foreign key support and cascading deletes
          * @return bool
          * @throws \Exception
          */
         private function checkDependencies(){
-//            $support = new Src\Install\Support(Loader::db());
-//
-//            if( ! $support->phpVersion() ){
-//                throw new \Exception(t("Schedulizer requires PHP 5.4 or greater; you are running %s.", phpversion()));
-//                return false;
-//            }
-//
-//            if( ! $support->mysqlHasTimezoneTables() ){
-//                throw new \Exception('Schedulizer requires that MySQL has timezone tables installed, which they appear not to be. Please contact your hosting provider.');
-//                return false;
-//            }
-//
-//            if( ! $support->phpDateTimeZoneConversionsCorrect() ){
-//                throw new \Exception('The DateTime class in PHP is not making correct conversions. Please ensure your PHP version is >= 5.4.');
-//                return false;
-//            }
-//
-//            if( ! $support->phpDateTimeSupportsOrdinals() ){
-//                throw new \Exception('Your PHP version/installation does not support DateTime ordinals (relative) words. Please ensure your version is >= 5.4.');
-//                return false;
-//            }
+            $support = new Src\Install\Support(Loader::db());
+
+            if( ! $support->phpVersion() ){
+                throw new \Exception(t("Schedulizer requires PHP 5.4 or greater; you are running %s.", phpversion()));
+                return false;
+            }
+
+            if( ! $support->mysqlHasTimezoneTables() ){
+                throw new \Exception('Schedulizer requires that MySQL has timezone tables installed, which they appear not to be. Please contact your hosting provider.');
+                return false;
+            }
+
+            if( ! $support->phpDateTimeZoneConversionsCorrect() ){
+                throw new \Exception('The DateTime class in PHP is not making correct conversions. Please ensure your PHP version is >= 5.4.');
+                return false;
+            }
+
+            if( ! $support->phpDateTimeSupportsOrdinals() ){
+                throw new \Exception('Your PHP version/installation does not support DateTime ordinals (relative) words. Please ensure your version is >= 5.4.');
+                return false;
+            }
 
             return true;
         }
@@ -163,8 +168,12 @@
         private function installAndUpdate(){
             $this->setupBlocks()
                  ->setupSinglePages();
-//            $ci = new ContentImporter();
-//            $ci->importContentFile($this->getPackagePath() . '/content.xml');
+
+            /** @var $connection \PDO :: Setup foreign key associations */
+            $connection = \Core::make('SchedulizerDB');
+            $connection->query("ALTER TABLE SchedulizerEvent ADD CONSTRAINT FK_calendar FOREIGN KEY (calendarID) REFERENCES SchedulizerCalendar(id) ON UPDATE CASCADE ON DELETE CASCADE");
+            $connection->query("ALTER TABLE SchedulizerEventRepeat ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
+            $connection->query("ALTER TABLE SchedulizerEventRepeatNullify ADD CONSTRAINT FK_event2 FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
         }
 
 
