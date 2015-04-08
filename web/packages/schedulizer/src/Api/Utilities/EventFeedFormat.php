@@ -11,19 +11,24 @@
          * @param array $results
          */
         public function __construct( array $results = array() ){
-            $dtzUTC = new DateTimeZone('UTC');
+            $timezoneUTC = new DateTimeZone('UTC');
 
             foreach($results AS $eventData){
+                $timezoneDerived    = new DateTimeZone($eventData['derivedTimezone']);
+
                 array_push($this->formatted, (object)array(
-                    'id'                => $eventData['eventID'],
+                    'id'                => (int)$eventData['eventID'],
+                    'eventTimeID'       => (int)$eventData['eventTimeID'],
+                    'calendarID'        => (int)$eventData['calendarID'],
                     'title'             => $eventData['title'],
                     'color'             => $eventData['eventColor'],
+                    'isAllDay'          => (bool)$eventData['isAllDay'],
                     'synthetic'         => (bool)$eventData['synthetic'],
-                    'timezone'          => new DateTimeZone($eventData['timezoneName']),
-                    'startUTC'          => (new DateTime($eventData['startUTC'], $dtzUTC))->format('c'),
-                    'startLocalized'    => (new DateTime($eventData['startLocal'], new DateTimeZone($eventData['timezoneName'])))->format('c'),
-                    'endUTC'            => (new DateTime($eventData['endUTC'], $dtzUTC))->format('c'),
-                    'endLocalized'      => (new DateTime($eventData['endLocal'], new DateTimeZone($eventData['timezoneName'])))->format('c')
+                    'timezone'          => $timezoneDerived,
+                    'startUTC'          => (new DateTime($eventData['startUTC'], $timezoneUTC))->format('c'),
+                    'startLocalized'    => (new DateTime($eventData['startLocal'], $timezoneDerived))->format('c'),
+                    'endUTC'            => (new DateTime($eventData['endUTC'], $timezoneUTC))->format('c'),
+                    'endLocalized'      => (new DateTime($eventData['endLocal'], $timezoneDerived))->format('c')
                 ));
             }
 

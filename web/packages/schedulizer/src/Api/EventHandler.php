@@ -72,8 +72,7 @@
                 throw new Exception("Calendar does not exist.");
             }
             $postData->ownerID      = ($user->getUserID() >= 1) ? $user->getUserID() : 0;
-            $eventObj               = Event::create($postData);
-            $eventObj->setRepeaters($postData->repeatSettings);
+            $eventObj               = Event::createWithEventTimes($postData);
             // Set response data
             $this->_response->setData($eventObj);
             $this->_response->setStatusCode(JsonResponse::HTTP_CREATED);
@@ -89,8 +88,7 @@
             if( ! $eventObj ){
                 throw new Exception("Event with ID: {$id} does not exist.");
             }
-            $eventObj->update($postData);
-            $eventObj->setRepeaters($postData->repeatSettings);
+            $eventObj->updateWithEventTimes($postData);
             // Set response data
             $this->_response->setData($eventObj);
             $this->_response->setStatusCode(JsonResponse::HTTP_OK);

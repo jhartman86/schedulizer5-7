@@ -79,7 +79,7 @@
         /** @definition({"cast":"int","nullable":true}) */
         protected $repeatMonthlyOrdinalWeekday = null;
 
-        /** @definition({"cast":"string"}) */
+        /** @definition({"cast":"string","declarable":false}) */
         protected $weeklyDays;
 
         /**
@@ -228,6 +228,29 @@
 
 
         /**
+         * Pass in event time data, and if it has weeklyDays set as an array, this'll create it.
+         * @param $data
+         * @return $this
+         */
+        public static function createWithWeeklyRepeatSettings( $data ){
+            if( is_array($data->weeklyDays) && !empty($data->weeklyDays) ){
+                $eventTimeObj = self::create($data);
+                foreach($data->weeklyDays AS $weekdayValue){
+                    self::adhocQuery(function(\PDO $connection) use ($eventTimeObj, $weekdayValue){
+                        $statement = $connection->prepare("INSERT INTO SchedulizerEventTimeWeekdays (eventTimeID, repeatWeeklyDay) VALUES (:eventTimeID,:repeatWeeklyDay)");
+                        $statement->bindValue(':eventTimeID', $eventTimeObj->getID());
+                        $statement->bindValue(':repeatWeeklyDay', (int)$weekdayValue);
+                        return $statement;
+                    });
+                }
+                return $eventTimeObj;
+            }
+            // No weekly repeat settings, just create and return as normal
+            return self::create($data);
+        }
+
+
+        /**
          * Return properties for JSON serialization
          * @return array|mixed
          */
@@ -251,6 +274,18 @@
         /****************************************************************
          * Fetch Methods
          ***************************************************************/
+
+        /**
+         * Delete all by eventID
+         * @param $eventID
+         */
+        public static function purgeAllByEventID( $eventID ){
+            self::adhocQuery(function(\PDO $connection, $tableName) use ($eventID){
+                $statement = $connection->prepare("DELETE FROM {$tableName} WHERE eventID=:eventID");
+                $statement->bindValue(':eventID', $eventID);
+                return $statement;
+            });
+        }
 
         /**
          * Get an instance by ID, AND join weeklyDays as concat'd column (2,5,7)

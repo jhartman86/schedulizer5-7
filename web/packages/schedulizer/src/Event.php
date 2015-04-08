@@ -2,6 +2,7 @@
 
     use DateTime,
         DateTimeZone,
+        Concrete\Package\Schedulizer\Src\EventTime,
         Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant,
         Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
 
@@ -87,6 +88,28 @@
 
         /** @return int|null */
         public function getFileID(){ return $this->fileID; }
+
+        public static function createWithEventTimes( $postData ){
+            $eventObj = self::create($postData);
+            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
+                foreach($postData->_timeEntities AS $timeEntityData){
+                    $timeEntityData->eventID = $eventObj->getID();
+                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
+                }
+            }
+            return $eventObj;
+        }
+
+        public function updateWithEventTimes( $postData ){
+            $this->update($postData);
+            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
+                EventTime::purgeAllByEventID($this->getID());
+                foreach($postData->_timeEntities AS $timeEntityData){
+                    $timeEntityData->eventID = $this->getID();
+                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
+                }
+            }
+        }
 
         /**
          * Return properties for JSON serialization

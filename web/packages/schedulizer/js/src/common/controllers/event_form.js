@@ -3,6 +3,11 @@ angular.module('schedulizer.app').
     controller('CtrlEventForm', ['$rootScope', '$scope', '$q', '$filter', 'Helpers', 'ModalManager', 'API', '_moment',
         function( $rootScope, $scope, $q, $filter, Helpers, ModalManager, API, _moment ){
 
+            /**
+             * Template for a new time entity.
+             * @param _populator
+             * @returns {*}
+             */
             function newEventTimeEntity( _populator ){
                 return angular.extend({
                     startUTC:                       _moment(),
@@ -13,7 +18,7 @@ angular.module('schedulizer.app').
                     repeatTypeHandle:               null,
                     repeatEvery:                    null,
                     repeatIndefinite:               null,
-                    repeatEndUTC:                   null, //_moment(),
+                    repeatEndUTC:                   null,
                     repeatMonthlyMethod:            null,
                     repeatMonthlySpecificDay:       null,
                     repeatMonthlyOrdinalWeek:       null,
@@ -23,47 +28,55 @@ angular.module('schedulizer.app').
             }
 
             $scope._ready               = false;
+            $scope._requesting          = false;
             $scope.eventColorOptions    = Helpers.eventColorOptions();
             $scope.timingTabs           = [];
 
             var _requests = [
-                API.timezones.get().$promise
+                API.timezones.get().$promise,
+                API.calendar.get({id:ModalManager.data.eventObj.calendarID}).$promise
             ];
 
-            // Create a new event
-            if( ! ModalManager.data.eventObj.id ){
-                _requests.push(API.calendar.get({id:ModalManager.data.eventObj.calendarID}).$promise);
+            $q.all(_requests).then(function( results ){
+                // Set timezone options on scope
+                $scope.timezoneOptions = results[0];
+                // Set calendar on scope
+                $scope.calendarObj = results[1];
 
-                $q.all(_requests).then(function( results ){
-                    $scope.timezoneOptions = results[0];
-                    $scope.entity = new API.event(angular.extend(ModalManager.data.eventObj, {
+                // If eventObj passed by the modal manager DOES NOT have an ID, we're
+                // creating a new entity
+                if( ! ModalManager.data.eventObj.id ){
+                    // Set entity on scope
+                    $scope.entity = new API.event({
+                        calendarID:             $scope.calendarObj.id,
                         title:                  '',
                         description:            '',
                         useCalendarTimezone:    true,
-                        timezoneName:           results[1].defaultTimezone,
+                        timezoneName:           $scope.calendarObj.defaultTimezone,
                         eventColor:             $scope.eventColorOptions[0].value,
-                        _timeEntities:          [
-                            newEventTimeEntity()
-                        ]
-                    }));
+                        _timeEntities:          [newEventTimeEntity()]
+                    });
                     jQuery('[data-file-selector="fileID"]').concreteFileSelector({
                         'inputName': 'fileID',
                         'filters': [{"field":"type","type":1}]
                     });
                     $scope._ready = true;
-                });
+                }
+            });
 
-            // Received an ID for an existing event
-            }else{
+            // If modal manager event object DOES have an ID, we're editing an existing one
+            if( ModalManager.data.eventObj.id ){
+                // Push a new request onto the promise chain...
                 _requests.push(API.event.get({id:ModalManager.data.eventObj.id}).$promise);
-
+                // When resolved (first two should be done immediately, this just chains onto the queue),
+                // and the last request is index 2
                 $q.all(_requests).then(function( results ){
-                    $scope.timezoneOptions = results[0];
-                    // Map existing time entity results
-                    results[1]._timeEntities.map(function( record ){
+                    // Map existing time entity results before setting entity on scope
+                    results[2]._timeEntities.map(function( record ){
                         return newEventTimeEntity(record);
                     });
-                    $scope.entity = results[1];
+                    // Set the entity
+                    $scope.entity = results[2];
 
                     jQuery('[data-file-selector="fileID"]').concreteFileSelector({
                         'inputName': 'fileID',
@@ -75,7 +88,10 @@ angular.module('schedulizer.app').
                 });
             }
 
-
+            /**
+             * Set a specific time entity tab to active
+             * @param index
+             */
             $scope.setTimingTabActive = function( index ){
                 angular.forEach($scope.timingTabs, function( obj ){
                     obj.active = false;
@@ -83,17 +99,83 @@ angular.module('schedulizer.app').
                 $scope.timingTabs[index].active = true;
             };
 
+            /**
+             * Add a new time entity by pushing onto the _timeEntities stack.
+             */
             $scope.addTimeEntity = function(){
                 $scope.entity._timeEntities.push(newEventTimeEntity());
             };
 
-            $scope.$watchCollection('entity._timeEntities', function( timeEntities, oldValue ){
+            /**
+             * Remove a time entity.
+             * @param index
+             */
+            $scope.removeTimeEntity = function( index ){
+                $scope.entity._timeEntities.splice(index,1);
+            };
+
+            /**
+             * Watch time entities and create/remove tabs appropriately.
+             */
+            $scope.$watchCollection('entity._timeEntities', function( timeEntities ){
                 if( angular.isArray(timeEntities) ){
                     $scope.timingTabs = Helpers.range(1, timeEntities.length).map(function(val, index){
                         return {label:'Time ' + val, active:(index === (timeEntities.length - 1))};
                     });
                 }
             });
+
+            /**
+             * Timezone configuration
+             */
+            $scope.$watch('calendarObj', function( obj ){
+                if( angular.isObject(obj) ){
+                    $scope.useCalendarTimezoneOptions = [
+                        {label:'Use Calendar Timezone ('+$scope.calendarObj.defaultTimezone+')', value:true},
+                        {label:'Event Uses Custom Timezone', value:false}
+                    ];
+                }
+            });
+
+            /**
+             * If use calendar timezone is set to true, or changes to be set to true,
+             * set the timezoneName on the event accordingly.
+             */
+            $scope.$watch('entity.useCalendarTimezone', function( val ){
+                if( val === true ){
+                    $scope.entity.timezoneName = $scope.calendarObj.defaultTimezone;
+                }
+            });
+
+            /**
+             * Persist the entity.
+             */
+            $scope.submitHandler = function(){
+                $scope.entity.fileID = parseInt(jQuery('input[type="hidden"]', '.ccm-file-selector').val()) || null;
+                $scope._requesting = true;
+                // If entity already has ID, $update, otherwise $save (create), and bind callback
+                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
+                    function( resp ){
+                        $scope._requesting = false;
+                        $rootScope.$emit('calendar.refresh');
+                        ModalManager.classes.open = false;
+                    }
+                );
+            };
+
+            /**
+             * Delete the entity.
+             */
+            $scope.confirmDelete = false;
+            $scope.deleteEvent = function(){
+                console.log('called');
+                $scope.entity.$delete().then(function( resp ){
+                    if( resp.ok ){
+                        $rootScope.$emit('calendar.refresh');
+                        ModalManager.classes.open = false;
+                    }
+                });
+            };
 
             //$scope.timingConfigs = [
             //    {label:'Time 1', active:true}
@@ -268,36 +350,26 @@ angular.module('schedulizer.app').
             // * @todo: before sending, adjust entity start/endUTC props to moment
             // * objects and ensure sending correctly (as UTC?)
             // */
-            $scope.submitHandler = function(){
-                console.log($scope.entity);
-                //angular.extend($scope.entity, {repeatSettings:$scope.repeatSettings});
-
-                // File picker specific
-                //$scope.entity.fileID = parseInt(jQuery('input[type="hidden"]', '.ccm-file-selector').val()) || null;
-                //
-                //$scope._requesting = true;
-                //// If entity already has ID, $update, otherwise $save (create), and bind callback
-                //($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
-                //    function( resp ){
-                //        $scope._requesting = false;
-                //        $rootScope.$emit('calendar.refresh');
-                //        ModalManager.classes.open = false;
-                //    }
-                //);
-            };
+            //$scope.submitHandler = function(){
+            //    console.log($scope.entity);
+            //    //angular.extend($scope.entity, {repeatSettings:$scope.repeatSettings});
             //
-            ///**
-            // * Delete the entity.
-            // */
-            //$scope.confirmDelete = false;
-            //$scope.deleteEvent = function(){
-            //    $scope.entity.$delete().then(function( resp ){
-            //        if( resp.ok ){
-            //            $rootScope.$emit('calendar.refresh');
-            //            ModalManager.classes.open = false;
-            //        }
-            //    });
+            //    // File picker specific
+            //    //$scope.entity.fileID = parseInt(jQuery('input[type="hidden"]', '.ccm-file-selector').val()) || null;
+            //    //
+            //    //$scope._requesting = true;
+            //    //// If entity already has ID, $update, otherwise $save (create), and bind callback
+            //    //($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
+            //    //    function( resp ){
+            //    //        $scope._requesting = false;
+            //    //        $rootScope.$emit('calendar.refresh');
+            //    //        ModalManager.classes.open = false;
+            //    //    }
+            //    //);
             //};
+
+            //
+
             //
             //// Nullifiers
             //API.eventNullify.query({eventID:ModalManager.data.eventObj.id}, function( resp ){

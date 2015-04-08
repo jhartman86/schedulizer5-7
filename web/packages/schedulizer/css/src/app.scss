@@ -63,7 +63,9 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
     }
 
     &.event {
-      .tab-pane {padding:15px;border:1px solid #ddd;border-top:0;}
+      .tab-pane {padding:15px 15px 0;border:1px solid #ddd;border-top:0;position:relative;
+        .remove-time-entity {position:absolute;top:0;right:0;}
+      }
 
       .redactor_editor {padding:10px;}
       label {

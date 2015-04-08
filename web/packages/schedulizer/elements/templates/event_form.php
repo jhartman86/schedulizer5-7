@@ -49,6 +49,9 @@
             <!-- time entities (tab contents) -->
             <div class="tab-content">
                 <div class="tab-pane" ng-repeat="timeEntity in entity._timeEntities" ng-class="{active:timingTabs[$index].active}">
+                    <button type="button" class="btn btn-danger btn-xs remove-time-entity" ng-click="removeTimeEntity($index)" ng-show="($index !== 0)">
+                        Remove
+                    </button>
                     <div event-time-form="timeEntity"></div>
                 </div>
             </div>
@@ -64,14 +67,14 @@
 
             <!-- timezone -->
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-12">
                     <div class="form-group">
-                        <label class="checkbox-inline">
-                            <input type="checkbox" ng-model="entity.useCalendarTimezone" /> Use Calendar Timezone
-                        </label>
+                        <span select-wrap class="block"><select class="form-control" ng-options="opt.value as opt.label for opt in useCalendarTimezoneOptions" ng-model="entity.useCalendarTimezone"></select></span>
                     </div>
                 </div>
-                <div class="col-sm-6" ng-hide="entity.useCalendarTimezone">
+            </div>
+            <div class="row" ng-hide="entity.useCalendarTimezone">
+                <div class="col-sm-12">
                     <div class="form-group">
                         <span select-wrap class="block"><select class="form-control" ng-options="opt for opt in timezoneOptions" ng-model="entity.timezoneName"></select></span>
                     </div>
