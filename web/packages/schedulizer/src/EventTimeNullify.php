@@ -5,11 +5,10 @@
     use Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
 
     /**
-     * Class SchedulizerEventRepeatNullify
      * @package Concrete\Package\Schedulizer\Src
-     * @definition({"table":"SchedulizerEventRepeatNullify"})
+     * @definition({"table":"SchedulizerEventTimeRepeatNullify"})
      */
-    class EventRepeatNullify extends Persistant {
+    class EventTimeRepeatNullify extends Persistant {
 
         use Crud;
 

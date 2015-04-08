@@ -66,11 +66,11 @@
             $this->assertEquals('America/New_York', $this->eventObj->getTimezoneName());
         }
 
-        public function testAddingEventRepeatEntities(){
-            $this->eventObj->addRepeatSetting(new EventRepeat(array('repeatWeek' => 2, 'repeatDay' => 6, 'repeatWeekday' => 19)));
-            $this->eventObj->addRepeatSetting(new EventRepeat(array('repeatWeek' => 3, 'repeatDay' => 13, 'repeatWeekday' => 5)));
-            $this->assertCount(2, $this->eventObj->getRepeatSettings());
-        }
+//        public function testAddingEventRepeatEntities(){
+//            $this->eventObj->addRepeatSetting(new EventRepeat(array('repeatWeek' => 2, 'repeatDay' => 6, 'repeatWeekday' => 19)));
+//            $this->eventObj->addRepeatSetting(new EventRepeat(array('repeatWeek' => 3, 'repeatDay' => 13, 'repeatWeekday' => 5)));
+//            $this->assertCount(2, $this->eventObj->getRepeatSettings());
+//        }
 
     }
 

@@ -1,6 +1,6 @@
 angular.module('schedulizer.app').
 
-    factory('Helpers', function factory(){
+    factory('Helpers', ['_moment', function factory(_moment){
 
         this.range = function( start, end ){
             var arr = [];
@@ -40,8 +40,8 @@ angular.module('schedulizer.app').
 
         this.repeatMonthlyMethodOptions = function(){
             return {
-                specific    : 1,
-                dynamic     : 0
+                specific    : 'specific',
+                dynamic     : 'ordinal'
             };
         };
 
@@ -82,16 +82,4 @@ angular.module('schedulizer.app').
         };
 
         return this;
-        //return {
-        //    //range: _range,
-        //    eventDefaults: {
-        //        repeatTypeHandleOptions: ,
-        //        repeatIndefiniteOptions: ,
-        //        weekdayRepeatOptions: ,
-        //        repeatMonthlyMethodOptions: ,
-        //        repeatMonthlyDynamicWeekOptions: ,
-        //        repeatMonthlyDynamicWeekdayOptions: ,
-        //        eventColorOptions:
-        //    }
-        //};
-    });
+    }]);

@@ -20,6 +20,7 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/buttons';
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/button-groups';
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/forms';
+  @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/navs';
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/utilities';
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities';
   @import 'dependencies/angular-strap';
@@ -62,6 +63,8 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
     }
 
     &.event {
+      .tab-pane {padding:15px;border:1px solid #ddd;border-top:0;}
+
       .redactor_editor {padding:10px;}
       label {
         &.btn input[type="checkbox"] {visibility:hidden;position:absolute;}

@@ -11,8 +11,7 @@
             <NOTNULL/>
         </field>
         <field name="modifiedUTC" type="T">
-            <notnull/>
-            <!--<deftimestamp/>-->
+            <NOTNULL/>
         </field>
         <field name="title" type="C" size="255" />
         <field name="defaultTimezone" type="C" size="255">
@@ -52,11 +51,7 @@
         </field>
         <field name="modifiedUTC" type="T">
             <NOTNULL/>
-            <!--<deftimestamp/>-->
         </field>
-        <!--<field name="modifiedUTC" type="T">
-            <NOTNULL/>
-        </field>-->
         <field name="calendarID" type="I" size="11">
             <NOTNULL/>
             <unsigned />
@@ -64,6 +59,52 @@
         </field>
         <field name="title" type="C" size="255" />
         <field name="description" type="X2" />
+        <field name="useCalendarTimezone" type="I1">
+            <NOTNULL/>
+            <default value="1" />
+        </field>
+        <field name="timezoneName" type="C" size="255">
+            <NOTNULL />
+            <default value="UTC" />
+        </field>
+        <field name="eventColor" type="C" size="10">
+            <default value="#E1E1E1" />
+        </field>
+        <field name="ownerID" type="I">
+            <KEY/>
+            <UNSIGNED />
+            <NOTNULL />
+            <DEFAULT value="0"/>
+        </field>
+        <field name="fileID" type="I">
+            <UNSIGNED />
+        </field>
+    </table>
+
+    <table name="SchedulizerEventTime">
+        <field name="id" type="I">
+            <autoincrement />
+            <key />
+            <unsigned />
+        </field>
+        <!--<field name="createdUTC" type="T">-->
+            <!--<NOTNULL/>-->
+        <!--</field>-->
+        <!--<field name="modifiedUTC" type="T">-->
+            <!--<NOTNULL/>-->
+        <!--</field>-->
+        <field name="eventID" type="I" size="11">
+            <NOTNULL/>
+            <unsigned />
+            <KEY/>
+        </field>
+        <!--<field name="calendarID" type="I" size="11">
+            <NOTNULL/>
+            <unsigned />
+            <KEY/>
+        </field>-->
+        <!--<field name="title" type="C" size="255" />
+        <field name="description" type="X2" />-->
         <field name="startUTC" type="T">
             <NOTNULL/>
         </field>
@@ -78,17 +119,17 @@
             <notnull />
             <default value="0" />
         </field>
-        <field name="useCalendarTimezone" type="I1">
-            <NOTNULL/>
-            <default value="1" />
-        </field>
-        <field name="timezoneName" type="C" size="255">
-            <NOTNULL />
-            <default value="UTC" />
-        </field>
-        <field name="eventColor" type="C" size="10">
-            <default value="#E1E1E1" />
-        </field>
+        <!--<field name="useCalendarTimezone" type="I1">-->
+            <!--<NOTNULL/>-->
+            <!--<default value="1" />-->
+        <!--</field>-->
+        <!--<field name="timezoneName" type="C" size="255">-->
+            <!--<NOTNULL />-->
+            <!--<default value="UTC" />-->
+        <!--</field>-->
+        <!--<field name="eventColor" type="C" size="10">-->
+            <!--<default value="#E1E1E1" />-->
+        <!--</field>-->
         <field name="isRepeating" type="I1">
             <notnull />
             <default value="0" />
@@ -98,111 +139,115 @@
             <unsigned />
         </field>
         <field name="repeatIndefinite" type="I1">
-            <notnull />
-            <default value="0" />
+            <!--<notnull />
+            <default value="1" />-->
         </field>
-        <field name="repeatEndUTC" type="T">
-            <NOTNULL/>
-        </field>
-        <field name="repeatMonthlyMethod" type="I1">
+        <field name="repeatEndUTC" type="T" /><!-- nullable! -->
+        <field name="repeatMonthlyMethod" type="C" size="255" />
+        <field name="repeatMonthlySpecificDay" type="I" size="11">
             <unsigned />
         </field>
-        <field name="ownerID" type="I">
-            <KEY/>
-            <UNSIGNED />
-            <NOTNULL />
-            <DEFAULT value="0"/>
+        <field name="repeatMonthlyOrdinalWeek" type="I" size="11">
+            <unsigned />
         </field>
-        <field name="fileID" type="I">
-            <UNSIGNED />
+        <field name="repeatMonthlyOrdinalWeekday" type="I" size="11">
+            <unsigned />
         </field>
 
-        <index name="calendarID">
+        <!--<field name="ownerID" type="I">-->
+            <!--<KEY/>-->
+            <!--<UNSIGNED />-->
+            <!--<NOTNULL />-->
+            <!--<DEFAULT value="0"/>-->
+        <!--</field>-->
+        <!--<field name="fileID" type="I">-->
+            <!--<UNSIGNED />-->
+        <!--</field>-->
+
+        <!--<index name="calendarID">
             <col>calendarID</col>
-        </index>
-        <index name="createdUTC">
+        </index>-->
+        <!--<index name="createdUTC">
             <col>createdUTC</col>
         </index>
         <index name="modifiedUTC">
             <col>modifiedUTC</col>
-        </index>
+        </index>-->
         <index name="startUTC">
             <col>startUTC</col>
         </index>
         <index name="endUTC">
             <col>endUTC</col>
         </index>
-        <index name="title">
+        <!--<index name="title">
             <col>title</col>
-        </index>
+        </index>-->
         <index name="repeatTypeHandle">
-            <col>ownerID</col>
+            <col>repeatTypeHandle</col>
         </index>
         <index name="repeatEndUTC">
             <col>repeatEndUTC</col>
         </index>
-        <index name="ownerID">
+        <!--<index name="ownerID">
             <col>ownerID</col>
-        </index>
+        </index>-->
         <opt platform="mysql">ENGINE=INNODB</opt>
         <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
 
-    <table name="SchedulizerEventRepeat">
+    <table name="SchedulizerEventTimeWeekdays">
         <field name="id" type="I">
             <autoincrement />
             <key />
             <unsigned />
         </field>
-        <field name="eventID" type="I" size="11">
+        <field name="eventTimeID" type="I" size="11">
+            <NOTNULL/>
             <unsigned />
+            <KEY/>
         </field>
-        <field name="repeatWeek" type="I" size="2">
+        <!--<field name="repeatWeek" type="I" size="2">
             <unsigned />
         </field>
         <field name="repeatDay" type="I" size="2">
             <unsigned />
-        </field>
-        <field name="repeatWeekday" type="I" size="2">
+        </field>-->
+        <field name="repeatWeeklyDay" type="I" size="2">
             <unsigned />
         </field>
 
         <!-- indices -->
-        <index name="eventID">
-            <col>eventID</col>
-        </index>
-        <index name="repeatWeek">
+        <!--<index name="repeatWeek">
             <col>repeatWeek</col>
         </index>
         <index name="repeatDay">
             <col>repeatDay</col>
-        </index>
-        <index name="repeatWeekday">
-            <col>repeatWeekday</col>
+        </index>-->
+        <index name="repeatWeeklyday">
+            <col>repeatWeeklyday</col>
         </index>
         <opt platform="mysql">ENGINE=INNODB</opt>
         <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
 
-    <table name="SchedulizerEventRepeatNullify">
+    <table name="SchedulizerEventTimeNullify">
         <field name="id" type="I">
             <autoincrement />
             <key />
             <unsigned />
         </field>
-        <field name="eventID" type="I" size="11">
+        <field name="eventTimeID" type="I" size="11">
+            <NOTNULL/>
             <unsigned />
+            <KEY/>
         </field>
         <field name="hideOnDate" type="T">
             <NOTNULL/>
         </field>
 
         <!-- indices -->
-        <index name="eventID">
-            <col>eventID</col>
-        </index>
         <index name="hideOnDate">
             <col>hideOnDate</col>
         </index>

@@ -170,6 +170,11 @@
         protected function setReflectedPropertyOnObject( ReflectionProperty $property, $definition, $object, $value ){
             $dtzUTC = new DateTimeZone('UTC');
 
+            if( $definition->nullable === true && ($value === null) ){
+                $property->setValue($object, null);
+                return;
+            }
+
             $castedValue = null;
 
             switch( $definition->cast ){

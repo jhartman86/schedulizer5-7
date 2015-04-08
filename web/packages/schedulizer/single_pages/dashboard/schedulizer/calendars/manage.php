@@ -8,6 +8,9 @@
 <script type="text/ng-template" id="/event_form">
 <?php Loader::packageElement('templates/event_form', 'schedulizer'); ?>
 </script>
+<script type="text/ng-template" id="/event_timing_form">
+    <?php Loader::packageElement('templates/event_timing_form', 'schedulizer'); ?>
+</script>
 <script type="text/ng-template" id="/calendar_form">
 <?php Loader::packageElement('templates/calendar_form', 'schedulizer'); ?>
 </script>

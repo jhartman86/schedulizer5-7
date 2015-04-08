@@ -32,7 +32,8 @@ angular.module('schedulizer.app').
                 // Initialize redactor, binding change callback
                 $elem.redactor(angular.extend(settings, {
                     changeCallback: function(){
-                        scope.$apply(Controller.$setViewValue(this.get()));
+                        Controller.$setViewValue(this.get());
+                        //scope.$apply(Controller.$setViewValue(this.get()));
                     }
                 }));
 

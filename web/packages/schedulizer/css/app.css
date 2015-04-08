@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'icomoon';
-  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?-mgjnnv");
-  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?#iefix-mgjnnv") format("embedded-opentype"), url("/packages/schedulizer/css/_fonts/icomoon.woff?-mgjnnv") format("woff"), url("/packages/schedulizer/css/_fonts/icomoon.ttf?-mgjnnv") format("truetype"), url("/packages/schedulizer/css/_fonts/icomoon.svg?-mgjnnv#icomoon") format("svg");
+  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?-6y3l84");
+  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?#iefix-6y3l84") format("embedded-opentype"), url("/packages/schedulizer/css/_fonts/icomoon.woff?-6y3l84") format("woff"), url("/packages/schedulizer/css/_fonts/icomoon.ttf?-6y3l84") format("truetype"), url("/packages/schedulizer/css/_fonts/icomoon.svg?-6y3l84#icomoon") format("svg");
   font-weight: normal;
   font-style: normal; }
 [class^="icon-"], [class*=" icon-"] {
@@ -60,6 +60,9 @@
 
 .icon-power:before {
   content: "\e60d"; }
+
+.icon-plus:before {
+  content: "\e61a"; }
 
 .icon-paper-plane:before {
   content: "\e60e"; }
@@ -1729,6 +1732,121 @@
   @media (min-width: 768px) {
     .schedulizer-app .form-horizontal .form-group-sm .control-label {
       padding-top: 6px; } }
+  .schedulizer-app .nav {
+    margin-bottom: 0;
+    padding-left: 0;
+    list-style: none; }
+    .schedulizer-app .nav:before, .schedulizer-app .nav:after {
+      content: " ";
+      display: table; }
+    .schedulizer-app .nav:after {
+      clear: both; }
+    .schedulizer-app .nav > li {
+      position: relative;
+      display: block; }
+      .schedulizer-app .nav > li > a {
+        position: relative;
+        display: block;
+        padding: 10px 15px; }
+        .schedulizer-app .nav > li > a:hover, .schedulizer-app .nav > li > a:focus {
+          text-decoration: none;
+          background-color: #eeeeee; }
+      .schedulizer-app .nav > li.disabled > a {
+        color: #777777; }
+        .schedulizer-app .nav > li.disabled > a:hover, .schedulizer-app .nav > li.disabled > a:focus {
+          color: #777777;
+          text-decoration: none;
+          background-color: transparent;
+          cursor: not-allowed; }
+    .schedulizer-app .nav .open > a, .schedulizer-app .nav .open > a:hover, .schedulizer-app .nav .open > a:focus {
+      background-color: #eeeeee;
+      border-color: #337ab7; }
+    .schedulizer-app .nav .nav-divider {
+      height: 1px;
+      margin: 9px 0;
+      overflow: hidden;
+      background-color: #e5e5e5; }
+    .schedulizer-app .nav > li > a > img {
+      max-width: none; }
+  .schedulizer-app .nav-tabs {
+    border-bottom: 1px solid #ddd; }
+    .schedulizer-app .nav-tabs > li {
+      float: left;
+      margin-bottom: -1px; }
+      .schedulizer-app .nav-tabs > li > a {
+        margin-right: 2px;
+        line-height: 1.42857;
+        border: 1px solid transparent;
+        border-radius: 0 0 0 0; }
+        .schedulizer-app .nav-tabs > li > a:hover {
+          border-color: #eeeeee #eeeeee #ddd; }
+      .schedulizer-app .nav-tabs > li.active > a, .schedulizer-app .nav-tabs > li.active > a:hover, .schedulizer-app .nav-tabs > li.active > a:focus {
+        color: #555555;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-bottom-color: transparent;
+        cursor: default; }
+  .schedulizer-app .nav-pills > li {
+    float: left; }
+    .schedulizer-app .nav-pills > li > a {
+      border-radius: 0; }
+    .schedulizer-app .nav-pills > li + li {
+      margin-left: 2px; }
+    .schedulizer-app .nav-pills > li.active > a, .schedulizer-app .nav-pills > li.active > a:hover, .schedulizer-app .nav-pills > li.active > a:focus {
+      color: #fff;
+      background-color: #337ab7; }
+  .schedulizer-app .nav-stacked > li {
+    float: none; }
+    .schedulizer-app .nav-stacked > li + li {
+      margin-top: 2px;
+      margin-left: 0; }
+  .schedulizer-app .nav-justified, .schedulizer-app .nav-tabs.nav-justified {
+    width: 100%; }
+    .schedulizer-app .nav-justified > li, .schedulizer-app .nav-tabs.nav-justified > li {
+      float: none; }
+      .schedulizer-app .nav-justified > li > a, .schedulizer-app .nav-tabs.nav-justified > li > a {
+        text-align: center;
+        margin-bottom: 5px; }
+    .schedulizer-app .nav-justified > .dropdown .dropdown-menu {
+      top: auto;
+      left: auto; }
+    @media (min-width: 768px) {
+      .schedulizer-app .nav-justified > li, .schedulizer-app .nav-tabs.nav-justified > li {
+        display: table-cell;
+        width: 1%; }
+        .schedulizer-app .nav-justified > li > a, .schedulizer-app .nav-tabs.nav-justified > li > a {
+          margin-bottom: 0; } }
+  .schedulizer-app .nav-tabs-justified, .schedulizer-app .nav-tabs.nav-justified {
+    border-bottom: 0; }
+    .schedulizer-app .nav-tabs-justified > li > a, .schedulizer-app .nav-tabs.nav-justified > li > a {
+      margin-right: 0;
+      border-radius: 0; }
+    .schedulizer-app .nav-tabs-justified > .active > a, .schedulizer-app .nav-tabs.nav-justified > .active > a,
+    .schedulizer-app .nav-tabs-justified > .active > a:hover,
+    .schedulizer-app .nav-tabs.nav-justified > .active > a:hover,
+    .schedulizer-app .nav-tabs-justified > .active > a:focus,
+    .schedulizer-app .nav-tabs.nav-justified > .active > a:focus {
+      border: 1px solid #ddd; }
+    @media (min-width: 768px) {
+      .schedulizer-app .nav-tabs-justified > li > a, .schedulizer-app .nav-tabs.nav-justified > li > a {
+        border-bottom: 1px solid #ddd;
+        border-radius: 0 0 0 0; }
+      .schedulizer-app .nav-tabs-justified > .active > a, .schedulizer-app .nav-tabs.nav-justified > .active > a,
+      .schedulizer-app .nav-tabs-justified > .active > a:hover,
+      .schedulizer-app .nav-tabs.nav-justified > .active > a:hover,
+      .schedulizer-app .nav-tabs-justified > .active > a:focus,
+      .schedulizer-app .nav-tabs.nav-justified > .active > a:focus {
+        border-bottom-color: #fff; } }
+  .schedulizer-app .tab-content > .tab-pane {
+    display: none;
+    visibility: hidden; }
+  .schedulizer-app .tab-content > .active {
+    display: block;
+    visibility: visible; }
+  .schedulizer-app .nav-tabs .dropdown-menu {
+    margin-top: -1px;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0; }
   .schedulizer-app .clearfix:before, .schedulizer-app .clearfix:after {
     content: " ";
     display: table; }
@@ -2250,6 +2368,10 @@
       -moz-border-radius: 0;
       -webkit-border-radius: 0;
       border-radius: 0; }
+  [modal-window] form.event .tab-pane {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-top: 0; }
   [modal-window] form.event .redactor_editor {
     padding: 10px; }
   [modal-window] form.event label.btn input[type="checkbox"] {

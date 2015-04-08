@@ -258,18 +258,18 @@
                         renderEvents(eventList);
 
                         // Sortable
-                        Array.prototype.slice.call($element[0].querySelectorAll('.day-node')).forEach(function(node){
-                            Sortable.create(node, {
-                                group: 'day',
-                                draggable: '.event-cell',
-                                sort: false,
-                                onAdd: function(ev){
-                                    var landingDayMoment = angular.element(this.el).data('_moment').clone(),
-                                        eventObj         = angular.element(ev.item).data('$scope').eventObj;
-                                    $scope.instance.onDropEnd.apply(Controller, [landingDayMoment, eventObj]);
-                                }
-                            });
-                        });
+                        //Array.prototype.slice.call($element[0].querySelectorAll('.day-node')).forEach(function(node){
+                        //    Sortable.create(node, {
+                        //        group: 'day',
+                        //        draggable: '.event-cell',
+                        //        sort: false,
+                        //        onAdd: function(ev){
+                        //            var landingDayMoment = angular.element(this.el).data('_moment').clone(),
+                        //                eventObj         = angular.element(ev.item).data('$scope').eventObj;
+                        //            $scope.instance.onDropEnd.apply(Controller, [landingDayMoment, eventObj]);
+                        //        }
+                        //    });
+                        //});
 
                     }
                 });

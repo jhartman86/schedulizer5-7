@@ -100,7 +100,7 @@
         public function uninstall(){
             parent::uninstall();
 
-            $tables   = array('SchedulizerCalendar', 'SchedulizerEvent', 'SchedulizerEventRepeat', 'SchedulizerEventRepeatNullify');
+            $tables   = array('SchedulizerCalendar', 'SchedulizerEvent', 'SchedulizerEventTime', 'SchedulizerEventTimeWeekdays', 'SchedulizerEventTimeNullify');
             try {
                 $database = Loader::db();
                 $database->Execute(sprintf("SET foreign_key_checks = 0; DROP TABLE IF EXISTS %s; SET foreign_key_checks = 1", join(',', $tables)));
@@ -172,8 +172,9 @@
             /** @var $connection \PDO :: Setup foreign key associations */
             $connection = \Core::make('SchedulizerDB');
             $connection->query("ALTER TABLE SchedulizerEvent ADD CONSTRAINT FK_calendar FOREIGN KEY (calendarID) REFERENCES SchedulizerCalendar(id) ON UPDATE CASCADE ON DELETE CASCADE");
-            $connection->query("ALTER TABLE SchedulizerEventRepeat ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
-            $connection->query("ALTER TABLE SchedulizerEventRepeatNullify ADD CONSTRAINT FK_event2 FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
+            $connection->query("ALTER TABLE SchedulizerEventTime ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
+            $connection->query("ALTER TABLE SchedulizerEventTimeWeekdays ADD CONSTRAINT FK_eventTime FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
+            $connection->query("ALTER TABLE SchedulizerEventTimeNullify ADD CONSTRAINT FK_eventTime2 FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
         }
 
 
