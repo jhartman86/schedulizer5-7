@@ -23,7 +23,7 @@
                     api: {
                         calendar:       routeBase.api + '/calendar',
                         event:          routeBase.api + '/event',
-                        eventNullify:   routeBase.api + '/event_nullify',
+                        eventNullify:   routeBase.api + '/event_time_nullify',
                         eventList:      routeBase.api + '/event/list',
                         timezones:      routeBase.api + '/timezones'
                     },

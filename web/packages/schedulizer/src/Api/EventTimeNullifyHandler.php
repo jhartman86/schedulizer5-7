@@ -4,13 +4,13 @@
     use \DateTime;
     use \DateTimeZone;
     use \Exception;
-    use \Concrete\Package\Schedulizer\Src\Event;
-    use \Concrete\Package\Schedulizer\Src\EventRepeatNullify;
+    use \Concrete\Package\Schedulizer\Src\EventTime;
+    use \Concrete\Package\Schedulizer\Src\EventTimeNullify;
     use \Symfony\Component\HttpFoundation\Request;
     use \Symfony\Component\HttpFoundation\JsonResponse;
     use \Concrete\Core\Controller\Controller AS CoreController;
 
-    class EventNullifyHandler extends CoreController {
+    class EventTimeNullifyHandler extends CoreController {
 
         protected $_response, $requestObj;
 
@@ -52,20 +52,21 @@
         }
 
         /**
-         * Get an event by its ID
+         * Get an event time nullifier by its ID; OR (more commonly), pass a query parameter
+         * eventTimeID in order to get a list of all nullifier for the eventTime.
          * @param null $id
          * @return mixed
          */
         public function get( $request, $id ){
             // If $id is null, we're getting a list of nullifiers by eventID from query param
             if( is_null($id) ){
-                $list = EventRepeatNullify::fetchAllByEventID($this->requestParams()->eventID);
+                $list = EventTimeNullify::fetchAllByEventTimeID($this->requestParams()->eventTimeID);
                 $this->_response->setData($list);
                 $this->_response->setStatusCode(JsonResponse::HTTP_OK);
                 return;
             }
 
-            $nullifierObj = EventRepeatNullify::getByID( $id );
+            $nullifierObj = EventTimeNullify::getByID( $id );
             // Set response data
             $this->_response->setData($nullifierObj);
             $this->_response->setStatusCode(JsonResponse::HTTP_OK);
@@ -79,19 +80,17 @@
         public function post(){
             $postData = $this->sanitizeIncoming(json_decode(file_get_contents('php://input')));
             /** @var $eventObj Event */
-            $eventObj = Event::getByID($postData->eventID);
-            if( ! $eventObj ){
-                throw new Exception("Calendar does not exist.");
+            $eventTimeObj = EventTime::getByID($postData->eventTimeID);
+            if( ! $eventTimeObj ){
+                throw new Exception("EventTime entity does not exist.");
             }
 
-            // The hideOnDate parameter should be LOCALIZED; so parse it in the
-            // relevant timezone and convert timestamp to 00:00:00
-            $hideOnDate = new DateTime($postData->hideOnDate, $eventObj->getTimezoneObj());
+            $hideOnDate = new DateTime($postData->hideOnDate, new DateTimeZone('UTC'));
             $hideOnDate->setTime(0,0,0);
 
-            $nullifierObj = EventRepeatNullify::create(array(
-                'eventID'    => $eventObj->getID(),
-                'hideOnDate' => $hideOnDate->format('Y-m-d H:i:s')
+            $nullifierObj = EventTimeNullify::create(array(
+                'eventTimeID' => $eventTimeObj->getID(),
+                'hideOnDate'  => $hideOnDate->format('Y-m-d H:i:s')
             ));
             // Set response data
             $this->_response->setData($nullifierObj);
@@ -123,7 +122,7 @@
          */
         public function delete( $id ){
             /** @var $nullifierObj EventRepeatNullify */
-            $nullifierObj = EventRepeatNullify::getByID($id);
+            $nullifierObj = EventTimeNullify::getByID($id);
             if( ! $nullifierObj ){
                 throw new Exception("Nullifier with ID: {$id} does not exist.");
             }

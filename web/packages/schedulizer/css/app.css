@@ -2278,15 +2278,12 @@
   height: 100%;
   visibility: hidden;
   opacity: 0;
-  display: table;
+  display: block;
   position: fixed;
   top: 0;
   left: 0;
   background: rgba(255, 255, 255, 0.95);
   z-index: -1;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   -moz-transform: translateX(-100%) translateZ(0);
   -ms-transform: translateX(-100%) translateZ(0);
   -webkit-transform: translateX(-100%) translateZ(0);
@@ -2329,12 +2326,13 @@
   [modal-window] .loading img {
     padding-bottom: 20px; }
   [modal-window] .modal-inner {
-    padding-top: 34px;
-    display: table-cell;
-    width: 100%;
-    height: 100%;
-    vertical-align: middle;
-    text-align: center; }
+    padding: 30px 0;
+    height: calc(100% - 48px);
+    position: relative;
+    top: 48px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; }
   [modal-window] .container-fluid {
     width: 75%;
     max-width: 700px;
@@ -2377,6 +2375,10 @@
       position: absolute;
       top: 0;
       right: 0; }
+  [modal-window] form.event .ccm-file-selector {
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0; }
   [modal-window] form.event .redactor_editor {
     padding: 10px; }
   [modal-window] form.event label.btn input[type="checkbox"] {
@@ -2438,17 +2440,20 @@
     width: 25%;
     position: relative; }
     [modal-window] form.event .nullifiers-list .btn i {
-      position: absolute;
-      font-size: 20px;
-      right: 4px;
-      top: 4px; }
+      font-size: 18px;
+      line-height: 0;
+      position: relative;
+      top: 4px;
+      margin-left: 4px; }
 
 @media screen and (min-width: 768px) {
   [modal-window] form.event .delete-event {
     position: absolute;
-    top: 49px;
+    top: 0;
     left: 0;
     padding: 1rem; }
+    [modal-window] form.event .delete-event button {
+      margin-bottom: 2px; }
   [modal-window] form.event .time-widgets {
     font-size: 0;
     line-height: 0; }
@@ -2461,10 +2466,5 @@
         border-left: 0; } }
 html.schedulizer-modal {
   overflow-y: hidden; }
-  html.schedulizer-modal .event-form-wrapper {
-    padding: 15px 0;
-    max-height: 100%;
-    width: 100%;
-    overflow-y: scroll; }
 
 /*# sourceMappingURL=app.css.map */

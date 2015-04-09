@@ -120,27 +120,6 @@
 //            }
         }
 
-//        /** @return DateTime|null */
-//        public function getModifiedUTC(){ return $this->modifiedUTC; }
-//
-//        /** @return DateTime|null */
-//        public function getCreatedUTC(){ return $this->createdUTC; }
-
-
-
-//        /**
-//         * @return Calendar
-//         * @throws \Exception
-//         */
-//        public function getCalendar(){
-//            if( $this->_calendar === null ){
-//                $this->_calendar = Calendar::getByID($this->calendarID);
-//                if( ! $this->_calendar ){
-//                    throw new \Exception('Calendar associated with Event does not exist');
-//                }
-//            }
-//            return $this->_calendar;
-//        }
 
         /** @return int|null */
         public function getEventID(){ return $this->eventID; }
@@ -183,48 +162,6 @@
 
         /** @return int|null */
         public function getRepeatMonthlyOrdinalWeekday(){ return $this->repeatMonthlyOrdinalWeekday; }
-
-
-        /**
-         * Convenience method for creating/updating events when updating via the API
-         * and passing repeat settings...
-         * @param $repeatSettings
-         * @return void
-         */
-        public function setRepeaters( $repeatSettings = null ){
-//            EventTimeRepeat::purgeAllByEventTimeID($this->id);
-//
-//            if( $this->isRepeating ){
-//                switch( $this->repeatTypeHandle ){
-//                    // Repeat daily or yearly...
-//                    case self::REPEAT_TYPE_HANDLE_DAILY:
-//                    case self::REPEAT_TYPE_HANDLE_YEARLY:
-//                        EventTimeRepeat::create(array('eventTimeID' => $this->id));
-//                        break;
-//
-//                    // Repeat weekly...
-//                    case self::REPEAT_TYPE_HANDLE_WEEKLY:
-//                        if( is_object($repeatSettings) && (is_array($repeatSettings->weekdayIndices) && !empty($repeatSettings->weekdayIndices)) ){
-//                            foreach($repeatSettings->weekdayIndices AS $weekdayIndex){
-//                                EventTimeRepeat::create(array('eventTimeID' => $this->id, 'repeatWeekday' => $weekdayIndex));
-//                            }
-//                        }
-//                        break;
-//
-//                    // Repeat monthly...
-//                    case self::REPEAT_TYPE_HANDLE_MONTHLY:
-//                        // If its repeating only on a specific date(eg. "21st" of every month)
-//                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_METHOD_SPECIFIC ){
-//                            EventTimeRepeat::create(array('eventTimeID' => $this->id, 'repeatDay' => $repeatSettings->monthlySpecificDay));
-//                        }
-//                        // Its repeating on an abstract (eg. "Second Thursday" of every month)
-//                        if( $this->repeatMonthlyMethod === self::REPEAT_MONTHLY_METHOD_ORDINAL ){
-//                            EventTimeRepeat::create(array('eventTimeID' => $this->id, 'repeatWeek' => $repeatSettings->monthlyDynamicWeek, 'repeatWeekday' => $repeatSettings->monthlyDynamicWeekday));
-//                        }
-//                        break;
-//                }
-//            }
-        }
 
 
         /**
@@ -276,7 +213,9 @@
          ***************************************************************/
 
         /**
-         * Delete all by eventID
+         * Delete all by eventID. This happens every time an event is updated; note, because
+         * ...eventTimeWeekdays table references eventTimeID as a foreign key, it'll automatically
+         * cascade deletion whenever an EventTime is nuked.
          * @param $eventID
          */
         public static function purgeAllByEventID( $eventID ){

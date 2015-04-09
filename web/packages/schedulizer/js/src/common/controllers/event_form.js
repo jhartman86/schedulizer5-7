@@ -32,6 +32,14 @@ angular.module('schedulizer.app').
             $scope.eventColorOptions    = Helpers.eventColorOptions();
             $scope.timingTabs           = [];
 
+            // Did the user click to edit an event that's an alias?
+            $scope.warnAliased = ModalManager.data.eventObj.synthetic || false;
+
+            // If aliased, show the message
+            if( $scope.warnAliased ){
+                $scope._ready = true;
+            }
+
             var _requests = [
                 API.timezones.get().$promise,
                 API.calendar.get({id:ModalManager.data.eventObj.calendarID}).$promise
@@ -168,12 +176,27 @@ angular.module('schedulizer.app').
              */
             $scope.confirmDelete = false;
             $scope.deleteEvent = function(){
-                console.log('called');
                 $scope.entity.$delete().then(function( resp ){
                     if( resp.ok ){
                         $rootScope.$emit('calendar.refresh');
                         ModalManager.classes.open = false;
                     }
+                });
+            };
+
+            /**
+             * This is a synthetic event being passed by the calendar results;
+             * therefore the user sees a warning window and can nullify this
+             * event day in the series.
+             */
+            $scope.nullifyInSeries = function(){
+                var nullifier = new API.eventNullify({
+                    eventTimeID: ModalManager.data.eventObj.eventTimeID,
+                    hideOnDate: ModalManager.data.eventObj.startUTC
+                });
+                nullifier.$save().then(function( resp ){
+                    $rootScope.$emit('calendar.refresh');
+                    ModalManager.classes.open = false;
                 });
             };
 
@@ -215,13 +238,7 @@ angular.module('schedulizer.app').
             //    monthlyDynamicWeekday   : $scope.repeatMonthlyDynamicWeekdayOptions[0].value
             //};
             //
-            //// Did the user click to edit an event that's an alias?
-            //$scope.warnAliased = ModalManager.data.eventObj.aliased || false;
-            //
-            //// If aliased, show the message
-            //if( $scope.warnAliased ){
-            //    $scope._ready = true;
-            //}
+
             //
             //var _requests = [
             //    API.timezones.get().$promise

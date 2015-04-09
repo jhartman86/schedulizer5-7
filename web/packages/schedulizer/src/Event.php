@@ -123,12 +123,6 @@
             }
             $properties                 = (object) get_object_vars($this);
             $properties->_timeEntities  = (array) EventTime::fetchAllByEventID($this->id);
-//            $properties->startUTC       = $properties->startUTC->format('c');
-//            $properties->endUTC         = $properties->endUTC->format('c');
-//            $properties->repeatEndUTC   = $properties->repeatEndUTC->format('c');
-//            $properties->createdUTC     = $properties->createdUTC->format('c');
-//            $properties->modifiedUTC    = $properties->modifiedUTC->format('c');
-//            $properties->_repeaters     = (array) EventRepeat::getAllByEventID($this->id);
             return $properties;
         }
 

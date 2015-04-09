@@ -6,17 +6,14 @@
 
     /**
      * @package Concrete\Package\Schedulizer\Src
-     * @definition({"table":"SchedulizerEventTimeRepeatNullify"})
+     * @definition({"table":"SchedulizerEventTimeNullify"})
      */
-    class EventTimeRepeatNullify extends Persistant {
+    class EventTimeNullify extends Persistant {
 
         use Crud;
 
-        /** @definition({"cast":"int", "declarable":false}) */
-        protected $id;
-
         /** @definition({"cast":"int"}) */
-        protected $eventID;
+        protected $eventTimeID;
 
         /** @definition({"cast":"datetime"}) */
         protected $hideOnDate;
@@ -33,10 +30,10 @@
          * Fetch Methods
          ***************************************************************/
 
-        public static function fetchAllByEventID( $eventID ){
-            return self::fetchMultipleBy(function( \PDO $connection, $tableName ) use ($eventID){
-                $statement = $connection->prepare("SELECT * FROM {$tableName} WHERE eventID=:eventID ORDER BY hideOnDate asc");
-                $statement->bindValue(':eventID', $eventID);
+        public static function fetchAllByEventTimeID( $eventTimeID ){
+            return self::fetchMultipleBy(function( \PDO $connection, $tableName ) use ($eventTimeID){
+                $statement = $connection->prepare("SELECT * FROM {$tableName} WHERE eventTimeID=:eventTimeID ORDER BY hideOnDate asc");
+                $statement->bindValue(':eventTimeID', $eventTimeID);
                 return $statement;
             });
         }

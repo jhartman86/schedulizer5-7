@@ -11,8 +11,9 @@ angular.module('schedulizer.app').
             templateUrl:    '/event_timing_form',
             scope:          {_timeEntity:'=eventTimeForm'},
             link:           _link,
-            controller: ['$scope', '$filter', 'Helpers', '_moment',
-                function( $scope, $filter, Helpers, _moment ){
+            controller: ['$rootScope', '$scope', '$filter', 'API', 'Helpers', '_moment',
+                function( $rootScope, $scope, $filter, API, Helpers, _moment ){
+                    // Option setters
                     $scope.repeatTypeHandleOptions              = Helpers.repeatTypeHandleOptions();
                     $scope.repeatIndefiniteOptions              = Helpers.repeatIndefiniteOptions();
                     $scope.weekdayRepeatOptions                 = Helpers.weekdayRepeatOptions();
@@ -166,6 +167,28 @@ angular.module('schedulizer.app').
                             nullifyAllRepeatSettings();
                         }
                     });
+
+                    /**
+                     * Nullifiers
+                     */
+                    $scope.showNullifiers = false;
+                    API.eventNullify.query({eventTimeID:$scope._timeEntity.id}, function( resp ){
+                        $scope.hasNullifiers = resp.length >= 1;
+                        angular.forEach(resp, function( resource ){
+                            resource._moment = _moment.utc(resource.hideOnDate);
+                        });
+                        $scope.configuredNullifiers = resp;
+                    });
+
+                    /**
+                     * Delete an existing nullifer record.
+                     * @param resource
+                     */
+                    $scope.cancelNullifier = function( resource ){
+                        resource.$delete(function( resp ){
+                            $rootScope.$emit('calendar.refresh');
+                        });
+                    };
                 }
             ]
         };

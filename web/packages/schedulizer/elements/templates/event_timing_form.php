@@ -48,7 +48,6 @@
             <label class="checkbox-inline">
                 <input type="checkbox" ng-model="_timeEntity.isRepeating" /> Repeat
             </label>
-
         </div>
     </div>
 </div>

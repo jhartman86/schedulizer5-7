@@ -83,8 +83,8 @@
                     'trailingSlash' => '/'
                 ), array('id' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET','POST','PUT','DELETE')));
 
-                $routes->add('schedulizer_event_nullify', new \Symfony\Component\Routing\Route('/_schedulizer/event_nullify/{id}{trailingSlash}', array(
-                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\EventNullifyHandler::dispatch',
+                $routes->add('schedulizer_event_time_nullify', new \Symfony\Component\Routing\Route('/_schedulizer/event_time_nullify/{id}{trailingSlash}', array(
+                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\EventTimeNullifyHandler::dispatch',
                     'id'            => null,
                     'trailingSlash' => '/'
                 ), array('id' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET','POST','PUT','DELETE')));

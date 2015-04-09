@@ -11,7 +11,7 @@
         protected $tableEventMaster         = 'SchedulizerEvent';
         protected $tableEvent               = 'SchedulizerEventTime';
         protected $tableEventRepeat         = 'SchedulizerEventTimeRepeat';
-        protected $tableEventRepeatNullify  = 'SchedulizerEventTimeRepeatNullify';
+        //protected $tableEventRepeatNullify  = 'SchedulizerEventTimeRepeatNullify';
         protected $calendarObj;
 
         protected $eventData = array(

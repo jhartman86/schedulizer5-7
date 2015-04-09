@@ -6,54 +6,33 @@
     /**
      * Class EventTag
      * @package Concrete\Package\Schedulizer\Src
+     * @definition({"table":"SchedulizerEventTag"})
      */
     class EventTag extends Persistant {
 
         use Crud;
 
         /**
-         * @Id @Column(type="integer") @GeneratedValue(strategy="IDENTITY")
-         * @var int
+         * @Column(type="string", length=255, nullable=false)
          */
-        protected $id;
+        protected $tagText;
 
         /**
          * @Column(type="string", length=255, nullable=false)
          */
-        protected $tagName;
-
-        /**
-         * @ManyToMany(targetEntity="Concrete\Package\Schedulizer\Src\Event", mappedBy="eventTags", cascade={"persist"})
-         */
-        protected $taggedEvents;
+        protected $tagHandle;
 
         /**
          * @param null $string
          */
         public function __construct( $string = null ){
-            $this->events = new ArrayCollection();
-
             if( $string !== null ){
                 $this->tagName = $string;
             }
         }
 
         public function __toString(){
-            return $this->tagName;
-        }
-
-        /**
-         * @param Event $event
-         */
-        public function addEvent( Event $event ){
-            $this->events[] = $event;
-        }
-
-        /**
-         * @return int|null
-         */
-        public function getID(){
-            return $this->id;
+            return $this->tagText;
         }
     }
 
