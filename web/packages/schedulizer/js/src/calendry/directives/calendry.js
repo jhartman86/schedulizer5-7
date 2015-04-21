@@ -38,6 +38,7 @@
                     daysOfWeek      : momentJS.weekdaysShort(),
                     currentMonth    : momentJS(),
                     dayCellClass    : 'day-node',
+                    parseDateField  : 'startDate',
                     onMonthChange   : function(){},
                     onDropEnd       : function(){}
                 };
@@ -201,7 +202,7 @@
                     // Loop through every event object and create _moment property, and
                     // append to mapped
                     eventList.forEach(function(eventObj){
-                        eventObj._moment = momentJS(eventObj.startLocalized, momentJS.ISO_8601);
+                        eventObj._moment = momentJS(eventObj[$scope.instance.parseDateField], momentJS.ISO_8601);
                         var mappedKey    = eventObj._moment.format(_eventMapKey);
                         if( ! mapped[mappedKey] ){
                             mapped[mappedKey] = [];
@@ -337,10 +338,12 @@
                         }
                     });
 
-                    $scope.eventFontColor = function( color ){
-                        var rgb = hexToRgb(color),
-                            val = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000);
-                        return (val > 125) ? '#000000' : '#FFFFFF';
+                    $scope.helpers = {
+                        eventFontColor: function( color ){
+                            var rgb = hexToRgb(color),
+                                val = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000);
+                            return (val > 125) ? '#000000' : '#FFFFFF';
+                        }
                     };
                 }]
             };

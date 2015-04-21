@@ -1,0 +1,127 @@
+<?php namespace Concrete\Package\Schedulizer\Src\Api\Resource {
+
+    use \Concrete\Package\Schedulizer\Src\Calendar;
+    use \Concrete\Package\Schedulizer\Src\Event;
+    use \Concrete\Package\Schedulizer\Src\EventTime;
+    use \Concrete\Package\Schedulizer\Src\EventTag;
+    use \Concrete\Package\Schedulizer\Src\Api\ApiException;
+    use \Symfony\Component\HttpFoundation\Response;
+
+    /**
+     * Class EventResource
+     * @todo: permissions, determine user via API key?
+     * @package Concrete\Package\Schedulizer\Src\Api\Resource
+     */
+    class EventResource extends \Concrete\Package\Schedulizer\Src\Api\ApiDispatcher {
+
+        /**
+         * Get an event by its ID.
+         * @param $id
+         * @throws ApiException
+         * @throws \Exception
+         */
+        protected function httpGet( $id ){
+            $this->setResponseData($this->getEventByID($id));
+        }
+
+        /**
+         * Create a new event.
+         */
+        protected function httpPost(){
+            $data = $this->scrubbedPostData();
+            // Check its a member of an existing calendar
+            if( empty(Calendar::getByID($data->calendarID)) ){
+                throw ApiException::dependentResourceInvalid('Calendar does not exist to create an event for.');
+            }
+            if( empty($data->_timeEntities) ){
+                throw ApiException::generic('At least 1 time setting must be passed in _timeEntities property.');
+            }
+            // Set
+            $data->ownerID = ($this->currentUser()->getUserID() >= 1) ? $this->currentUser()->getUserID() : 0;
+            // Create the event object
+            $eventObj = Event::create($data);
+            // Loop through and create associated time entities
+            foreach((array)$data->_timeEntities AS $timeEntityData){
+                $timeEntityData->eventID = $eventObj->getID();
+                EventTime::createWithWeeklyRepeatSettings($timeEntityData);
+            }
+            // Handle tags
+            foreach((array)$data->_tags AS $tagEntityData){
+                /** @var $tagObj EventTag */
+                $tagObj = EventTag::createOrGetExisting($tagEntityData);
+                $tagObj->tagEvent($eventObj);
+            }
+
+            $this->setResponseData($eventObj);
+            $this->setResponseCode(Response::HTTP_CREATED);
+        }
+
+        /**
+         * Update an event by its ID.
+         * @param $id
+         * @throws ApiException
+         * @throws \Exception
+         */
+        public function httpPut( $id ){
+            $data = $this->scrubbedPostData();
+            if( empty($data->_timeEntities) ){
+                throw ApiException::generic('At least 1 time setting must be passed in _timeEntities property.');
+            }
+            // Get existing event
+            $eventObj = Event::getByID($id)->update($data);
+            // Update or create new time entities
+            foreach((array)$data->_timeEntities AS $timeEntityData){
+                // Update an existing time entity
+                if( isset($timeEntityData->id) && ((int)$timeEntityData->eventID === $eventObj->getID()) ){
+                    EventTime::getByID($timeEntityData->id)->updateWithWeeklyRepeatSettings($timeEntityData);
+                // Create a new one
+                }else{
+                    $timeEntityData->eventID = $eventObj->getID();
+                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
+                }
+            }
+            // Handle tags
+            EventTag::purgeAllEventTags($eventObj);
+            foreach((array)$data->_tags AS $tagEntityData){
+                /** @var $tagObj EventTag */
+                $tagObj = EventTag::createOrGetExisting($tagEntityData);
+                $tagObj->tagEvent($eventObj);
+            }
+            $this->setResponseData($eventObj);
+            $this->setResponseCode(Response::HTTP_ACCEPTED);
+        }
+
+        /**
+         * Delete an event by its ID.
+         * @param $id
+         * @throws ApiException
+         */
+        public function httpDelete( $id ){
+            $this->getEventByID($id)->delete();
+            $this->setResponseData((object)array('ok' => true));
+            $this->setResponseCode(Response::HTTP_ACCEPTED);
+        }
+
+        /**
+         * All methods that need to access a calendar entity can use this
+         * as it has all exception checking built in.
+         * @param $id
+         * @return Event
+         * @throws ApiException
+         */
+        protected function getEventByID( $id ){
+            // Check ID param exists
+            if( empty($id) ){
+                throw ApiException::invalidRoute('Route parameter:ID required.');
+            }
+            // Try to load entity
+            $eventObj = Event::getByID($id);
+            // Check result
+            if( empty($eventObj) ){
+                throw ApiException::notFound();
+            }
+            return $eventObj;
+        }
+    }
+
+}

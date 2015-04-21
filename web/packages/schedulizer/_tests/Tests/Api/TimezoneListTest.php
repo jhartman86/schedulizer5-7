@@ -8,7 +8,7 @@
         const ROUTE_PRETTY = 'http://127.0.0.1/_schedulizer/timezones';
         const ROUTE_FUGLY  = 'http://127.0.0.1/index.php/_schedulizer/timezones';
 
-        protected $httpClient = null;
+        protected $httpClient;
 
         public function setUp(){
             $this->httpClient = new \GuzzleHttp\Client();

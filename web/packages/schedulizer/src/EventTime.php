@@ -170,6 +170,7 @@
          * @return $this
          */
         public static function createWithWeeklyRepeatSettings( $data ){
+            // Does the EventTime have weekly day settings? Handle them
             if( is_array($data->weeklyDays) && !empty($data->weeklyDays) ){
                 $eventTimeObj = self::create($data);
                 foreach($data->weeklyDays AS $weekdayValue){
@@ -182,8 +183,32 @@
                 }
                 return $eventTimeObj;
             }
+
             // No weekly repeat settings, just create and return as normal
             return self::create($data);
+        }
+
+
+        public function updateWithWeeklyRepeatSettings( $data ){
+            $eventTimeObj = $this->update($data);
+            // Does the EventTime have weekly day settings? Handle them
+            if( is_array($data->weeklyDays) && !empty($data->weeklyDays) ){
+                // We're updating, so purge first and then we'll recreate after
+                self::adhocQuery(function(\PDO $connection) use($eventTimeObj){
+                    $statement = $connection->prepare("DELETE FROM SchedulizerEventTimeWeekdays WHERE eventTimeID=:eventTimeID");
+                    $statement->bindvalue(':eventTimeID', $eventTimeObj->getID());
+                    return $statement;
+                });
+                foreach($data->weeklyDays AS $weekdayValue){
+                    self::adhocQuery(function(\PDO $connection) use ($eventTimeObj, $weekdayValue){
+                        $statement = $connection->prepare("INSERT INTO SchedulizerEventTimeWeekdays (eventTimeID, repeatWeeklyDay) VALUES (:eventTimeID,:repeatWeeklyDay)");
+                        $statement->bindValue(':eventTimeID', $eventTimeObj->getID());
+                        $statement->bindValue(':repeatWeeklyDay', (int)$weekdayValue);
+                        return $statement;
+                    });
+                }
+            }
+            return $eventTimeObj;
         }
 
 

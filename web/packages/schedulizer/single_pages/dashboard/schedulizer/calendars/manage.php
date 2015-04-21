@@ -31,7 +31,7 @@
 
             <!-- Note: transclusion of items *inside* calendry represents the EVENT objects on the day cells. -->
             <div calendry="instance" ng-cloak>
-                <a class="event-cell" modalize="/event_form" data-using="{eventObj:eventObj}" ng-style="{background:eventObj.color,color:eventFontColor(eventObj.color)}">
+                <a class="event-cell" modalize="/event_form" data-using="{eventObj:eventObj}" ng-style="{background:eventObj.eventColor,color:helpers.eventFontColor(eventObj.eventColor)}">
                     <span class="dt">{{ eventObj.isAllDay ? 'All Day' : eventObj._moment.format('h:mm a')}}</span> {{eventObj.title}}
                 </a>
             </div>

@@ -15,8 +15,8 @@
         <!-- timezone -->
         <div class="row">
             <div class="col-sm-12">
-                <div class="form-group">
-                    <label for="">Calendar Timezone</label>
+                <label>Calendar Timezone</label>
+                <div class="form-group white">
                     <span select-wrap class="block"><select class="form-control" ng-options="opt for opt in timezoneOptions" ng-model="entity.defaultTimezone"></select></span>
                 </div>
             </div>

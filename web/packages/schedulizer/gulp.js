@@ -28,16 +28,18 @@ module.exports = function( gulp ){
             js: {
                 core: [
                     _pathTo('bower_components/moment/moment.js'),
-                    _pathTo('bower_components/fullcalendar/dist/fullcalendar.js'),
                     _pathTo('bower_components/angular/angular.js'),
                     _pathTo('bower_components/angular-resource/angular-resource.js'),
+                    _pathTo('bower_components/angular-sanitize/angular-sanitize.js'),
                     // Angular-strap (Bootstrap) Modules
                     _pathTo('bower_components/angular-strap/dist/modules/dimensions.js'),
                     _pathTo('bower_components/angular-strap/dist/modules/date-parser.js'),
                     _pathTo('bower_components/angular-strap/dist/modules/date-formatter.js'),
                     _pathTo('bower_components/angular-strap/dist/modules/tooltip.js'),
                     _pathTo('bower_components/angular-strap/dist/modules/datepicker.js'),
-                    _pathTo('bower_components/angular-strap/dist/modules/timepicker.js')
+                    _pathTo('bower_components/angular-strap/dist/modules/timepicker.js'),
+                    // Angular-ui select module
+                    _pathTo('bower_components/angular-ui-select/dist/select.js')
                 ],
                 app: [
                     _pathTo('js/src/**/*.js')

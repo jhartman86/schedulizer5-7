@@ -89,27 +89,27 @@
         /** @return int|null */
         public function getFileID(){ return $this->fileID; }
 
-        public static function createWithEventTimes( $postData ){
-            $eventObj = self::create($postData);
-            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
-                foreach($postData->_timeEntities AS $timeEntityData){
-                    $timeEntityData->eventID = $eventObj->getID();
-                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
-                }
-            }
-            return $eventObj;
-        }
-
-        public function updateWithEventTimes( $postData ){
-            $this->update($postData);
-            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
-                EventTime::purgeAllByEventID($this->getID());
-                foreach($postData->_timeEntities AS $timeEntityData){
-                    $timeEntityData->eventID = $this->getID();
-                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
-                }
-            }
-        }
+//        public static function createWithEventTimes( $postData ){
+//            $eventObj = self::create($postData);
+//            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
+//                foreach($postData->_timeEntities AS $timeEntityData){
+//                    $timeEntityData->eventID = $eventObj->getID();
+//                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
+//                }
+//            }
+//            return $eventObj;
+//        }
+//
+//        public function updateWithEventTimes( $postData ){
+//            $this->update($postData);
+//            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
+//                EventTime::purgeAllByEventID($this->getID());
+//                foreach($postData->_timeEntities AS $timeEntityData){
+//                    $timeEntityData->eventID = $this->getID();
+//                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
+//                }
+//            }
+//        }
 
         /**
          * Return properties for JSON serialization
@@ -123,6 +123,7 @@
             }
             $properties                 = (object) get_object_vars($this);
             $properties->_timeEntities  = (array) EventTime::fetchAllByEventID($this->id);
+            $properties->_tags          = (array) EventTag::fetchTagsByEventID($this->id);
             return $properties;
         }
 
@@ -152,6 +153,37 @@
                 $statement->bindValue(':ownerID', $ownerID);
                 return $statement;
             });
+        }
+
+
+        /**
+         * Gets full data for an event; (includes serializing _timeEntity sub-resources).
+         * @param $calendarID
+         * @return $this|void
+         */
+        public static function fetchAllByCalendarID( $calendarID ){
+            return self::fetchMultipleBy(function( \PDO $connection, $tableName ) use ($calendarID){
+                $statement = $connection->prepare("SELECT * FROM {$tableName} WHERE calendarID=:calendarID");
+                $statement->bindValue(':calendarID', $calendarID);
+                return $statement;
+            });
+        }
+
+        /**
+         * Return a SIMPLE list of the events (ie. just the records) associated with a calendar.
+         * This returns straight table results as opposed to the above where it will return a
+         * list that gets serialized via jsonSerializable on all the instaniated event objects.
+         * @param $calendarID
+         * @return $this|void
+         */
+        public static function fetchSimpleByCalendarID( $calendarID ){
+            /** @var $executedStatement \PDOStatement */
+            $executedStatement = self::adhocQuery(function( \PDO $connection, $tableName ) use ($calendarID){
+                $statement = $connection->prepare("SELECT * FROM {$tableName} WHERE calendarID=:calendarID");
+                $statement->bindValue(':calendarID', $calendarID);
+                return $statement;
+            });
+            return $executedStatement->fetchAll(\PDO::FETCH_OBJ);
         }
 
     }

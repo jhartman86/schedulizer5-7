@@ -10,6 +10,8 @@
     use SinglePage; /** @see \Concrete\Core\Page\Single */
     use \DateTime; /** @see \DateTime */
     use \DateTimeZone; /** @see \DateTimeZone */
+    use \Concrete\Package\Schedulizer\Src\Api\ApiOnStart;
+
 
     /**
      * Class Controller
@@ -25,7 +27,7 @@
 
         protected $pkgHandle                = self::PACKAGE_HANDLE;
         protected $appVersionRequired       = '5.7.3.2';
-        protected $pkgVersion               = '0.36';
+        protected $pkgVersion               = '0.38';
 
         public function getPackageName(){ return t('Schedulizer'); }
         public function getPackageDescription(){ return t('Schedulizer Calendar Package'); }
@@ -64,35 +66,20 @@
                 @date_default_timezone_set('UTC');
             }
 
-            new \Concrete\Package\Schedulizer\Src\Api\OnStart(function( $routes ){
-                $routes->add('schedulizer_event_list', new \Symfony\Component\Routing\Route('/_schedulizer/event/list/{calendarID}{trailingSlash}', array(
-                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\EventListHandler::dispatch',
-                    'calendarID'    => null,
-                    'trailingSlash' => '/'
-                ), array('calendarID' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}')));
-
-                $routes->add('schedulizer_calendar', new \Symfony\Component\Routing\Route('/_schedulizer/calendar/{id}{trailingSlash}', array(
-                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\CalendarHandler::dispatch',
-                    'id'            => null,
-                    'trailingSlash' => '/'
-                ), array('id' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET','POST','PUT','DELETE')));
-
-                $routes->add('schedulizer_event', new \Symfony\Component\Routing\Route('/_schedulizer/event/{id}{trailingSlash}', array(
-                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\EventHandler::dispatch',
-                    'id'            => null,
-                    'trailingSlash' => '/'
-                ), array('id' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET','POST','PUT','DELETE')));
-
-                $routes->add('schedulizer_event_time_nullify', new \Symfony\Component\Routing\Route('/_schedulizer/event_time_nullify/{id}{trailingSlash}', array(
-                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\EventTimeNullifyHandler::dispatch',
-                    'id'            => null,
-                    'trailingSlash' => '/'
-                ), array('id' => '\d+|[/]{0,1}', 'trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET','POST','PUT','DELETE')));
-
-                $routes->add('schedulizer_timezones', new \Symfony\Component\Routing\Route('/_schedulizer/timezones{trailingSlash}', array(
-                    '_controller'   => '\Concrete\Package\Schedulizer\Src\Api\TimezonesHandler::getList',
-                    'trailingSlash' => '/'
-                ), array('trailingSlash' => '[/]{0,1}'), array(), '', array(), array('GET')));
+            ApiOnStart::execute(function( $apiOnStart ){
+                /** @var $apiOnStart \Concrete\Package\Schedulizer\Src\Api\OnStart */
+                // GET,POST,PUT,DELETE
+                $apiOnStart->addRoute('calendar', 'CalendarResource');
+                // GET,POST,PUT,DELETE
+                $apiOnStart->addRoute('event', 'EventResource');
+                // GET,POST,DELETE
+                $apiOnStart->addRoute('event_time_nullify', 'EventTimeNullifyResource');
+                // GET,POST,PUT,DELETE
+                $apiOnStart->addRoute('event_tags', 'EventTagsResource');
+                // GET
+                $apiOnStart->addRoute('event_list', 'EventListResource');
+                // GET
+                $apiOnStart->addRoute('timezones', 'TimezoneResource');
             });
         }
 
@@ -100,7 +87,15 @@
         public function uninstall(){
             parent::uninstall();
 
-            $tables   = array('SchedulizerCalendar', 'SchedulizerEvent', 'SchedulizerEventTime', 'SchedulizerEventTimeWeekdays', 'SchedulizerEventTimeNullify');
+            $tables   = array(
+                'SchedulizerCalendar',
+                'SchedulizerEvent',
+                'SchedulizerEventTag',
+                'SchedulizerTaggedEvents',
+                'SchedulizerEventTime',
+                'SchedulizerEventTimeWeekdays',
+                'SchedulizerEventTimeNullify'
+            );
             try {
                 $database = Loader::db();
                 $database->Execute(sprintf("SET foreign_key_checks = 0; DROP TABLE IF EXISTS %s; SET foreign_key_checks = 1", join(',', $tables)));
@@ -170,11 +165,14 @@
                  ->setupSinglePages();
 
             /** @var $connection \PDO :: Setup foreign key associations */
-            $connection = \Core::make('SchedulizerDB');
+            $connection = Database::connection(Database::getDefaultConnection())->getWrappedConnection();
             $connection->query("ALTER TABLE SchedulizerEvent ADD CONSTRAINT FK_calendar FOREIGN KEY (calendarID) REFERENCES SchedulizerCalendar(id) ON UPDATE CASCADE ON DELETE CASCADE");
             $connection->query("ALTER TABLE SchedulizerEventTime ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
             $connection->query("ALTER TABLE SchedulizerEventTimeWeekdays ADD CONSTRAINT FK_eventTime FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
             $connection->query("ALTER TABLE SchedulizerEventTimeNullify ADD CONSTRAINT FK_eventTime2 FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
+            // Tag associations
+            $connection->query("ALTER TABLE SchedulizerTaggedEvents ADD CONSTRAINT FK_taggedEvent FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON DELETE CASCADE");
+            $connection->query("ALTER TABLE SchedulizerTaggedEvents ADD CONSTRAINT FK_taggedEvent2 FOREIGN KEY (eventTagID) REFERENCES SchedulizerEventTag(id) ON DELETE CASCADE");
         }
 
 
@@ -194,6 +192,9 @@
         private function setupBlocks(){
             if(!is_object(BlockType::getByHandle('schedulizer'))) {
                 BlockType::installBlockTypeFromPackage('schedulizer', $this->packageObject());
+            }
+            if(!is_object(BlockType::getByHandle('schedulizer_event'))) {
+                BlockType::installBlockTypeFromPackage('schedulizer_event', $this->packageObject());
             }
             return $this;
         }

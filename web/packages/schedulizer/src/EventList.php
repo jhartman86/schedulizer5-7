@@ -4,6 +4,7 @@
     use DateTime;
     use DateTimeZone;
     use \Exception;
+    use \Concrete\Package\Schedulizer\Src\Bin\EventListSerializeFormatter;
 
     /**
      * Class EventList. This goes completely around Doctrine and composes the database
@@ -12,49 +13,220 @@
      */
     class EventList {
 
-        const DATE_FORMAT       = 'Y-m-d',
-              DAYS_IN_FUTURE    = 45; // span 6 weeks for some calendar views
+        const DATE_FORMAT               = 'Y-m-d',
+              DAYS_IN_FUTURE            = 45, // span 6 weeks for some calendar views
+              DAYS_IN_FUTURE_MAX        = 365,
+              LIMIT_PER_DAY_MAX         = 25,
+              COLUMN_CAST_TIME          = 'time',
+              COLUMN_CAST_TIME_UTC      = 'utc',
+              COLUMN_CAST_TIME_LOCAL    = 'local',
+              COLUMN_CAST_INT           = 'int',
+              COLUMN_CAST_STRING        = 'str',
+              COLUMN_CAST_BOOL          = 'bool';
 
-        protected $calendarIDs;
-        protected $startDTO;
-        protected $endDTO;
+        protected $startDTO; // set or calculated
+        protected $endDTO; // set or calculated
+        protected $limitPerDay  = null;
+        protected $calendarIDs  = array();
+        protected $eventIDs     = array();
         protected $queryDaySpan = self::DAYS_IN_FUTURE;
+        protected $fetchColumns = array(
+            '_syntheticDate'                => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
+            'computedStartUTC'              => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
+            'computedStartLocal'            => array(true, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_LOCAL),
+            'computedEndUTC'                => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
+            'computedEndLocal'              => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_LOCAL),
+            'eventID'                       => array(true, self::COLUMN_CAST_INT),
+            'calendarID'                    => array(false, self::COLUMN_CAST_INT),
+            'eventTimeID'                   => array(false, self::COLUMN_CAST_INT),
+            'title'                         => array(true, self::COLUMN_CAST_STRING),
+            'useCalendarTimezone'           => array(false, self::COLUMN_CAST_BOOL),
+            'derivedTimezone'               => array(true, self::COLUMN_CAST_STRING),
+            'eventColor'                    => array(false, self::COLUMN_CAST_STRING),
+            'ownerID'                       => array(false, self::COLUMN_CAST_INT),
+            'fileID'                        => array(false, self::COLUMN_CAST_INT),
+            'startUTC'                      => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
+            'endUTC'                        => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
+            'isOpenEnded'                   => array(false, self::COLUMN_CAST_BOOL),
+            'isAllDay'                      => array(false, self::COLUMN_CAST_BOOL),
+            'isRepeating'                   => array(false, self::COLUMN_CAST_BOOL),
+            'repeatTypeHandle'              => array(false, self::COLUMN_CAST_STRING),
+            'repeatEvery'                   => array(false, self::COLUMN_CAST_INT),
+            'repeatIndefinite'              => array(false, self::COLUMN_CAST_BOOL),
+            'repeatEndUTC'                  => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
+            'repeatMonthlyMethod'           => array(false, self::COLUMN_CAST_STRING),
+            'repeatMonthlySpecificDay'      => array(false, self::COLUMN_CAST_INT),
+            'repeatMonthlyOrdinalWeek'      => array(false, self::COLUMN_CAST_INT),
+            'repeatMonthlyOrdinalWeekday'   => array(false, self::COLUMN_CAST_INT),
+            'repeatWeeklyDay'               => array(false, self::COLUMN_CAST_INT),
+            'isSynthetic'                   => array(false, self::COLUMN_CAST_BOOL)
+        );
 
-        public function __construct( array $calendarID = array() ){
-            $this->calendarIDs = $calendarID;
+        /**
+         * @param array $calendarIDs
+         */
+        public function __construct( array $calendarIDs = array() ){
+            $this->setCalendarIDs($calendarIDs);
         }
 
+        /**
+         * Allows specifying the results to be returned. Just pass in a column
+         * name (as documented by fetchColumns), and it'll automatically be
+         * included in the result set.
+         * @param array $columns
+         */
+        public function includeColumns( array $columns = array() ){
+            $available = array_keys($this->fetchColumns);
+            foreach($columns AS $columnName){
+                if( in_array($columnName, $available) ){
+                    $this->fetchColumns[$columnName][0] = true;
+                }
+            }
+        }
+
+        /**
+         * @todo: don't allow excluding derivedTimezone
+         * @param array $columns
+         */
+        public function excludeColumns( array $columns = array() ){
+
+        }
+
+
+        /**
+         * Set the start date
+         * @param DateTime $start
+         * @return $this
+         */
         public function setStartDate( \DateTime $start ){
             $this->startDTO = $start;
             return $this;
         }
 
+        /**
+         * Set the end date time to filter by.
+         * @param DateTime $end
+         * @return $this
+         */
         public function setEndDate( \DateTime $end ){
             $this->endDTO = $end;
             return $this;
         }
 
+        /**
+         * Add calendar id/idS to be filtered by.
+         * @param $calendarIDs
+         * @return $this
+         */
         public function setCalendarIDs( $calendarIDs ){
             if( is_array($calendarIDs) ){
-                $this->calendarIDs = $calendarIDs;
-                return;
+                $this->calendarIDs = array_unique(array_merge($this->calendarIDs, $calendarIDs));
+                return $this;
             }
-            $this->calendarIDs = array($calendarIDs);
+            array_push($this->calendarIDs, $calendarIDs);
+            $this->calendarIDs = array_unique($this->calendarIDs);
             return $this;
         }
 
+        /**
+         * Add an id/idS to be filtered by.
+         * @param $eventIDs
+         * @return $this
+         */
+        public function setEventIDs( $eventIDs ){
+            if( is_array($eventIDs) ){
+                $this->eventIDs = array_unique(array_merge($this->eventIDs, $eventIDs));
+                return $this;
+            }
+            array_push($this->eventIDs, $eventIDs);
+            $this->eventIDs = array_unique($this->eventIDs);
+            return $this;
+        }
+
+        /**
+         * Use to restrict the number of results PER DAY that can
+         * be returned.
+         * @param $limit
+         * @return $this
+         */
+        public function setLimitPerDay( $limit ){
+            if( (int)$limit >= self::LIMIT_PER_DAY_MAX ){
+                $limit = self::LIMIT_PER_DAY_MAX;
+            }
+            $this->limitPerDay = (int)$limit;
+            return $this;
+        }
+
+        /**
+         * @todo: probably figure out a way to re-enable a maximum limit on the query
+         * day span so we can't arbitrarily murder the database...
+         * @param int $number
+         * @return $this
+         */
         public function setDaysIntoFuture( $number = self::DAYS_IN_FUTURE ){
-            if( (int)$number > self::DAYS_IN_FUTURE ){
-                $number = self::DAYS_IN_FUTURE;
+            if( (int)$number >= self::DAYS_IN_FUTURE_MAX ){
+                $number = self::DAYS_IN_FUTURE_MAX;
             }
-            $this->queryDaySpan = $number;
+            $this->queryDaySpan = (int)$number;
             return $this;
         }
 
+        /**
+         * Fetch the results.
+         * @return mixed
+         * @throws Exception
+         */
         public function get(){
             return Loader::db()->GetAll($this->assembledQuery());
         }
 
+        /**
+         * Get a list of results but group 'em by day
+         * @return array
+         */
+        public function getGroupedByDay(){
+            $grouped = array();
+            foreach((array)$this->get() AS $row){
+                $dateKey = substr($row['computedStartLocal'], 0, 10);
+                if( ! $grouped[$dateKey] ){
+                    $grouped[$dateKey] = array();
+                }
+                array_push($grouped[$dateKey], $row);
+            }
+            return $grouped;
+        }
+
+
+        /**
+         * Return an instance of EventListSerializeFormatter, which implements
+         * JsonSerializable and ensures all fields/results are cast to the proper
+         * internal types.
+         * @return EventListSerializeFormatter
+         */
+        public function getSerializable(){
+            return new EventListSerializeFormatter($this);
+        }
+
+
+        /**
+         * Gets the columns this query is going to use.
+         * @return array
+         */
+        public function getQueryColumnSettings(){
+            if( $this->_queryColumnSettings === null ){
+                $this->_queryColumnSettings = array_filter($this->fetchColumns, function( $definition ){
+                    return $definition[0] === true;
+                });
+            }
+            return $this->_queryColumnSettings;
+        }
+
+
+        /**
+         * Parse the entire query string together.
+         * @return string
+         * @throws Exception
+         */
         protected function assembledQuery(){
             if( ! $this->_assembledQuery ){
                 // Throw exception if no calendarIDs specified
@@ -62,15 +234,18 @@
                     throw new Exception("No calendar IDs specified.");
                 }
 
-                // If _queryStartDTO hasn't been defined, set it to Now()
+                // If start hasn't been declared, set it to today but time 00:00:00
                 if( !($this->startDTO instanceof DateTime) ){
                     $this->startDTO = new DateTime('now', new DateTimeZone('UTC'));
+                    $this->startDTO->setTime(0,0,0);
                 }
 
                 // Conversely, if the endDTO *HAS* been set, automatically adjust
                 // the queryDaySpan property to be the difference between start and end
                 if( $this->endDTO instanceof DateTime ){
-                    $this->queryDaySpan = $this->endDTO->diff($this->startDTO, true)->days + 1;
+                    $daySpan = $this->endDTO->diff($this->startDTO, true)->days + 1;
+                    $daySpan = ($daySpan >= self::DAYS_IN_FUTURE_MAX) ? self::DAYS_IN_FUTURE_MAX : $daySpan;
+                    $this->queryDaySpan = $daySpan;
                 }
 
                 $this->_assembledQuery = $this->queryString();
@@ -78,42 +253,49 @@
             return $this->_assembledQuery;
         }
 
+        /**
+         * To whoever may inherit this., I'm sorry. Anyways...
+         * Restrictors on internal join (superbly limits result set). By
+         * the time this gets called in the queryString() method, everything
+         * used by this method will be "prepared" (ready to use).
+         * @return string
+         */
+        protected function subqueryRestrictions(){
+            $calendarIDs = join(',', $this->calendarIDs);
+            $endDateDTO  = clone $this->startDTO;
+            $endDateDTO->modify("+{$this->queryDaySpan} days");
+            $endDate = $endDateDTO->format(self::DATE_FORMAT);
+
+            $restrictor = "sev.calendarID in ({$calendarIDs}) AND (DATE(sevt.startUTC) < DATE('{$endDate}'))";
+            if( !empty($this->eventIDs) ){
+                $eventIDs = join(',', $this->eventIDs);
+                $restrictor .= " AND sev.id in ({$eventIDs})";
+            }
+
+            return $restrictor;
+        }
+
 
         /**
          * Setup the base query string. This is the stupidest/beastliest SQL query ever.
          * @todo: repeat yearly (just once per year)
          * @todo: last (> 4th) "Tuesday" or whatever day of the month.
-         * @todo: PERFORMANCE - include date restrictions on the JOIN of the events table,
-         * so that it only joins events where the repeatEndUTC < $endDate AND startUTC < $endDate
-         * and excludes *single day, historical events*
+         * @note: the end date time is only used in the subquery restrictors, and
+         * gets setup automatically based on the query day span (eg. it isn't used
+         * in a where clause anywhere except as a restriction on the massive internally
+         * joined table)
          * @return string
          */
         protected function queryString(){
             $startDate      = $this->startDTO->format(self::DATE_FORMAT);
-            $inCalendarIDs  = join(',', $this->calendarIDs);
-
-            // For singular day events, make sure to restrict by number of days (daySpan) being queried
-            $endDate = clone $this->startDTO;
-            $endDate->modify("+{$this->queryDaySpan} days");
-            $endDate = $endDate->format(self::DATE_FORMAT);
-
-            $queryDaySpan = $this->queryDaySpan;
-
-            $selectColumns = join(',',array(
-                '_eventList.eventID',
-                '_eventList.eventTimeID',
-                '_eventList.calendarID',
-                '_eventList.computedStartUTC AS startUTC',
-                '_eventList.computedStartLocal AS startLocal',
-                '_eventList.computedEndUTC AS endUTC',
-                '_eventList.computedEndLocal AS endLocal',
-                '_eventList.derivedTimezone',
-                '_eventList.title',
-                '_eventList.isAllDay',
-                '_eventList.isOpenEnded',
-                '_eventList.eventColor',
-                'syntheticRepeater AS synthetic'
-            ));
+            $restrictor     = $this->subqueryRestrictions();
+            $queryDaySpan   = $this->queryDaySpan;
+            $selectColumns  = join(',', array_keys($this->getQueryColumnSettings()));
+            // By default, we don't setup a limit per day...
+            $limitPerDay = '';
+            if( (int)$this->limitPerDay >= 1 ){
+                $limitPerDay = sprintf(' LIMIT %s', (int)$this->limitPerDay);
+            }
 
             return "SELECT {$selectColumns} FROM (
               SELECT
@@ -130,7 +312,7 @@
                 TIMESTAMPADD(MINUTE, TIMESTAMPDIFF(MINUTE,_events.startUTC,_events.endUTC), TIMESTAMP(_synthesized._syntheticDate, TIME(_events.startUTC))) AS computedEndUTC,
                 CONVERT_TZ(TIMESTAMPADD(MINUTE, TIMESTAMPDIFF(MINUTE,_events.startUTC,_events.endUTC), TIMESTAMP(_synthesized._syntheticDate, TIME(_events.startUTC))), 'UTC', _events.derivedTimezone) AS computedEndLocal,
                 _events.*,
-                (CASE WHEN (_synthesized._syntheticDate != DATE(_events.startUTC)) IS TRUE THEN 1 ELSE 0 END) as syntheticRepeater
+                (CASE WHEN (_synthesized._syntheticDate != DATE(_events.startUTC)) IS TRUE THEN 1 ELSE 0 END) as isSynthetic
               FROM (
                 SELECT DATE('{$startDate}' + INTERVAL (a.a + (10 * b.a) + (100 * c.a)) DAY) AS _syntheticDate
                 FROM (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
@@ -167,7 +349,7 @@
                   JOIN SchedulizerEvent sev ON sev.calendarID = sec.id
                   JOIN SchedulizerEventTime sevt ON sevt.eventID = sev.id
                   LEFT JOIN SchedulizerEventTimeWeekdays sevtwd ON sevtwd.eventTimeID = sevt.id
-                WHERE sev.calendarID in ({$inCalendarIDs})
+                WHERE ({$restrictor}) ORDER BY sevt.startUTC asc {$limitPerDay}
               ) AS _events
               WHERE(_events.isRepeating = 1
                 AND (_events.repeatIndefinite = 1 OR (_synthesized._syntheticDate <= _events.repeatEndUTC AND _events.repeatIndefinite = 0))

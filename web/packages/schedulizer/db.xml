@@ -255,4 +255,43 @@
         <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
+    <table name="SchedulizerEventTag">
+        <field name="id" type="I">
+            <autoincrement />
+            <key />
+            <unsigned />
+        </field>
+        <field name="displayText" type="C" size="255">
+            <NOTNULL />
+        </field>
+        <field name="handle" type="C" size="255">
+            <NOTNULL />
+        </field>
+
+        <!-- indices -->
+        <index name="handle">
+            <col>handle</col>
+            <unique/>
+        </index>
+        <opt platform="mysql">ENGINE=INNODB</opt>
+        <opt platform="mysqlt">ENGINE=INNODB</opt>
+    </table>
+
+    <table name="SchedulizerTaggedEvents">
+        <field name="eventID" type="I" size="11">
+            <NOTNULL/>
+            <unsigned />
+            <KEY/>
+        </field>
+        <field name="eventTagID" type="I" size="11">
+            <NOTNULL/>
+            <unsigned />
+            <KEY/>
+        </field>
+
+        <!-- indices -->
+        <opt platform="mysql">ENGINE=INNODB</opt>
+        <opt platform="mysqlt">ENGINE=INNODB</opt>
+    </table>
+
 </schema>

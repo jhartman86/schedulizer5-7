@@ -2,7 +2,8 @@
 ;(function( window, angular, undefined ){ 'use strict';
 
     angular.module('schedulizer', [
-        'ngResource', 'schedulizer.app', 'mgcrea.ngStrap.datepicker', 'mgcrea.ngStrap.timepicker', 'calendry'
+        'ngResource', 'schedulizer.app', 'mgcrea.ngStrap.datepicker', 'mgcrea.ngStrap.timepicker',
+        'calendry', 'ui.select', 'ngSanitize'
     ]).
 
     /**
@@ -21,10 +22,11 @@
             $provide.factory('Routes', function(){
                 var _routes = {
                     api: {
-                        calendar:       routeBase.api + '/calendar',
-                        event:          routeBase.api + '/event',
-                        eventNullify:   routeBase.api + '/event_time_nullify',
-                        eventList:      routeBase.api + '/event/list',
+                        calendar:       routeBase.api + '/calendar/:id',
+                        event:          routeBase.api + '/event/:id',
+                        eventList:      routeBase.api + '/event_list',
+                        eventNullify:   routeBase.api + '/event_time_nullify/:eventTimeID/:id',
+                        eventTags:      routeBase.api + '/event_tags/:id',
                         timezones:      routeBase.api + '/timezones'
                     },
                     dashboard: routeBase.dashboard
@@ -45,19 +47,24 @@
 
     factory('API', ['$resource', 'Routes',
        function( $resource, Routes ){
-           var _methods = {
-               update: {method:'PUT', params:{_method:'PUT'}}
-           };
+           function _methods(){
+               return {
+                   update: {method:'PUT', params:{_method:'PUT'}}
+               };
+           }
 
            return {
-               calendar: $resource(Routes.generate('api.calendar',[':id']), {id:'@id'}, angular.extend(_methods, {
+               calendar: $resource(Routes.generate('api.calendar'), {id:'@id'}, angular.extend(_methods(), {
                    // more custom methods here
                })),
-               event: $resource(Routes.generate('api.event',[':id']), {id:'@id'}, angular.extend(_methods, {
+               event: $resource(Routes.generate('api.event'), {id:'@id'}, angular.extend(_methods(), {
                    // more custom methods here
                })),
-               eventNullify: $resource(Routes.generate('api.eventNullify',[':id']), {id:'@id'}, angular.extend(_methods, {
+               eventNullify: $resource(Routes.generate('api.eventNullify'), {eventTimeID:'@eventTimeID',id:'@id'}, angular.extend(_methods(), {
                    // more custom methods
+               })),
+               eventTags: $resource(Routes.generate('api.eventTags'), {id:'@id'}, angular.extend(_methods(), {
+
                })),
                timezones: $resource(Routes.generate('api.timezones'), {}, {
                    get: {isArray:true, cache:true}

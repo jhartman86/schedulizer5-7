@@ -1,6 +1,7 @@
 $border-radius-base:        0;
 $border-radius-large:       0;
 $border-radius-small:       0;
+$input-border:              #ddd;
 $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
 
 @import 'compass';
@@ -24,8 +25,8 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/utilities';
   @import '../../bower_components/bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities';
   @import 'dependencies/angular-strap';
-  //@import 'dependencies/fullcalendar';
   @import 'dependencies/calendry';
+  @import 'dependencies/selectjs';
 
   .ccm-dashboard-content-full {padding-bottom:20px;margin: 0 !important;
     [calendar]{}
@@ -40,8 +41,20 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
 
 .calendar-wrap {padding-top:20px;}
 
+.ui-select-widget {
+  .ui-select-container.ui-select-multiple {padding:4px 3px 3px 3px;
+    &.open ul {padding:3px 0;}
+    .ui-select-match-item {margin:0 3px 0 0;}
+  }
+
+  input[type="text"]{@include box-shadow(none);}
+  ul {list-style:none;padding:0;margin:0;
+    a {padding-left:10px;}
+  }
+}
+
 // Custom modal
-[modal-window]{font-family:$font-family-sans-serif;font-size:16px;width:100%;height:100%;visibility:hidden;opacity:0;display:block;position:fixed;top:0;left:0;background:rgba(255,255,255,0.95);z-index:-1;@include transform(translateX(-100%) translateZ(0));@include transition(all 0.25s ease);
+[modal-window]{font-family:$font-family-sans-serif;font-size:16px;width:100%;height:100%;visibility:hidden;opacity:0;display:block;position:fixed;top:0;left:0;background:rgba(240,240,240,0.95);z-index:-1;@include transform(translateX(-100%) translateZ(0));@include transition(all 0.25s ease);
   a {cursor:pointer;}
   &.open {visibility:visible;opacity:1;z-index:999;@include transform(translateX(0) translateZ(0));}
   .icon-close {position:absolute;top:49px;right:0;font-size:3rem;line-height:1;padding:0;z-index:2;cursor:pointer;@include transform(rotate(0));@include transition(all 0.25s ease);
@@ -52,19 +65,23 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
   }
   .modal-inner {padding:30px 0;height:calc(100% - 48px);position:relative;top:48px;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   //.modal-inner {padding-top:34px;display:table-cell;width:100%;height:100%;vertical-align:middle;text-align:center;}
-  .container-fluid {width:75%;max-width:700px;text-align:left;}
+  .container-fluid {width:90%;text-align:left;}
 
   form {
     label {font-weight:normal;}
 
-    [select-wrap]{display:inline-block;position:relative;
+    [select-wrap]{display:inline-block;position:relative;z-index:2;
       &::after {content: "\e608";font-family:'icomoon';position:absolute;top:50%;right:5px;font-size:24px;z-index:-1;@include transform(translateY(-50%));}
       &.block {display:block;}
       select {padding-right:25px;text-transform:capitalize;-webkit-appearance:none;-moz-appearance:none;appearance:none;background:transparent;@include border-radius(0);}
     }
 
+    .form-group {position:relative;
+      &.white {background:#fff;}
+    }
+
     &.event {
-      .tab-pane {padding:15px 15px 0;border:1px solid #ddd;border-top:0;position:relative;
+      .tab-pane {padding:15px 15px 0;margin-bottom:($grid-gutter-width/2);border:1px solid #ddd;border-top:0;position:relative;background:#fff;
         .remove-time-entity {position:absolute;top:0;right:0;}
       }
 
@@ -77,8 +94,7 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
           input {visibility:hidden;position:absolute;}
         }
       }
-      .input-title {font-weight:200;border:0;outline:0;padding:0;height:auto;font-size:180%;background:transparent;@include box-shadow(none);}
-      .form-group {position:relative;}
+      .input-title {font-weight:200;border:0;outline:0;padding:15px;margin-bottom:$grid-gutter-width;border-bottom:1px solid $input-border;height:auto;font-size:180%;background:transparent;text-transform:capitalize;@include box-shadow(none);}
 
       // start/end time display
       .row {
@@ -114,6 +130,22 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
           &:nth-of-type(2) input {border-left:0;}
         }
       }
+    }
+  }
+}
+
+@media screen and (min-width:$screen-md){
+  [modal-window]{
+    form.event {
+      .nav-tabs {border-bottom:0;
+        li {display:none;
+          &.add-time-entity {display:block;float:none;margin-bottom:($grid-gutter-width/2);background:#fff;border:1px solid $input-border;text-align:center;
+            a {margin:0;}
+            span {padding-left:5px;}
+          }
+        }
+      }
+      .tab-content .tab-pane {display:block;visibility:visible;border-top:1px solid $input-border;}
     }
   }
 }
