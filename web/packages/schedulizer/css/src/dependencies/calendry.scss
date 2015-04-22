@@ -1,5 +1,5 @@
 // Generic
-$listViewBreakpoint:    500px;
+$listViewBreakpoint:    $screen-sm;
 
 // Font sizes
 $calendryFontSizeBase:  14px;
@@ -8,7 +8,7 @@ $calendryFontSizeStep1: 1.45em;
 // Header styles
 $headerHeight:          50px;
 $headerPadding:         5px;
-$headerBg:              #c5c5c5;
+$headerBg:              #006699; //#c5c5c5;
 $headerButtonBg:        #e5e5e5;
 $headerButtonBgHover:   #f5f5f5;
 $headerButtonTextColor: #5d5d5d;
@@ -71,7 +71,7 @@ $eventCellBgHover:      #e1e1e1;
 .calendry-instance, .calendry-instance * {font-size:inherit;margin:0;padding:0;line-height:1;@include box-sizing(border-box);}
 
 // Styles
-.calendry-instance {overflow:hidden;font-size:$calendryFontSizeBase;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-moz-font-smoothing: antialiased;
+.calendry-instance {@include scrollOverflow;font-size:$calendryFontSizeBase;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-moz-font-smoothing: antialiased;
   // Header section (ie. calendar nav)
   .calendry-header {height:$headerHeight;background:$headerBg;padding:$headerPadding;
     .header-columns {height:100%;font-size:0;line-height:0;
@@ -127,7 +127,7 @@ $eventCellBgHover:      #e1e1e1;
       }
     }
 
-    &:not(.list-view){height:100%;position:relative;height:700px;//@todo: more flexible solution
+    &:not(.list-view){height:100%;position:relative;min-height:700px;overflow:hidden;//@todo: more flexible solution
       .calendry-header {position:absolute;top:0;left:0;right:0;
         .weekdays {display:block;}
       }

@@ -18,24 +18,65 @@
 <?php Loader::packageElement('templates/calendry', 'schedulizer'); ?>
 </script>
 
-<div class="ccm-dashboard-header-buttons">
-    <button class="btn btn-primary" modalize="/event_form" data-using="{eventObj:{calendarID:<?php echo $calendarObj->getID(); ?>}}"><?php echo t("Create Event"); ?></button>
-    <button class="btn btn-default" modalize="/calendar_form" data-using="{calendarID:<?php echo $calendarObj->getID(); ?>}"><?php echo t("Calendar Settings"); ?></button>
-</div>
-
 <!-- Page view -->
-<div class="schedulizer-app">
-    <div class="ccm-dashboard-content-full">
+<div class="schedulizer-app" ng-controller="CtrlCalendar" ng-init="calendarID = <?php echo $calendarObj->getID(); ?>">
+    <div class="ccm-dashboard-content-full" ng-class="{'search-open':searchOpen}">
 
-        <div class="calendar-wrap" ng-controller="CtrlCalendar" ng-init="calendarID = <?php echo $calendarObj->getID(); ?>">
-
-            <!-- Note: transclusion of items *inside* calendry represents the EVENT objects on the day cells. -->
-            <div calendry="instance" ng-cloak>
-                <a class="event-cell" modalize="/event_form" data-using="{eventObj:eventObj}" ng-style="{background:eventObj.eventColor,color:helpers.eventFontColor(eventObj.eventColor)}">
-                    <span class="dt">{{ eventObj.isAllDay ? 'All Day' : eventObj._moment.format('h:mm a')}}</span> {{eventObj.title}}
-                </a>
+        <div class="not-stupid-header-style">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="pull-left">
+                            <h3><?php echo $pageTitle; ?></h3>
+                        </div>
+                        <div class="pull-right">
+                            <button class="btn btn-primary" modalize="/event_form" data-using="{eventObj:{calendarID:<?php echo $calendarObj->getID(); ?>}}"><?php echo t("Create Event"); ?></button>
+                            <button class="btn btn-default" modalize="/calendar_form" data-using="{calendarID:<?php echo $calendarObj->getID(); ?>}"><?php echo t("Calendar Settings"); ?></button>
+                            <button type="button" class="btn btn-default" ng-click="toggleSearch()" ng-class="{'btn-success':searchFiltersSet}"><i class="icon-search"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div class="app-wrap">
+            <form class="calendar-event-search">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Keyword Search</label>
+                                <input type="text" class="form-control" ng-model="searchFields.keywords" placeholder="eg. Aunt Gretta's Cookies" />
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Filter By Tags</label>
+                            <div class="form-group ui-select-widget">
+                                <ui-select multiple ng-model="searchFields.tags" theme="bootstrap" title="Tags">
+                                    <ui-select-match placeholder="Tags">{{ $item.displayText }}</ui-select-match>
+                                    <ui-select-choices repeat="tag in eventTagList | propsFilter: {displayText: $select.search}">
+                                        <div ng-bind-html="tag.displayText | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-block btn-primary" ng-click="sendSearch()">Apply Search Filters</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="calendar-wrap">
+                <!-- Note: transclusion of items *inside* calendry represents the EVENT objects on the day cells. -->
+                <div calendry="instance" ng-cloak>
+                    <a class="event-cell" modalize="/event_form" data-using="{eventObj:eventObj}" ng-style="{background:eventObj.eventColor,color:helpers.eventFontColor(eventObj.eventColor)}">
+                        <span class="dt">{{ eventObj.isAllDay ? 'All Day' : eventObj._moment.format('h:mm a')}}</span> {{eventObj.title}}
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

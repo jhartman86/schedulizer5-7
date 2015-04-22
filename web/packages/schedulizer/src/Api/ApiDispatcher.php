@@ -33,7 +33,7 @@
         protected $_currentUser;
 
         /**
-         * Since all child classes extend ApiDispatcher, we just point all
+         * Since all implementing classes extend ApiDispatcher, we just point all
          * the symfony route settings to the 'dispatch' method and this
          * handles setup.
          * @param Request $request

@@ -24,14 +24,13 @@
             <NOTNULL />
             <DEFAULT value="0"/>
         </field>
-        <index name="createdUTC">
-            <col>createdUTC</col>
-        </index>
-        <index name="modifiedUTC">
-            <col>modifiedUTC</col>
-        </index>
+
         <index name="title">
             <col>title</col>
+            <FULLTEXT />
+        </index>
+        <index name="defaultTimezone">
+            <col>defaultTimezone</col>
         </index>
         <index name="ownerID">
             <col>ownerID</col>
@@ -79,6 +78,20 @@
         <field name="fileID" type="I">
             <UNSIGNED />
         </field>
+
+        <index name="title">
+            <col>title</col>
+            <FULLTEXT />
+        </index>
+        <index name="description">
+            <col>description</col>
+            <FULLTEXT />
+        </index>
+        <index name="titleDescription">
+            <col>title</col>
+            <col>description</col>
+            <FULLTEXT />
+        </index>
     </table>
 
     <table name="SchedulizerEventTime">
@@ -87,24 +100,11 @@
             <key />
             <unsigned />
         </field>
-        <!--<field name="createdUTC" type="T">-->
-            <!--<NOTNULL/>-->
-        <!--</field>-->
-        <!--<field name="modifiedUTC" type="T">-->
-            <!--<NOTNULL/>-->
-        <!--</field>-->
         <field name="eventID" type="I" size="11">
             <NOTNULL/>
             <unsigned />
             <KEY/>
         </field>
-        <!--<field name="calendarID" type="I" size="11">
-            <NOTNULL/>
-            <unsigned />
-            <KEY/>
-        </field>-->
-        <!--<field name="title" type="C" size="255" />
-        <field name="description" type="X2" />-->
         <field name="startUTC" type="T">
             <NOTNULL/>
         </field>
@@ -119,17 +119,6 @@
             <notnull />
             <default value="0" />
         </field>
-        <!--<field name="useCalendarTimezone" type="I1">-->
-            <!--<NOTNULL/>-->
-            <!--<default value="1" />-->
-        <!--</field>-->
-        <!--<field name="timezoneName" type="C" size="255">-->
-            <!--<NOTNULL />-->
-            <!--<default value="UTC" />-->
-        <!--</field>-->
-        <!--<field name="eventColor" type="C" size="10">-->
-            <!--<default value="#E1E1E1" />-->
-        <!--</field>-->
         <field name="isRepeating" type="I1">
             <notnull />
             <default value="0" />
@@ -138,10 +127,7 @@
         <field name="repeatEvery" type="I" size="11">
             <unsigned />
         </field>
-        <field name="repeatIndefinite" type="I1">
-            <!--<notnull />
-            <default value="1" />-->
-        </field>
+        <field name="repeatIndefinite" type="I1" />
         <field name="repeatEndUTC" type="T" /><!-- nullable! -->
         <field name="repeatMonthlyMethod" type="C" size="255" />
         <field name="repeatMonthlySpecificDay" type="I" size="11">
@@ -154,43 +140,18 @@
             <unsigned />
         </field>
 
-        <!--<field name="ownerID" type="I">-->
-            <!--<KEY/>-->
-            <!--<UNSIGNED />-->
-            <!--<NOTNULL />-->
-            <!--<DEFAULT value="0"/>-->
-        <!--</field>-->
-        <!--<field name="fileID" type="I">-->
-            <!--<UNSIGNED />-->
-        <!--</field>-->
-
-        <!--<index name="calendarID">
-            <col>calendarID</col>
-        </index>-->
-        <!--<index name="createdUTC">
-            <col>createdUTC</col>
-        </index>
-        <index name="modifiedUTC">
-            <col>modifiedUTC</col>
-        </index>-->
         <index name="startUTC">
             <col>startUTC</col>
         </index>
         <index name="endUTC">
             <col>endUTC</col>
         </index>
-        <!--<index name="title">
-            <col>title</col>
-        </index>-->
         <index name="repeatTypeHandle">
             <col>repeatTypeHandle</col>
         </index>
         <index name="repeatEndUTC">
             <col>repeatEndUTC</col>
         </index>
-        <!--<index name="ownerID">
-            <col>ownerID</col>
-        </index>-->
         <opt platform="mysql">ENGINE=INNODB</opt>
         <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
@@ -207,23 +168,10 @@
             <unsigned />
             <KEY/>
         </field>
-        <!--<field name="repeatWeek" type="I" size="2">
-            <unsigned />
-        </field>
-        <field name="repeatDay" type="I" size="2">
-            <unsigned />
-        </field>-->
         <field name="repeatWeeklyDay" type="I" size="2">
             <unsigned />
         </field>
 
-        <!-- indices -->
-        <!--<index name="repeatWeek">
-            <col>repeatWeek</col>
-        </index>
-        <index name="repeatDay">
-            <col>repeatDay</col>
-        </index>-->
         <index name="repeatWeeklyday">
             <col>repeatWeeklyday</col>
         </index>

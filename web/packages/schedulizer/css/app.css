@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'icomoon';
-  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?-6y3l84");
-  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?#iefix-6y3l84") format("embedded-opentype"), url("/packages/schedulizer/css/_fonts/icomoon.woff?-6y3l84") format("woff"), url("/packages/schedulizer/css/_fonts/icomoon.ttf?-6y3l84") format("truetype"), url("/packages/schedulizer/css/_fonts/icomoon.svg?-6y3l84#icomoon") format("svg");
+  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?-6k0ytw");
+  src: url("/packages/schedulizer/css/_fonts/icomoon.eot?#iefix-6k0ytw") format("embedded-opentype"), url("/packages/schedulizer/css/_fonts/icomoon.woff?-6k0ytw") format("woff"), url("/packages/schedulizer/css/_fonts/icomoon.ttf?-6k0ytw") format("truetype"), url("/packages/schedulizer/css/_fonts/icomoon.svg?-6k0ytw#icomoon") format("svg");
   font-weight: normal;
   font-style: normal; }
 [class^="icon-"], [class*=" icon-"] {
@@ -18,6 +18,15 @@
 
 .icon-check2:before {
   content: "\e116"; }
+
+.icon-diamond:before {
+  content: "\e61b"; }
+
+.icon-plugin:before {
+  content: "\e61c"; }
+
+.icon-refresh-2:before {
+  content: "\e61d"; }
 
 .icon-close:before {
   content: "\e600"; }
@@ -52,11 +61,20 @@
 .icon-unlock:before {
   content: "\e60a"; }
 
+.icon-trash:before {
+  content: "\e61e"; }
+
 .icon-tools:before {
   content: "\e60b"; }
 
 .icon-ticket:before {
   content: "\e60c"; }
+
+.icon-shuffle:before {
+  content: "\e61f"; }
+
+.icon-search:before {
+  content: "\e620"; }
 
 .icon-power:before {
   content: "\e60d"; }
@@ -76,6 +94,9 @@
 .icon-loop:before {
   content: "\e611"; }
 
+.icon-lock:before {
+  content: "\e621"; }
+
 .icon-link:before {
   content: "\e612"; }
 
@@ -87,6 +108,9 @@
 
 .icon-expand1:before {
   content: "\e615"; }
+
+.icon-edit:before {
+  content: "\e622"; }
 
 .icon-download:before {
   content: "\e616"; }
@@ -100,12 +124,597 @@
 .icon-box2:before {
   content: "\e619"; }
 
+.icon-attention:before {
+  content: "\e623"; }
+
+html,
+#ccm-dashboard-page.ccm-ui,
+#ccm-dashboard-page.ccm-ui #ccm-dashboard-content.container-fluid,
+.schedulizer-app,
+#ccm-dashboard-page.ccm-ui #ccm-dashboard-content.container-fluid .ccm-dashboard-content-full,
+.schedulizer-app .calendar-wrap,
+.calendry-instance {
+  height: 100% !important; }
+
+.schedulizer-app .app-wrap {
+  height: calc(100% - 66px); }
+
+body {
+  height: calc(100% - 49px); }
+
 #ccm-dashboard-content.container-fluid {
   padding-bottom: 0; }
   #ccm-dashboard-content.container-fluid > header {
-    margin-bottom: 0; }
+    display: none !important; }
+
+.ccm-ui .schedulizer-app fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0; }
+.ccm-ui .schedulizer-app legend {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 20px;
+  font-size: 21px;
+  line-height: inherit;
+  color: #333333;
+  border: 0;
+  border-bottom: 1px solid #e5e5e5; }
+.ccm-ui .schedulizer-app label {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 5px;
+  font-weight: bold; }
+.ccm-ui .schedulizer-app input[type="search"] {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+.ccm-ui .schedulizer-app input[type="radio"],
+.ccm-ui .schedulizer-app input[type="checkbox"] {
+  margin: 4px 0 0;
+  margin-top: 1px \9;
+  line-height: normal; }
+.ccm-ui .schedulizer-app input[type="file"] {
+  display: block; }
+.ccm-ui .schedulizer-app input[type="range"] {
+  display: block;
+  width: 100%; }
+.ccm-ui .schedulizer-app select[multiple],
+.ccm-ui .schedulizer-app select[size] {
+  height: auto; }
+.ccm-ui .schedulizer-app input[type="file"]:focus,
+.ccm-ui .schedulizer-app input[type="radio"]:focus,
+.ccm-ui .schedulizer-app input[type="checkbox"]:focus {
+  outline: thin dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px; }
+.ccm-ui .schedulizer-app output {
+  display: block;
+  padding-top: 7px;
+  font-size: 14px;
+  line-height: 1.42857;
+  color: #555555; }
+.ccm-ui .schedulizer-app .form-control {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857;
+  color: #555555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s; }
+  .ccm-ui .schedulizer-app .form-control:focus {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
+  .ccm-ui .schedulizer-app .form-control::-moz-placeholder {
+    color: #999;
+    opacity: 1; }
+  .ccm-ui .schedulizer-app .form-control:-ms-input-placeholder {
+    color: #999; }
+  .ccm-ui .schedulizer-app .form-control::-webkit-input-placeholder {
+    color: #999; }
+  .ccm-ui .schedulizer-app .form-control[disabled], .ccm-ui .schedulizer-app .form-control[readonly], fieldset[disabled] .ccm-ui .schedulizer-app .form-control {
+    cursor: not-allowed;
+    background-color: #eeeeee;
+    opacity: 1; }
+.ccm-ui .schedulizer-app textarea.form-control {
+  height: auto; }
+.ccm-ui .schedulizer-app input[type="search"] {
+  -webkit-appearance: none; }
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .ccm-ui .schedulizer-app input[type="date"],
+  .ccm-ui .schedulizer-app input[type="time"],
+  .ccm-ui .schedulizer-app input[type="datetime-local"],
+  .ccm-ui .schedulizer-app input[type="month"] {
+    line-height: 34px; }
+    .ccm-ui .schedulizer-app input[type="date"].input-sm, .input-group-sm .ccm-ui .schedulizer-app input[type="date"],
+    .ccm-ui .schedulizer-app input[type="time"].input-sm, .input-group-sm
+    .ccm-ui .schedulizer-app input[type="time"],
+    .ccm-ui .schedulizer-app input[type="datetime-local"].input-sm, .input-group-sm
+    .ccm-ui .schedulizer-app input[type="datetime-local"],
+    .ccm-ui .schedulizer-app input[type="month"].input-sm, .input-group-sm
+    .ccm-ui .schedulizer-app input[type="month"] {
+      line-height: 30px; }
+    .ccm-ui .schedulizer-app input[type="date"].input-lg, .input-group-lg .ccm-ui .schedulizer-app input[type="date"],
+    .ccm-ui .schedulizer-app input[type="time"].input-lg, .input-group-lg
+    .ccm-ui .schedulizer-app input[type="time"],
+    .ccm-ui .schedulizer-app input[type="datetime-local"].input-lg, .input-group-lg
+    .ccm-ui .schedulizer-app input[type="datetime-local"],
+    .ccm-ui .schedulizer-app input[type="month"].input-lg, .input-group-lg
+    .ccm-ui .schedulizer-app input[type="month"] {
+      line-height: 46px; } }
+.ccm-ui .schedulizer-app .form-group {
+  margin-bottom: 15px; }
+.ccm-ui .schedulizer-app .radio,
+.ccm-ui .schedulizer-app .checkbox {
+  position: relative;
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px; }
+  .ccm-ui .schedulizer-app .radio label,
+  .ccm-ui .schedulizer-app .checkbox label {
+    min-height: 20px;
+    padding-left: 20px;
+    margin-bottom: 0;
+    font-weight: normal;
+    cursor: pointer; }
+.ccm-ui .schedulizer-app .radio input[type="radio"],
+.ccm-ui .schedulizer-app .radio-inline input[type="radio"],
+.ccm-ui .schedulizer-app .checkbox input[type="checkbox"],
+.ccm-ui .schedulizer-app .checkbox-inline input[type="checkbox"] {
+  position: absolute;
+  margin-left: -20px;
+  margin-top: 4px \9; }
+.ccm-ui .schedulizer-app .radio + .radio,
+.ccm-ui .schedulizer-app .checkbox + .checkbox {
+  margin-top: -5px; }
+.ccm-ui .schedulizer-app .radio-inline,
+.ccm-ui .schedulizer-app .checkbox-inline {
+  display: inline-block;
+  padding-left: 20px;
+  margin-bottom: 0;
+  vertical-align: middle;
+  font-weight: normal;
+  cursor: pointer; }
+.ccm-ui .schedulizer-app .radio-inline + .radio-inline,
+.ccm-ui .schedulizer-app .checkbox-inline + .checkbox-inline {
+  margin-top: 0;
+  margin-left: 10px; }
+.ccm-ui .schedulizer-app input[type="radio"][disabled], .ccm-ui .schedulizer-app input[type="radio"].disabled, fieldset[disabled] .ccm-ui .schedulizer-app input[type="radio"],
+.ccm-ui .schedulizer-app input[type="checkbox"][disabled],
+.ccm-ui .schedulizer-app input[type="checkbox"].disabled, fieldset[disabled]
+.ccm-ui .schedulizer-app input[type="checkbox"] {
+  cursor: not-allowed; }
+.ccm-ui .schedulizer-app .radio-inline.disabled, fieldset[disabled] .ccm-ui .schedulizer-app .radio-inline,
+.ccm-ui .schedulizer-app .checkbox-inline.disabled, fieldset[disabled]
+.ccm-ui .schedulizer-app .checkbox-inline {
+  cursor: not-allowed; }
+.ccm-ui .schedulizer-app .radio.disabled label, fieldset[disabled] .ccm-ui .schedulizer-app .radio label,
+.ccm-ui .schedulizer-app .checkbox.disabled label, fieldset[disabled]
+.ccm-ui .schedulizer-app .checkbox label {
+  cursor: not-allowed; }
+.ccm-ui .schedulizer-app .form-control-static {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  margin-bottom: 0; }
+  .ccm-ui .schedulizer-app .form-control-static.input-lg, .ccm-ui .schedulizer-app .form-control-static.input-sm {
+    padding-left: 0;
+    padding-right: 0; }
+.ccm-ui .schedulizer-app .input-sm {
+  height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 0; }
+.ccm-ui .schedulizer-app select.input-sm {
+  height: 30px;
+  line-height: 30px; }
+.ccm-ui .schedulizer-app textarea.input-sm,
+.ccm-ui .schedulizer-app select[multiple].input-sm {
+  height: auto; }
+.ccm-ui .schedulizer-app .form-group-sm .form-control {
+  height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 0; }
+.ccm-ui .schedulizer-app .form-group-sm select.form-control {
+  height: 30px;
+  line-height: 30px; }
+.ccm-ui .schedulizer-app .form-group-sm textarea.form-control,
+.ccm-ui .schedulizer-app .form-group-sm select[multiple].form-control {
+  height: auto; }
+.ccm-ui .schedulizer-app .form-group-sm .form-control-static {
+  height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5; }
+.ccm-ui .schedulizer-app .input-lg {
+  height: 46px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33333;
+  border-radius: 0; }
+.ccm-ui .schedulizer-app select.input-lg {
+  height: 46px;
+  line-height: 46px; }
+.ccm-ui .schedulizer-app textarea.input-lg,
+.ccm-ui .schedulizer-app select[multiple].input-lg {
+  height: auto; }
+.ccm-ui .schedulizer-app .form-group-lg .form-control {
+  height: 46px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33333;
+  border-radius: 0; }
+.ccm-ui .schedulizer-app .form-group-lg select.form-control {
+  height: 46px;
+  line-height: 46px; }
+.ccm-ui .schedulizer-app .form-group-lg textarea.form-control,
+.ccm-ui .schedulizer-app .form-group-lg select[multiple].form-control {
+  height: auto; }
+.ccm-ui .schedulizer-app .form-group-lg .form-control-static {
+  height: 46px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33333; }
+.ccm-ui .schedulizer-app .has-feedback {
+  position: relative; }
+  .ccm-ui .schedulizer-app .has-feedback .form-control {
+    padding-right: 42.5px; }
+.ccm-ui .schedulizer-app .form-control-feedback {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: block;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  pointer-events: none; }
+.ccm-ui .schedulizer-app .input-lg + .form-control-feedback {
+  width: 46px;
+  height: 46px;
+  line-height: 46px; }
+.ccm-ui .schedulizer-app .input-sm + .form-control-feedback {
+  width: 30px;
+  height: 30px;
+  line-height: 30px; }
+.ccm-ui .schedulizer-app .has-success .help-block,
+.ccm-ui .schedulizer-app .has-success .control-label,
+.ccm-ui .schedulizer-app .has-success .radio,
+.ccm-ui .schedulizer-app .has-success .checkbox,
+.ccm-ui .schedulizer-app .has-success .radio-inline,
+.ccm-ui .schedulizer-app .has-success .checkbox-inline, .ccm-ui .schedulizer-app .has-success.radio label, .ccm-ui .schedulizer-app .has-success.checkbox label, .ccm-ui .schedulizer-app .has-success.radio-inline label, .ccm-ui .schedulizer-app .has-success.checkbox-inline label {
+  color: #3c763d; }
+.ccm-ui .schedulizer-app .has-success .form-control {
+  border-color: #3c763d;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+  .ccm-ui .schedulizer-app .has-success .form-control:focus {
+    border-color: #2b542c;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168; }
+.ccm-ui .schedulizer-app .has-success .input-group-addon {
+  color: #3c763d;
+  border-color: #3c763d;
+  background-color: #dff0d8; }
+.ccm-ui .schedulizer-app .has-success .form-control-feedback {
+  color: #3c763d; }
+.ccm-ui .schedulizer-app .has-warning .help-block,
+.ccm-ui .schedulizer-app .has-warning .control-label,
+.ccm-ui .schedulizer-app .has-warning .radio,
+.ccm-ui .schedulizer-app .has-warning .checkbox,
+.ccm-ui .schedulizer-app .has-warning .radio-inline,
+.ccm-ui .schedulizer-app .has-warning .checkbox-inline, .ccm-ui .schedulizer-app .has-warning.radio label, .ccm-ui .schedulizer-app .has-warning.checkbox label, .ccm-ui .schedulizer-app .has-warning.radio-inline label, .ccm-ui .schedulizer-app .has-warning.checkbox-inline label {
+  color: #8a6d3b; }
+.ccm-ui .schedulizer-app .has-warning .form-control {
+  border-color: #8a6d3b;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+  .ccm-ui .schedulizer-app .has-warning .form-control:focus {
+    border-color: #66512c;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b; }
+.ccm-ui .schedulizer-app .has-warning .input-group-addon {
+  color: #8a6d3b;
+  border-color: #8a6d3b;
+  background-color: #fcf8e3; }
+.ccm-ui .schedulizer-app .has-warning .form-control-feedback {
+  color: #8a6d3b; }
+.ccm-ui .schedulizer-app .has-error .help-block,
+.ccm-ui .schedulizer-app .has-error .control-label,
+.ccm-ui .schedulizer-app .has-error .radio,
+.ccm-ui .schedulizer-app .has-error .checkbox,
+.ccm-ui .schedulizer-app .has-error .radio-inline,
+.ccm-ui .schedulizer-app .has-error .checkbox-inline, .ccm-ui .schedulizer-app .has-error.radio label, .ccm-ui .schedulizer-app .has-error.checkbox label, .ccm-ui .schedulizer-app .has-error.radio-inline label, .ccm-ui .schedulizer-app .has-error.checkbox-inline label {
+  color: #a94442; }
+.ccm-ui .schedulizer-app .has-error .form-control {
+  border-color: #a94442;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+  .ccm-ui .schedulizer-app .has-error .form-control:focus {
+    border-color: #843534;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483; }
+.ccm-ui .schedulizer-app .has-error .input-group-addon {
+  color: #a94442;
+  border-color: #a94442;
+  background-color: #f2dede; }
+.ccm-ui .schedulizer-app .has-error .form-control-feedback {
+  color: #a94442; }
+.ccm-ui .schedulizer-app .has-feedback label ~ .form-control-feedback {
+  top: 25px; }
+.ccm-ui .schedulizer-app .has-feedback label.sr-only ~ .form-control-feedback {
+  top: 0; }
+.ccm-ui .schedulizer-app .help-block {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: #737373; }
+@media (min-width: 768px) {
+  .ccm-ui .schedulizer-app .form-inline .form-group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .ccm-ui .schedulizer-app .form-inline .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle; }
+  .ccm-ui .schedulizer-app .form-inline .form-control-static {
+    display: inline-block; }
+  .ccm-ui .schedulizer-app .form-inline .input-group {
+    display: inline-table;
+    vertical-align: middle; }
+    .ccm-ui .schedulizer-app .form-inline .input-group .input-group-addon,
+    .ccm-ui .schedulizer-app .form-inline .input-group .input-group-btn,
+    .ccm-ui .schedulizer-app .form-inline .input-group .form-control {
+      width: auto; }
+  .ccm-ui .schedulizer-app .form-inline .input-group > .form-control {
+    width: 100%; }
+  .ccm-ui .schedulizer-app .form-inline .control-label {
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .ccm-ui .schedulizer-app .form-inline .radio,
+  .ccm-ui .schedulizer-app .form-inline .checkbox {
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    vertical-align: middle; }
+    .ccm-ui .schedulizer-app .form-inline .radio label,
+    .ccm-ui .schedulizer-app .form-inline .checkbox label {
+      padding-left: 0; }
+  .ccm-ui .schedulizer-app .form-inline .radio input[type="radio"],
+  .ccm-ui .schedulizer-app .form-inline .checkbox input[type="checkbox"] {
+    position: relative;
+    margin-left: 0; }
+  .ccm-ui .schedulizer-app .form-inline .has-feedback .form-control-feedback {
+    top: 0; } }
+.ccm-ui .schedulizer-app .form-horizontal .radio,
+.ccm-ui .schedulizer-app .form-horizontal .checkbox,
+.ccm-ui .schedulizer-app .form-horizontal .radio-inline,
+.ccm-ui .schedulizer-app .form-horizontal .checkbox-inline {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 7px; }
+.ccm-ui .schedulizer-app .form-horizontal .radio,
+.ccm-ui .schedulizer-app .form-horizontal .checkbox {
+  min-height: 27px; }
+.ccm-ui .schedulizer-app .form-horizontal .form-group {
+  margin-left: -15px;
+  margin-right: -15px; }
+  .ccm-ui .schedulizer-app .form-horizontal .form-group:before, .ccm-ui .schedulizer-app .form-horizontal .form-group:after {
+    content: " ";
+    display: table; }
+  .ccm-ui .schedulizer-app .form-horizontal .form-group:after {
+    clear: both; }
+@media (min-width: 768px) {
+  .ccm-ui .schedulizer-app .form-horizontal .control-label {
+    text-align: right;
+    margin-bottom: 0;
+    padding-top: 7px; } }
+.ccm-ui .schedulizer-app .form-horizontal .has-feedback .form-control-feedback {
+  right: 15px; }
+@media (min-width: 768px) {
+  .ccm-ui .schedulizer-app .form-horizontal .form-group-lg .control-label {
+    padding-top: 14.33333px; } }
+@media (min-width: 768px) {
+  .ccm-ui .schedulizer-app .form-horizontal .form-group-sm .control-label {
+    padding-top: 6px; } }
+.ccm-ui .schedulizer-app .btn {
+  display: inline-block;
+  margin-bottom: 0;
+  font-weight: normal;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857;
+  border-radius: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+  .ccm-ui .schedulizer-app .btn:focus, .ccm-ui .schedulizer-app .btn.focus, .ccm-ui .schedulizer-app .btn:active:focus, .ccm-ui .schedulizer-app .btn:active.focus, .ccm-ui .schedulizer-app .btn.active:focus, .ccm-ui .schedulizer-app .btn.active.focus {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px; }
+  .ccm-ui .schedulizer-app .btn:hover, .ccm-ui .schedulizer-app .btn:focus, .ccm-ui .schedulizer-app .btn.focus {
+    color: #333;
+    text-decoration: none; }
+  .ccm-ui .schedulizer-app .btn:active, .ccm-ui .schedulizer-app .btn.active {
+    outline: 0;
+    background-image: none;
+    -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); }
+  .ccm-ui .schedulizer-app .btn.disabled, .ccm-ui .schedulizer-app .btn[disabled], fieldset[disabled] .ccm-ui .schedulizer-app .btn {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.65;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none; }
+.ccm-ui .schedulizer-app .btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc; }
+  .ccm-ui .schedulizer-app .btn-default:hover, .ccm-ui .schedulizer-app .btn-default:focus, .ccm-ui .schedulizer-app .btn-default.focus, .ccm-ui .schedulizer-app .btn-default:active, .ccm-ui .schedulizer-app .btn-default.active, .open > .ccm-ui .schedulizer-app .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad; }
+  .ccm-ui .schedulizer-app .btn-default:active, .ccm-ui .schedulizer-app .btn-default.active, .open > .ccm-ui .schedulizer-app .btn-default.dropdown-toggle {
+    background-image: none; }
+  .ccm-ui .schedulizer-app .btn-default.disabled, .ccm-ui .schedulizer-app .btn-default.disabled:hover, .ccm-ui .schedulizer-app .btn-default.disabled:focus, .ccm-ui .schedulizer-app .btn-default.disabled.focus, .ccm-ui .schedulizer-app .btn-default.disabled:active, .ccm-ui .schedulizer-app .btn-default.disabled.active, .ccm-ui .schedulizer-app .btn-default[disabled], .ccm-ui .schedulizer-app .btn-default[disabled]:hover, .ccm-ui .schedulizer-app .btn-default[disabled]:focus, .ccm-ui .schedulizer-app .btn-default[disabled].focus, .ccm-ui .schedulizer-app .btn-default[disabled]:active, .ccm-ui .schedulizer-app .btn-default[disabled].active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-default, fieldset[disabled] .ccm-ui .schedulizer-app .btn-default:hover, fieldset[disabled] .ccm-ui .schedulizer-app .btn-default:focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-default.focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-default:active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-default.active {
+    background-color: #fff;
+    border-color: #ccc; }
+  .ccm-ui .schedulizer-app .btn-default .badge {
+    color: #fff;
+    background-color: #333; }
+.ccm-ui .schedulizer-app .btn-primary {
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #2e6da4; }
+  .ccm-ui .schedulizer-app .btn-primary:hover, .ccm-ui .schedulizer-app .btn-primary:focus, .ccm-ui .schedulizer-app .btn-primary.focus, .ccm-ui .schedulizer-app .btn-primary:active, .ccm-ui .schedulizer-app .btn-primary.active, .open > .ccm-ui .schedulizer-app .btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: #286090;
+    border-color: #204d74; }
+  .ccm-ui .schedulizer-app .btn-primary:active, .ccm-ui .schedulizer-app .btn-primary.active, .open > .ccm-ui .schedulizer-app .btn-primary.dropdown-toggle {
+    background-image: none; }
+  .ccm-ui .schedulizer-app .btn-primary.disabled, .ccm-ui .schedulizer-app .btn-primary.disabled:hover, .ccm-ui .schedulizer-app .btn-primary.disabled:focus, .ccm-ui .schedulizer-app .btn-primary.disabled.focus, .ccm-ui .schedulizer-app .btn-primary.disabled:active, .ccm-ui .schedulizer-app .btn-primary.disabled.active, .ccm-ui .schedulizer-app .btn-primary[disabled], .ccm-ui .schedulizer-app .btn-primary[disabled]:hover, .ccm-ui .schedulizer-app .btn-primary[disabled]:focus, .ccm-ui .schedulizer-app .btn-primary[disabled].focus, .ccm-ui .schedulizer-app .btn-primary[disabled]:active, .ccm-ui .schedulizer-app .btn-primary[disabled].active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-primary, fieldset[disabled] .ccm-ui .schedulizer-app .btn-primary:hover, fieldset[disabled] .ccm-ui .schedulizer-app .btn-primary:focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-primary.focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-primary:active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-primary.active {
+    background-color: #337ab7;
+    border-color: #2e6da4; }
+  .ccm-ui .schedulizer-app .btn-primary .badge {
+    color: #337ab7;
+    background-color: #fff; }
+.ccm-ui .schedulizer-app .btn-success {
+  color: #fff;
+  background-color: #5cb85c;
+  border-color: #4cae4c; }
+  .ccm-ui .schedulizer-app .btn-success:hover, .ccm-ui .schedulizer-app .btn-success:focus, .ccm-ui .schedulizer-app .btn-success.focus, .ccm-ui .schedulizer-app .btn-success:active, .ccm-ui .schedulizer-app .btn-success.active, .open > .ccm-ui .schedulizer-app .btn-success.dropdown-toggle {
+    color: #fff;
+    background-color: #449d44;
+    border-color: #398439; }
+  .ccm-ui .schedulizer-app .btn-success:active, .ccm-ui .schedulizer-app .btn-success.active, .open > .ccm-ui .schedulizer-app .btn-success.dropdown-toggle {
+    background-image: none; }
+  .ccm-ui .schedulizer-app .btn-success.disabled, .ccm-ui .schedulizer-app .btn-success.disabled:hover, .ccm-ui .schedulizer-app .btn-success.disabled:focus, .ccm-ui .schedulizer-app .btn-success.disabled.focus, .ccm-ui .schedulizer-app .btn-success.disabled:active, .ccm-ui .schedulizer-app .btn-success.disabled.active, .ccm-ui .schedulizer-app .btn-success[disabled], .ccm-ui .schedulizer-app .btn-success[disabled]:hover, .ccm-ui .schedulizer-app .btn-success[disabled]:focus, .ccm-ui .schedulizer-app .btn-success[disabled].focus, .ccm-ui .schedulizer-app .btn-success[disabled]:active, .ccm-ui .schedulizer-app .btn-success[disabled].active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-success, fieldset[disabled] .ccm-ui .schedulizer-app .btn-success:hover, fieldset[disabled] .ccm-ui .schedulizer-app .btn-success:focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-success.focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-success:active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-success.active {
+    background-color: #5cb85c;
+    border-color: #4cae4c; }
+  .ccm-ui .schedulizer-app .btn-success .badge {
+    color: #5cb85c;
+    background-color: #fff; }
+.ccm-ui .schedulizer-app .btn-info {
+  color: #fff;
+  background-color: #5bc0de;
+  border-color: #46b8da; }
+  .ccm-ui .schedulizer-app .btn-info:hover, .ccm-ui .schedulizer-app .btn-info:focus, .ccm-ui .schedulizer-app .btn-info.focus, .ccm-ui .schedulizer-app .btn-info:active, .ccm-ui .schedulizer-app .btn-info.active, .open > .ccm-ui .schedulizer-app .btn-info.dropdown-toggle {
+    color: #fff;
+    background-color: #31b0d5;
+    border-color: #269abc; }
+  .ccm-ui .schedulizer-app .btn-info:active, .ccm-ui .schedulizer-app .btn-info.active, .open > .ccm-ui .schedulizer-app .btn-info.dropdown-toggle {
+    background-image: none; }
+  .ccm-ui .schedulizer-app .btn-info.disabled, .ccm-ui .schedulizer-app .btn-info.disabled:hover, .ccm-ui .schedulizer-app .btn-info.disabled:focus, .ccm-ui .schedulizer-app .btn-info.disabled.focus, .ccm-ui .schedulizer-app .btn-info.disabled:active, .ccm-ui .schedulizer-app .btn-info.disabled.active, .ccm-ui .schedulizer-app .btn-info[disabled], .ccm-ui .schedulizer-app .btn-info[disabled]:hover, .ccm-ui .schedulizer-app .btn-info[disabled]:focus, .ccm-ui .schedulizer-app .btn-info[disabled].focus, .ccm-ui .schedulizer-app .btn-info[disabled]:active, .ccm-ui .schedulizer-app .btn-info[disabled].active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-info, fieldset[disabled] .ccm-ui .schedulizer-app .btn-info:hover, fieldset[disabled] .ccm-ui .schedulizer-app .btn-info:focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-info.focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-info:active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-info.active {
+    background-color: #5bc0de;
+    border-color: #46b8da; }
+  .ccm-ui .schedulizer-app .btn-info .badge {
+    color: #5bc0de;
+    background-color: #fff; }
+.ccm-ui .schedulizer-app .btn-warning {
+  color: #fff;
+  background-color: #f0ad4e;
+  border-color: #eea236; }
+  .ccm-ui .schedulizer-app .btn-warning:hover, .ccm-ui .schedulizer-app .btn-warning:focus, .ccm-ui .schedulizer-app .btn-warning.focus, .ccm-ui .schedulizer-app .btn-warning:active, .ccm-ui .schedulizer-app .btn-warning.active, .open > .ccm-ui .schedulizer-app .btn-warning.dropdown-toggle {
+    color: #fff;
+    background-color: #ec971f;
+    border-color: #d58512; }
+  .ccm-ui .schedulizer-app .btn-warning:active, .ccm-ui .schedulizer-app .btn-warning.active, .open > .ccm-ui .schedulizer-app .btn-warning.dropdown-toggle {
+    background-image: none; }
+  .ccm-ui .schedulizer-app .btn-warning.disabled, .ccm-ui .schedulizer-app .btn-warning.disabled:hover, .ccm-ui .schedulizer-app .btn-warning.disabled:focus, .ccm-ui .schedulizer-app .btn-warning.disabled.focus, .ccm-ui .schedulizer-app .btn-warning.disabled:active, .ccm-ui .schedulizer-app .btn-warning.disabled.active, .ccm-ui .schedulizer-app .btn-warning[disabled], .ccm-ui .schedulizer-app .btn-warning[disabled]:hover, .ccm-ui .schedulizer-app .btn-warning[disabled]:focus, .ccm-ui .schedulizer-app .btn-warning[disabled].focus, .ccm-ui .schedulizer-app .btn-warning[disabled]:active, .ccm-ui .schedulizer-app .btn-warning[disabled].active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-warning, fieldset[disabled] .ccm-ui .schedulizer-app .btn-warning:hover, fieldset[disabled] .ccm-ui .schedulizer-app .btn-warning:focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-warning.focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-warning:active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-warning.active {
+    background-color: #f0ad4e;
+    border-color: #eea236; }
+  .ccm-ui .schedulizer-app .btn-warning .badge {
+    color: #f0ad4e;
+    background-color: #fff; }
+.ccm-ui .schedulizer-app .btn-danger {
+  color: #fff;
+  background-color: #d9534f;
+  border-color: #d43f3a; }
+  .ccm-ui .schedulizer-app .btn-danger:hover, .ccm-ui .schedulizer-app .btn-danger:focus, .ccm-ui .schedulizer-app .btn-danger.focus, .ccm-ui .schedulizer-app .btn-danger:active, .ccm-ui .schedulizer-app .btn-danger.active, .open > .ccm-ui .schedulizer-app .btn-danger.dropdown-toggle {
+    color: #fff;
+    background-color: #c9302c;
+    border-color: #ac2925; }
+  .ccm-ui .schedulizer-app .btn-danger:active, .ccm-ui .schedulizer-app .btn-danger.active, .open > .ccm-ui .schedulizer-app .btn-danger.dropdown-toggle {
+    background-image: none; }
+  .ccm-ui .schedulizer-app .btn-danger.disabled, .ccm-ui .schedulizer-app .btn-danger.disabled:hover, .ccm-ui .schedulizer-app .btn-danger.disabled:focus, .ccm-ui .schedulizer-app .btn-danger.disabled.focus, .ccm-ui .schedulizer-app .btn-danger.disabled:active, .ccm-ui .schedulizer-app .btn-danger.disabled.active, .ccm-ui .schedulizer-app .btn-danger[disabled], .ccm-ui .schedulizer-app .btn-danger[disabled]:hover, .ccm-ui .schedulizer-app .btn-danger[disabled]:focus, .ccm-ui .schedulizer-app .btn-danger[disabled].focus, .ccm-ui .schedulizer-app .btn-danger[disabled]:active, .ccm-ui .schedulizer-app .btn-danger[disabled].active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-danger, fieldset[disabled] .ccm-ui .schedulizer-app .btn-danger:hover, fieldset[disabled] .ccm-ui .schedulizer-app .btn-danger:focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-danger.focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-danger:active, fieldset[disabled] .ccm-ui .schedulizer-app .btn-danger.active {
+    background-color: #d9534f;
+    border-color: #d43f3a; }
+  .ccm-ui .schedulizer-app .btn-danger .badge {
+    color: #d9534f;
+    background-color: #fff; }
+.ccm-ui .schedulizer-app .btn-link {
+  color: #337ab7;
+  font-weight: normal;
+  border-radius: 0; }
+  .ccm-ui .schedulizer-app .btn-link, .ccm-ui .schedulizer-app .btn-link:active, .ccm-ui .schedulizer-app .btn-link.active, .ccm-ui .schedulizer-app .btn-link[disabled], fieldset[disabled] .ccm-ui .schedulizer-app .btn-link {
+    background-color: transparent;
+    -webkit-box-shadow: none;
+    box-shadow: none; }
+  .ccm-ui .schedulizer-app .btn-link, .ccm-ui .schedulizer-app .btn-link:hover, .ccm-ui .schedulizer-app .btn-link:focus, .ccm-ui .schedulizer-app .btn-link:active {
+    border-color: transparent; }
+  .ccm-ui .schedulizer-app .btn-link:hover, .ccm-ui .schedulizer-app .btn-link:focus {
+    color: #23527c;
+    text-decoration: underline;
+    background-color: transparent; }
+  .ccm-ui .schedulizer-app .btn-link[disabled]:hover, .ccm-ui .schedulizer-app .btn-link[disabled]:focus, fieldset[disabled] .ccm-ui .schedulizer-app .btn-link:hover, fieldset[disabled] .ccm-ui .schedulizer-app .btn-link:focus {
+    color: #777777;
+    text-decoration: none; }
+.ccm-ui .schedulizer-app .btn-lg, .ccm-ui .schedulizer-app .btn-group-lg > .btn {
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33333;
+  border-radius: 0; }
+.ccm-ui .schedulizer-app .btn-sm, .ccm-ui .schedulizer-app .btn-group-sm > .btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 0; }
+.ccm-ui .schedulizer-app .btn-xs, .ccm-ui .schedulizer-app .btn-group-xs > .btn {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 0; }
+.ccm-ui .schedulizer-app .btn-block {
+  display: block;
+  width: 100%; }
+.ccm-ui .schedulizer-app .btn-block + .btn-block {
+  margin-top: 5px; }
+.ccm-ui .schedulizer-app input[type="submit"].btn-block,
+.ccm-ui .schedulizer-app input[type="reset"].btn-block,
+.ccm-ui .schedulizer-app input[type="button"].btn-block {
+  width: 100%; }
 
 .schedulizer-app {
+  margin: 0 -20px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -moz-font-smoothing: antialiased;
   /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
   /*!
    * ui-select
@@ -2087,14 +2696,16 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box; }
   .schedulizer-app .calendry-instance {
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -moz-font-smoothing: antialiased; }
     .schedulizer-app .calendry-instance .calendry-header {
       height: 50px;
-      background: #c5c5c5;
+      background: #006699;
       padding: 5px; }
       .schedulizer-app .calendry-instance .calendry-header .header-columns {
         height: 100%;
@@ -2198,7 +2809,7 @@
       background: #d1d1d1; }
       .schedulizer-app .calendry-instance .calendry-body .event-cell:hover {
         background: #e1e1e1; }
-  @media screen and (min-width: 500px) {
+  @media screen and (min-width: 768px) {
     .schedulizer-app .calendry-instance .calendry-header .header-columns .col {
       width: calc(100%/3); }
       .schedulizer-app .calendry-instance .calendry-header .header-columns .col.middle {
@@ -2210,7 +2821,8 @@
     .schedulizer-app .calendry-instance:not(.list-view) {
       height: 100%;
       position: relative;
-      height: 700px; }
+      min-height: 700px;
+      overflow: hidden; }
       .schedulizer-app .calendry-instance:not(.list-view) .calendry-header {
         position: absolute;
         top: 0;
@@ -2415,17 +3027,110 @@
     display: none !important; }
   .schedulizer-app .ui-select-bootstrap.ng-dirty.ng-invalid > button.btn.ui-select-match {
     border-color: #D44950; }
+  .schedulizer-app .not-stupid-header-style {
+    padding: 1rem 0;
+    background: #ddd;
+    position: relative;
+    z-index: 2; }
+    .schedulizer-app .not-stupid-header-style h3 {
+      margin: 0;
+      padding: 4px 0; }
   .schedulizer-app .ccm-dashboard-content-full {
-    padding-bottom: 20px;
     margin: 0 !important; }
+    .schedulizer-app .ccm-dashboard-content-full .app-wrap {
+      position: relative;
+      -webkit-transition: all 0.25s ease;
+      -o-transition: all 0.25s ease;
+      transition: all 0.25s ease;
+      -moz-transform: translateY(0);
+      -ms-transform: translateY(0);
+      -webkit-transform: translateY(0);
+      transform: translateY(0); }
+      .schedulizer-app .ccm-dashboard-content-full .app-wrap .calendar-event-search {
+        padding: 1rem 0;
+        height: 150px;
+        background: #414d59;
+        color: #97aabc;
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        width: 100%; }
+    .schedulizer-app .ccm-dashboard-content-full.search-open {
+      overflow: hidden; }
+      .schedulizer-app .ccm-dashboard-content-full.search-open .app-wrap {
+        -moz-transform: translateY(150px);
+        -ms-transform: translateY(150px);
+        -webkit-transform: translateY(150px);
+        transform: translateY(150px); }
+  .schedulizer-app label {
+    font-weight: normal; }
+    .schedulizer-app label.btn input[type="checkbox"] {
+      visibility: hidden;
+      position: absolute; }
+    .schedulizer-app label.color-thumb {
+      position: relative;
+      display: inline-block;
+      width: auto;
+      height: auto;
+      padding: 15px;
+      margin: 0 0 0 7px;
+      cursor: pointer;
+      -moz-border-radius: 50%;
+      -webkit-border-radius: 50%;
+      border-radius: 50%; }
+      .schedulizer-app label.color-thumb.active::before {
+        display: inline-block;
+        content: "\e116";
+        font-family: 'icomoon';
+        font-size: 20px;
+        color: #5cb85c;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -moz-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%); }
+      .schedulizer-app label.color-thumb input {
+        visibility: hidden;
+        position: absolute; }
+  .schedulizer-app [select-wrap] {
+    display: inline-block;
+    position: relative;
+    z-index: 2; }
+    .schedulizer-app [select-wrap]::after {
+      content: "\e608";
+      font-family: 'icomoon';
+      position: absolute;
+      top: 50%;
+      right: 5px;
+      font-size: 24px;
+      z-index: -1;
+      -moz-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+      -webkit-transform: translateY(-50%);
+      transform: translateY(-50%); }
+    .schedulizer-app [select-wrap].block {
+      display: block; }
+    .schedulizer-app [select-wrap] select {
+      padding-right: 25px;
+      text-transform: capitalize;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background: transparent;
+      -moz-border-radius: 0;
+      -webkit-border-radius: 0;
+      border-radius: 0; }
 
 @media screen and (min-width: 992px) {
   .schedulizer-app .ccm-dashboard-content-full {
     padding-left: 20px;
     margin: 0 0 0 -97px !important; } }
-.calendar-wrap {
-  padding-top: 20px; }
-
+@media screen and (min-width: 1000px) and (min-height: 820px) {
+  html {
+    overflow: hidden; } }
 .ui-select-widget .ui-select-container.ui-select-multiple {
   padding: 4px 3px 3px 3px; }
   .ui-select-widget .ui-select-container.ui-select-multiple.open ul {
@@ -2447,6 +3152,7 @@
   font-size: 16px;
   width: 100%;
   height: 100%;
+  margin: 0;
   visibility: hidden;
   opacity: 0;
   display: block;
@@ -2507,36 +3213,6 @@
   [modal-window] .container-fluid {
     width: 90%;
     text-align: left; }
-  [modal-window] form label {
-    font-weight: normal; }
-  [modal-window] form [select-wrap] {
-    display: inline-block;
-    position: relative;
-    z-index: 2; }
-    [modal-window] form [select-wrap]::after {
-      content: "\e608";
-      font-family: 'icomoon';
-      position: absolute;
-      top: 50%;
-      right: 5px;
-      font-size: 24px;
-      z-index: -1;
-      -moz-transform: translateY(-50%);
-      -ms-transform: translateY(-50%);
-      -webkit-transform: translateY(-50%);
-      transform: translateY(-50%); }
-    [modal-window] form [select-wrap].block {
-      display: block; }
-    [modal-window] form [select-wrap] select {
-      padding-right: 25px;
-      text-transform: capitalize;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      background: transparent;
-      -moz-border-radius: 0;
-      -webkit-border-radius: 0;
-      border-radius: 0; }
   [modal-window] form .form-group {
     position: relative; }
     [modal-window] form .form-group.white {
@@ -2557,37 +3233,8 @@
     -webkit-border-radius: 0;
     border-radius: 0; }
   [modal-window] form.event .redactor_editor {
-    padding: 10px; }
-  [modal-window] form.event label.btn input[type="checkbox"] {
-    visibility: hidden;
-    position: absolute; }
-  [modal-window] form.event label.color-thumb {
-    position: relative;
-    display: inline-block;
-    width: auto;
-    height: auto;
-    padding: 15px;
-    margin: 0 0 0 7px;
-    cursor: pointer;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    border-radius: 50%; }
-    [modal-window] form.event label.color-thumb.active::before {
-      display: inline-block;
-      content: "\e116";
-      font-family: 'icomoon';
-      font-size: 20px;
-      color: #5cb85c;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      -moz-transform: translate(-50%, -50%);
-      -ms-transform: translate(-50%, -50%);
-      -webkit-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%); }
-    [modal-window] form.event label.color-thumb input {
-      visibility: hidden;
-      position: absolute; }
+    padding: 10px;
+    max-height: 350px; }
   [modal-window] form.event .input-title {
     font-weight: 200;
     border: 0;

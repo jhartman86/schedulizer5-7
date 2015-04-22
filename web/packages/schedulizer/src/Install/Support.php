@@ -3,6 +3,11 @@
     use \DateTime;
     use \DateTimeZone;
 
+    /**
+     * Class Support
+     * @package Concrete\Package\Schedulizer\Src\Install
+     * @todo: mysql 5.6 for innodb full text indices
+     */
     class Support {
 
         const PHP_MIN_VERSION   = 5.4;

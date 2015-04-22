@@ -100,9 +100,9 @@ angular.module('schedulizer.app').
                 });
             }
 
-            $scope.$watch('eventTagList', function(val){
-                console.log('tags: ', val);
-            }, true);
+            //$scope.$watch('eventTagList', function(val){
+            //    console.log('tags: ', val);
+            //}, true);
 
             $scope.tagTransform = function( newTagText ){
                 return {

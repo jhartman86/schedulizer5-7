@@ -29,7 +29,9 @@
         protected $limitPerDay  = null;
         protected $calendarIDs  = array();
         protected $eventIDs     = array();
+        protected $tagIDs       = array();
         protected $queryDaySpan = self::DAYS_IN_FUTURE;
+        protected $fullTextSearch = null;
         protected $fetchColumns = array(
             '_syntheticDate'                => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
             'computedStartUTC'              => array(false, self::COLUMN_CAST_TIME, self::COLUMN_CAST_TIME_UTC),
@@ -93,6 +95,11 @@
         }
 
 
+        public function setFullTextSearch( $string ){
+            $this->fullTextSearch = $string;
+        }
+
+
         /**
          * Set the start date
          * @param DateTime $start
@@ -110,6 +117,21 @@
          */
         public function setEndDate( \DateTime $end ){
             $this->endDTO = $end;
+            return $this;
+        }
+
+        /**
+         * Filter by tag IDs.
+         * @param $tagIDs
+         * @return $this
+         */
+        public function filterByTagIDs( $tagIDs ){
+            if( is_array($tagIDs) ){
+                $this->tagIDs = array_unique(array_merge($this->tagIDs, $tagIDs));
+                return $this;
+            }
+            array_push($this->tagIDs, $tagIDs);
+            $this->tagIDs = array_unique($this->tagIDs);
             return $this;
         }
 
@@ -229,10 +251,24 @@
          */
         protected function assembledQuery(){
             if( ! $this->_assembledQuery ){
+                // Ensure even if array itself is empty, it doesn't contain empty/null entries
+                $this->calendarIDs = array_filter($this->calendarIDs, function( $calID ){
+                    return (int)$calID >= 1;
+                });
                 // Throw exception if no calendarIDs specified
                 if( empty($this->calendarIDs) ){
                     throw new Exception("No calendar IDs specified.");
                 }
+
+                // Ensure eventIDs are numeric only
+                $this->eventIDs = array_filter($this->eventIDs, function( $eventID ){
+                    return (int)$eventID >= 1;
+                });
+
+                // Ensure tagIDs are numeric only
+                $this->tagIDs = array_filter($this->tagIDs, function( $tagID ){
+                    return (int)$tagID >= 1;
+                });
 
                 // If start hasn't been declared, set it to today but time 00:00:00
                 if( !($this->startDTO instanceof DateTime) ){
@@ -254,22 +290,38 @@
         }
 
         /**
-         * To whoever may inherit this., I'm sorry. Anyways...
          * Restrictors on internal join (superbly limits result set). By
          * the time this gets called in the queryString() method, everything
-         * used by this method will be "prepared" (ready to use).
+         * used by this method will be prepared/ready-to-use.
          * @return string
          */
         protected function subqueryRestrictions(){
             $calendarIDs = join(',', $this->calendarIDs);
+            // We never use the actual end date passed in, but instead use the calculated day
+            // span and then we can generate a controlled end date for restricting the internal
+            // join
             $endDateDTO  = clone $this->startDTO;
             $endDateDTO->modify("+{$this->queryDaySpan} days");
             $endDate = $endDateDTO->format(self::DATE_FORMAT);
 
+
             $restrictor = "sev.calendarID in ({$calendarIDs}) AND (DATE(sevt.startUTC) < DATE('{$endDate}'))";
+            // Filter by eventIDs?
             if( !empty($this->eventIDs) ){
                 $eventIDs = join(',', $this->eventIDs);
                 $restrictor .= " AND sev.id in ({$eventIDs})";
+            }
+            // Filter by tagIDs?
+            if( !empty($this->tagIDs) ){
+                $tagIDs = join(',', $this->tagIDs);
+                $restrictor .= " AND stag.eventTagID in ({$tagIDs})";
+                $this->_setupQueryForTagFilter = true;
+            }
+
+            // Full text search
+            if( !empty($this->fullTextSearch) ){
+                $cleaned = preg_replace("/[^0-9a-zA-Z -]/", "", Loader::helper('text')->sanitize($this->fullTextSearch));
+                $restrictor .= " AND (MATCH (sev.title, sev.description) AGAINST ('{$cleaned}'))";
             }
 
             return $restrictor;
@@ -278,6 +330,7 @@
 
         /**
          * Setup the base query string. This is the stupidest/beastliest SQL query ever.
+         * To whoever may inherit this, I'm sorry.
          * @todo: repeat yearly (just once per year)
          * @todo: last (> 4th) "Tuesday" or whatever day of the month.
          * @note: the end date time is only used in the subquery restrictors, and
@@ -295,6 +348,10 @@
             $limitPerDay = '';
             if( (int)$this->limitPerDay >= 1 ){
                 $limitPerDay = sprintf(' LIMIT %s', (int)$this->limitPerDay);
+            }
+            $joinForTagFilters = '';
+            if( $this->_setupQueryForTagFilter === true ){
+                $joinForTagFilters = " RIGHT JOIN SchedulizerTaggedEvents stag ON stag.eventID = sevt.eventID ";
             }
 
             return "SELECT {$selectColumns} FROM (
@@ -349,6 +406,7 @@
                   JOIN SchedulizerEvent sev ON sev.calendarID = sec.id
                   JOIN SchedulizerEventTime sevt ON sevt.eventID = sev.id
                   LEFT JOIN SchedulizerEventTimeWeekdays sevtwd ON sevtwd.eventTimeID = sevt.id
+                  {$joinForTagFilters}
                 WHERE ({$restrictor}) ORDER BY sevt.startUTC asc {$limitPerDay}
               ) AS _events
               WHERE(_events.isRepeating = 1

@@ -1,21 +1,57 @@
 <?php namespace Concrete\Package\Schedulizer\Src\Api\Resource {
 
+    use Concrete\Core\Job\Event;
     use \DateTime;
     use \DateTimeZone;
     use \Concrete\Package\Schedulizer\Src\EventList;
+    use \Concrete\Package\Schedulizer\Src\Api\ApiException;
 
     class EventListResource extends \Concrete\Package\Schedulizer\Src\Api\ApiDispatcher {
 
         /**
          * List resource get method.
          * @param null $calendarID
+         * @throws ApiException
          */
         protected function httpGet( $calendarID = null ){
-            $eventListObj = new EventList(array($calendarID));
-            $this->setStartDate($eventListObj);
-            $this->setEndDate($eventListObj);
-            $this->setFetchColumns($eventListObj);
-            $this->setResponseData($eventListObj->getSerializable());
+            try {
+                $eventListObj = new EventList(array($calendarID));
+                $this->setFullTextSearchOn($eventListObj);
+                $this->setCalendarIDsOn($eventListObj);
+                $this->setFilterByTagsOn($eventListObj);
+                $this->setStartDate($eventListObj);
+                $this->setEndDate($eventListObj);
+                $this->setFetchColumns($eventListObj);
+                $this->setResponseData($eventListObj->getSerializable());
+            }catch(\Exception $e){
+                throw ApiException::generic($e->getMessage());
+            }
+        }
+
+        private function setFullTextSearchOn( EventList $eventList ){
+            if( !empty($this->requestParams()->keywords) ){
+                $eventList->setFullTextSearch($this->requestParams()->keywords);
+            }
+        }
+
+        /**
+         * eg. ?calendars=1,17,22
+         * @param EventList $eventList
+         */
+        private function setCalendarIDsOn( EventList $eventList ){
+            if( !empty($this->requestParams()->calendars) ){
+                $eventList->setCalendarIDs(explode(',', $this->requestParams()->calendars));
+            }
+        }
+
+        /**
+         * eg. ?tags=12,83,15
+         * @param EventList $eventList
+         */
+        private function setFilterByTagsOn( EventList $eventList ){
+            if( !empty($this->requestParams()->tags) ){
+                $eventList->filterByTagIDs(explode(',', $this->requestParams()->tags));
+            }
         }
 
         /**
