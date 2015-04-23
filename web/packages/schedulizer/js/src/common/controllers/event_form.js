@@ -41,6 +41,7 @@ angular.module('schedulizer.app').
                 $scope._ready = true;
             }
 
+            // Queue multiple request dependencies, and resolve only when they're all done
             var _requests = [
                 API.timezones.get().$promise,
                 API.calendar.get({id:ModalManager.data.eventObj.calendarID}).$promise,

@@ -2,9 +2,10 @@
 
     use DateTime,
         DateTimeZone,
-        Concrete\Package\Schedulizer\Src\EventTime,
-        Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant,
-        Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
+        \Concrete\Package\Schedulizer\Src\EventTime,
+        \Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant,
+        \Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud,
+        \Concrete\Package\Schedulizer\Src\Attribute\Mixins\AttributableEntity;
 
     /**
      * @package Concrete\Package\Schedulizer\Src
@@ -12,12 +13,16 @@
      */
     class Event extends Persistant {
 
-        use Crud;
+        use Crud, AttributableEntity;
 
         const USE_CALENDAR_TIMEZONE_TRUE    = true,
               USE_CALENDAR_TIMEZONE_FALSE   = false,
               DEFAULT_TIMEZONE              = 'UTC',
               EVENT_COLOR_DEFAULT           = '#E1E1E1';
+
+        // Required for AttributableEntity trait
+        const ATTR_KEY_CLASS    = '\Concrete\Package\Schedulizer\Src\Attribute\Key\SchedulizerEventKey',
+              ATTR_VALUE_CLASS  = '\Concrete\Package\Schedulizer\Src\Attribute\Value\SchedulizerEventValue';
 
         /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]}) */
         protected $createdUTC;
@@ -88,28 +93,6 @@
 
         /** @return int|null */
         public function getFileID(){ return $this->fileID; }
-
-//        public static function createWithEventTimes( $postData ){
-//            $eventObj = self::create($postData);
-//            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
-//                foreach($postData->_timeEntities AS $timeEntityData){
-//                    $timeEntityData->eventID = $eventObj->getID();
-//                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
-//                }
-//            }
-//            return $eventObj;
-//        }
-//
-//        public function updateWithEventTimes( $postData ){
-//            $this->update($postData);
-//            if( is_array($postData->_timeEntities) && !empty($postData->_timeEntities) ){
-//                EventTime::purgeAllByEventID($this->getID());
-//                foreach($postData->_timeEntities AS $timeEntityData){
-//                    $timeEntityData->eventID = $this->getID();
-//                    EventTime::createWithWeeklyRepeatSettings($timeEntityData);
-//                }
-//            }
-//        }
 
         /**
          * Return properties for JSON serialization

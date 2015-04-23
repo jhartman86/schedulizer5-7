@@ -242,4 +242,26 @@
         <opt platform="mysqlt">ENGINE=INNODB</opt>
     </table>
 
+    <!-- Event attributes -->
+    <table name="SchedulizerEventAttributeValues">
+        <field name="eventID" type="I">
+            <KEY/>
+            <DEFAULT value="0"/>
+            <UNSIGNED />
+            <NOTNULL />
+        </field>
+        <field name="akID" type="I">
+            <KEY/>
+            <UNSIGNED />
+            <NOTNULL />
+            <DEFAULT value="0"/>
+        </field>
+        <field name="avID" type="I">
+            <KEY/>
+            <UNSIGNED />
+            <NOTNULL />
+            <DEFAULT value="0"/>
+        </field>
+    </table>
+
 </schema>

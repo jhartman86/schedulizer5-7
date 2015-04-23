@@ -10,6 +10,8 @@
     use SinglePage; /** @see \Concrete\Core\Page\Single */
     use \DateTime; /** @see \DateTime */
     use \DateTimeZone; /** @see \DateTimeZone */
+    use \Concrete\Core\Attribute\Key\Category AS AttributeKeyCategory;
+    use \Concrete\Core\Attribute\Type AS AttributeType;
     use \Concrete\Package\Schedulizer\Src\Api\ApiOnStart;
 
 
@@ -27,7 +29,7 @@
 
         protected $pkgHandle                = self::PACKAGE_HANDLE;
         protected $appVersionRequired       = '5.7.3.2';
-        protected $pkgVersion               = '0.39';
+        protected $pkgVersion               = '0.46';
 
         public function getPackageName(){ return t('Schedulizer'); }
         public function getPackageDescription(){ return t('Schedulizer Calendar Package'); }
@@ -162,17 +164,20 @@
          */
         private function installAndUpdate(){
             $this->setupBlocks()
-                 ->setupSinglePages();
+                 ->setupSinglePages()
+                 ->setupAttributeCategories();
 
             /** @var $connection \PDO :: Setup foreign key associations */
-            $connection = Database::connection(Database::getDefaultConnection())->getWrappedConnection();
-            $connection->query("ALTER TABLE SchedulizerEvent ADD CONSTRAINT FK_calendar FOREIGN KEY (calendarID) REFERENCES SchedulizerCalendar(id) ON UPDATE CASCADE ON DELETE CASCADE");
-            $connection->query("ALTER TABLE SchedulizerEventTime ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
-            $connection->query("ALTER TABLE SchedulizerEventTimeWeekdays ADD CONSTRAINT FK_eventTime FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
-            $connection->query("ALTER TABLE SchedulizerEventTimeNullify ADD CONSTRAINT FK_eventTime2 FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
-            // Tag associations
-            $connection->query("ALTER TABLE SchedulizerTaggedEvents ADD CONSTRAINT FK_taggedEvent FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON DELETE CASCADE");
-            $connection->query("ALTER TABLE SchedulizerTaggedEvents ADD CONSTRAINT FK_taggedEvent2 FOREIGN KEY (eventTagID) REFERENCES SchedulizerEventTag(id) ON DELETE CASCADE");
+            try {
+                $connection = Database::connection(Database::getDefaultConnection())->getWrappedConnection();
+                $connection->query("ALTER TABLE SchedulizerEvent ADD CONSTRAINT FK_calendar FOREIGN KEY (calendarID) REFERENCES SchedulizerCalendar(id) ON UPDATE CASCADE ON DELETE CASCADE");
+                $connection->query("ALTER TABLE SchedulizerEventTime ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
+                $connection->query("ALTER TABLE SchedulizerEventTimeWeekdays ADD CONSTRAINT FK_eventTime FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
+                $connection->query("ALTER TABLE SchedulizerEventTimeNullify ADD CONSTRAINT FK_eventTime2 FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
+                // Tag associations
+                $connection->query("ALTER TABLE SchedulizerTaggedEvents ADD CONSTRAINT FK_taggedEvent FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON DELETE CASCADE");
+                $connection->query("ALTER TABLE SchedulizerTaggedEvents ADD CONSTRAINT FK_taggedEvent2 FOREIGN KEY (eventTagID) REFERENCES SchedulizerEventTag(id) ON DELETE CASCADE");
+            }catch(\Exception $e){ /** @todo: log out */ }
         }
 
 
@@ -193,6 +198,7 @@
             if(!is_object(BlockType::getByHandle('schedulizer'))) {
                 BlockType::installBlockTypeFromPackage('schedulizer', $this->packageObject());
             }
+
             if(!is_object(BlockType::getByHandle('schedulizer_event'))) {
                 BlockType::installBlockTypeFromPackage('schedulizer_event', $this->packageObject());
             }
@@ -207,11 +213,30 @@
             // Dashboard pages
             SinglePage::add('/dashboard/schedulizer/', $this->packageObject());
             SinglePage::add('/dashboard/schedulizer/calendars', $this->packageObject());
+            SinglePage::add('/dashboard/schedulizer/attributes', $this->packageObject());
             SinglePage::add('/dashboard/schedulizer/settings', $this->packageObject());
             // Hidden
             $spManage = SinglePage::add('/dashboard/schedulizer/calendars/manage', $this->packageObject());
             if( is_object($spManage) ){
                 $spManage->setAttribute('exclude_nav', 1);
+            }
+
+            return $this;
+        }
+
+
+        /**
+         * @return $this
+         */
+        private function setupAttributeCategories(){
+            if( ! AttributeKeyCategory::getByHandle('schedulizer_event') ){
+                $attrKeyCat = AttributeKeyCategory::add('schedulizer_event', AttributeKeyCategory::ASET_ALLOW_MULTIPLE, $this->packageObject());
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('text') );
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('boolean') );
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('number') );
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('textarea') );
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('select') );
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('image_file') );
             }
 
             return $this;
@@ -238,6 +263,20 @@
                 $this->_packageObj = Package::getByHandle( $this->pkgHandle );
             }
             return $this->_packageObj;
+        }
+
+
+        /**
+         * @return AttributeType
+         */
+        private function attributeType( $handle ){
+            if( is_null($this->{"at_{$handle}"}) ){
+                $attributeType = AttributeType::getByHandle($handle);
+                if( is_object($attributeType) ){
+                    $this->{"at_{$handle}"} = $attributeType;
+                }
+            }
+            return $this->{"at_{$handle}"};
         }
 
     }
