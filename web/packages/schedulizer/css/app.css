@@ -127,26 +127,6 @@
 .icon-attention:before {
   content: "\e623"; }
 
-html,
-#ccm-dashboard-page.ccm-ui,
-#ccm-dashboard-page.ccm-ui #ccm-dashboard-content.container-fluid,
-.schedulizer-app,
-#ccm-dashboard-page.ccm-ui #ccm-dashboard-content.container-fluid .ccm-dashboard-content-full,
-.schedulizer-app .calendar-wrap,
-.calendry-instance {
-  height: 100% !important; }
-
-.schedulizer-app .app-wrap {
-  height: calc(100% - 66px); }
-
-body {
-  height: calc(100% - 49px); }
-
-#ccm-dashboard-content.container-fluid {
-  padding-bottom: 0; }
-  #ccm-dashboard-content.container-fluid > header {
-    display: none !important; }
-
 .ccm-ui .schedulizer-app fieldset {
   padding: 0;
   margin: 0;
@@ -3027,6 +3007,8 @@ body {
     display: none !important; }
   .schedulizer-app .ui-select-bootstrap.ng-dirty.ng-invalid > button.btn.ui-select-match {
     border-color: #D44950; }
+  .schedulizer-app input:focus, .schedulizer-app select:focus, .schedulizer-app textarea:focus, .schedulizer-app button:focus, .schedulizer-app a:focus {
+    outline: none !important; }
   .schedulizer-app .not-stupid-header-style {
     padding: 1rem 0;
     background: #ddd;
@@ -3178,7 +3160,7 @@ body {
     -ms-transform: translateX(0) translateZ(0);
     -webkit-transform: translateX(0) translateZ(0);
     transform: translateX(0) translateZ(0); }
-  [modal-window] .icon-close {
+  [modal-window] .default-closer {
     position: absolute;
     top: 49px;
     right: 0;
@@ -3194,7 +3176,7 @@ body {
     -webkit-transition: all 0.25s ease;
     -o-transition: all 0.25s ease;
     transition: all 0.25s ease; }
-    [modal-window] .icon-close:hover {
+    [modal-window] .default-closer:hover {
       text-decoration: none;
       -moz-transform: rotate(-90deg);
       -ms-transform: rotate(-90deg);
@@ -3217,6 +3199,8 @@ body {
     position: relative; }
     [modal-window] form .form-group.white {
       background: #fff; }
+  [modal-window] form.calendar {
+    max-width: 650px; }
   [modal-window] form.event .tab-pane {
     padding: 15px 15px 0;
     margin-bottom: 15px;
@@ -3239,8 +3223,8 @@ body {
     font-weight: 200;
     border: 0;
     outline: 0;
-    padding: 15px;
-    margin-bottom: 30px;
+    padding: 5px;
+    margin-bottom: 15px;
     border-bottom: 1px solid #ddd;
     height: auto;
     font-size: 180%;
@@ -3273,12 +3257,9 @@ body {
 
 @media screen and (min-width: 768px) {
   [modal-window] form.event .delete-event {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 1rem; }
-    [modal-window] form.event .delete-event button {
-      margin-bottom: 2px; }
+    padding-right: 15px; }
+  [modal-window] form.event .save-event img {
+    max-height: 18px; }
   [modal-window] form.event .time-widgets {
     font-size: 0;
     line-height: 0; }
@@ -3289,26 +3270,6 @@ body {
       line-height: 1; }
       [modal-window] form.event .time-widgets .form-group:nth-of-type(2) input {
         border-left: 0; } }
-@media screen and (min-width: 992px) {
-  [modal-window] form.event .nav-tabs {
-    border-bottom: 0; }
-    [modal-window] form.event .nav-tabs li {
-      display: none; }
-      [modal-window] form.event .nav-tabs li.add-time-entity {
-        display: block;
-        float: none;
-        margin-bottom: 15px;
-        background: #fff;
-        border: 1px solid #ddd;
-        text-align: center; }
-        [modal-window] form.event .nav-tabs li.add-time-entity a {
-          margin: 0; }
-        [modal-window] form.event .nav-tabs li.add-time-entity span {
-          padding-left: 5px; }
-  [modal-window] form.event .tab-content .tab-pane {
-    display: block;
-    visibility: visible;
-    border-top: 1px solid #ddd; } }
 html.schedulizer-modal {
   overflow-y: hidden; }
 

@@ -110,6 +110,26 @@
             return $properties;
         }
 
+        /**
+         * Callback from the Persistable stuff, executed before entity gets
+         * removed entirely. We use this to clear out any attribute stuff.
+         */
+        protected function onBeforeDelete(){
+            $id = $this->id;
+            // Delete from primary attribute values table
+            self::adhocQuery(function(\PDO $connection) use ($id){
+                $statement = $connection->prepare("DELETE FROM SchedulizerEventAttributeValues WHERE eventID=:eventID");
+                $statement->bindValue(':eventID', $id);
+                return $statement;
+            });
+            // Delete from search indexed table
+            self::adhocQuery(function(\PDO $connection) use ($id){
+                $statement = $connection->prepare("DELETE FROM SchedulizerEventSearchIndexAttributes WHERE eventID=:eventID");
+                $statement->bindValue(':eventID', $id);
+                return $statement;
+            });
+        }
+
         /****************************************************************
          * Fetch Methods
          ***************************************************************/

@@ -7,6 +7,8 @@
     class Manage extends DashboardController {
 
         public function view( $calendarID = null ){
+            $this->hideDefaultC5DashboardHeader();
+            $this->forceFullHeight();
             try {
                 $calendarObj = Calendar::getByID( $calendarID );
                 if( is_object($calendarObj) ){

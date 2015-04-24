@@ -1,7 +1,17 @@
+/* global jQuery */
 angular.module('schedulizer.app').
 
     controller('CtrlEventForm', ['$rootScope', '$scope', '$q', '$filter', 'Helpers', 'ModalManager', 'API', '_moment',
         function( $rootScope, $scope, $q, $filter, Helpers, ModalManager, API, _moment ){
+
+            $scope.activeMasterTab = {
+                1: true
+            };
+
+            $scope.setMasterTabActive = function( index ){
+                $scope.activeMasterTab = {};
+                $scope.activeMasterTab[index] = true;
+            };
 
             /**
              * Template for a new time entity.
@@ -27,27 +37,35 @@ angular.module('schedulizer.app').
                 }, _populator || {});
             }
 
+            // Set default scope variables
             $scope._ready               = false;
             $scope._requesting          = false;
             $scope.eventColorOptions    = Helpers.eventColorOptions();
             $scope.timingTabs           = [];
             $scope.eventTagList         = [];
-
             // Did the user click to edit an event that's an alias?
-            $scope.warnAliased = ModalManager.data.eventObj.isSynthetic || false;
+            $scope.warnAliased          = ModalManager.data.eventObj.isSynthetic || false;
 
             // If aliased, show the message
             if( $scope.warnAliased ){
                 $scope._ready = true;
             }
 
-            // Queue multiple request dependencies, and resolve only when they're all done
+            /**
+             * Before doing anything else, get timezone list (which is cache-able),
+             * the calendar object, and the list of available tags.
+             * @type {*[]}
+             * @private
+             */
             var _requests = [
                 API.timezones.get().$promise,
                 API.calendar.get({id:ModalManager.data.eventObj.calendarID}).$promise,
                 API.eventTags.query().$promise
             ];
 
+            /**
+             * After all dependencies are loaded via the queue, THEN proceed...
+             */
             $q.all(_requests).then(function( results ){
                 // Set timezone options on scope
                 $scope.timezoneOptions = results[0];
@@ -77,7 +95,10 @@ angular.module('schedulizer.app').
                 }
             });
 
-            // If modal manager event object DOES have an ID, we're editing an existing one
+            /**
+             * If modal manager passed an eventID, then add another request (to get the
+             * full event info) to the queue and wait for it to resolve, then proceed.
+             */
             if( ModalManager.data.eventObj.eventID ){
                 // Push a new request onto the promise chain...
                 _requests.push(API.event.get({id:ModalManager.data.eventObj.eventID}).$promise);
@@ -88,6 +109,7 @@ angular.module('schedulizer.app').
                     results[3]._timeEntities.map(function( record ){
                         return newEventTimeEntity(record);
                     });
+
                     // Set the entity
                     $scope.entity = results[3];
 
@@ -101,10 +123,12 @@ angular.module('schedulizer.app').
                 });
             }
 
-            //$scope.$watch('eventTagList', function(val){
-            //    console.log('tags: ', val);
-            //}, true);
+            // Load the attributes form as a seperate include, passing eventID if applicable
+            $scope.attributeForm = API._routes.generate('ajax', [
+                'event_attributes_form', ModalManager.data.eventObj.eventID, ('?bustCache=' + Math.random().toString(36).substring(7) + Math.floor(Math.random() * 10000) + 1)
+            ]);
 
+            // Tag selection function (when creating new tags on the fly, this gets called)
             $scope.tagTransform = function( newTagText ){
                 return {
                     displayText: newTagText
@@ -171,19 +195,45 @@ angular.module('schedulizer.app').
             });
 
             /**
-             * Persist the entity.
+             * Persist the entity. THIS HAPPENS WITH TWO CALLS: first, we persist
+             * the event object itself. Then when that returns, we make ANOTHER call
+             * posting to _schedulizer/event/attributes/1 with JUST the values encapsulated
+             * in the <div custom-attributes></div> section. We have to dumb down to using
+             * just jQuery here in order to serialize the contents and treat it all as
+             * an array :(.
              */
             $scope.submitHandler = function(){
-                $scope.entity.fileID = parseInt(jQuery('input[type="hidden"]', '.ccm-file-selector').val()) || null;
+                // Show the spinner...
                 $scope._requesting = true;
-                // If entity already has ID, $update, otherwise $save (create), and bind callback
-                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
-                    function( resp ){
-                        $scope._requesting = false;
-                        $rootScope.$emit('calendar.refresh');
-                        ModalManager.classes.open = false;
-                    }
-                );
+
+                // Step 1 - submit primary event
+                var step1 = $q(function( resolve, reject ){
+                    // Set the primary fileID from the C5 file selector on the entity before submitting
+                    $scope.entity.fileID = parseInt(jQuery('input[type="hidden"]', '.ccm-file-selector').val()) || null;
+
+                    //If entity already has ID, $update, otherwise $save (create), and bind callback
+                    ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
+                        function( resp ){
+                            // Resolves the outer promise (step1) so we know to move on to step2
+                            resolve(resp);
+                        }
+                    );
+                });
+
+                // Step 2 - serialize attributes and send (always goes to post handler in API)
+                step1.then(function( eventObj ){
+                    var _route = API._routes.generate('api.event', ['attributes', eventObj.id]),
+                        // Serializes all the attributes within [custom-attributes] div
+                        _attrs = jQuery('input,select,textarea', '[custom-attributes]').serialize();
+
+                    jQuery.post(_route, _attrs).always(function( resp ){
+                        if( resp.ok ){
+                            $scope._requesting = false;
+                            $rootScope.$emit('calendar.refresh');
+                            ModalManager.classes.open = false;
+                        }
+                    });
+                });
             };
 
             /**

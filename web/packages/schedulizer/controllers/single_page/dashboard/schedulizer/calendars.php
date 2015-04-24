@@ -8,6 +8,8 @@
     class Calendars extends DashboardController {
 
         public function view(){
+            $this->hideDefaultC5DashboardHeader();
+            $this->forceFullHeight();
             $this->set('calendars', Calendar::fetchAll());
             $this->set('conversionHelper', new TimeConversion());
         }

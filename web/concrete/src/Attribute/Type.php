@@ -222,7 +222,7 @@ class Type extends Object
             } else {
                 $av = new AttributeTypeView($this);
             }
-        }
+        };
         ob_start();
         $av->render($view);
         $contents = ob_get_contents();

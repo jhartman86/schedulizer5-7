@@ -5,7 +5,7 @@ angular.module('schedulizer.app').
      * leaving this in HTML somewhere.
      */
     run([function(){
-        angular.element(document.querySelector('body')).append('<div modal-window class="schedulizer-app" ng-class="manager.classes"><a class="icon-close" modal-close></a><div class="modal-inner" ng-include="manager.data.source"></div></div>');
+        angular.element(document.querySelector('body')).append('<div modal-window class="schedulizer-app" ng-class="manager.classes"><a class="icon-close default-closer" modal-close></a><div class="modal-inner" ng-include="manager.data.source"></div></div>');
     }]).
 
     /**

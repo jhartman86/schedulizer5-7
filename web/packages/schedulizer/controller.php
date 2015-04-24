@@ -8,6 +8,8 @@
     use Loader; /** @see \Concrete\Core\Legacy\Loader */
     use BlockType; /** @see \Concrete\Core\Block\BlockType\BlockType */
     use SinglePage; /** @see \Concrete\Core\Page\Single */
+    use Route;
+    use Router;
     use \DateTime; /** @see \DateTime */
     use \DateTimeZone; /** @see \DateTimeZone */
     use \Concrete\Core\Attribute\Key\Category AS AttributeKeyCategory;
@@ -68,6 +70,7 @@
                 @date_default_timezone_set('UTC');
             }
 
+            // API requests
             ApiOnStart::execute(function( $apiOnStart ){
                 /** @var $apiOnStart \Concrete\Package\Schedulizer\Src\Api\OnStart */
                 // GET,POST,PUT,DELETE
@@ -83,6 +86,18 @@
                 // GET
                 $apiOnStart->addRoute('timezones', 'TimezoneResource');
             });
+
+            // Normal old ajax calls: note, C5's router fails to implement the full
+            // Symfony routing options (hence why we customize the API stuff above),
+            // so to pass an optional parameter we have to register the route twice :(
+            Route::register(
+                Router::route(array('event_attributes_form/{id}', 'schedulizer')),
+                '\Concrete\Package\Schedulizer\Controller\Ajax\EventAttributesForm::view'
+            );
+            Route::register(
+                Router::route(array('event_attributes_form', 'schedulizer')),
+                '\Concrete\Package\Schedulizer\Controller\Ajax\EventAttributesForm::view'
+            );
         }
 
 
@@ -234,9 +249,9 @@
                 $attrKeyCat->associateAttributeKeyType( $this->attributeType('text') );
                 $attrKeyCat->associateAttributeKeyType( $this->attributeType('boolean') );
                 $attrKeyCat->associateAttributeKeyType( $this->attributeType('number') );
-                $attrKeyCat->associateAttributeKeyType( $this->attributeType('textarea') );
                 $attrKeyCat->associateAttributeKeyType( $this->attributeType('select') );
-                $attrKeyCat->associateAttributeKeyType( $this->attributeType('image_file') );
+//                $attrKeyCat->associateAttributeKeyType( $this->attributeType('textarea') );
+//                $attrKeyCat->associateAttributeKeyType( $this->attributeType('image_file') );
             }
 
             return $this;

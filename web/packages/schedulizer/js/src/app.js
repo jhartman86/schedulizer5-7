@@ -16,20 +16,21 @@
             // Disable Angular's HTML5 mode stuff
             $locationProvider.html5Mode(false);
 
-            var routeBase = window['_Schedulizer'];
+            var routeBase = window['__schedulizer'];
 
             // Provide API route helpers
             $provide.factory('Routes', function(){
                 var _routes = {
                     api: {
-                        calendar:       routeBase.api + '/calendar/:id',
-                        event:          routeBase.api + '/event/:id',
+                        calendar:       routeBase.api + '/calendar',
+                        event:          routeBase.api + '/event',
                         eventList:      routeBase.api + '/event_list',
-                        eventNullify:   routeBase.api + '/event_time_nullify/:eventTimeID/:id',
-                        eventTags:      routeBase.api + '/event_tags/:id',
+                        eventNullify:   routeBase.api + '/event_time_nullify',
+                        eventTags:      routeBase.api + '/event_tags',
                         timezones:      routeBase.api + '/timezones'
                     },
-                    dashboard: routeBase.dashboard
+                    dashboard: routeBase.dashboard,
+                    ajax: routeBase.ajax
                 };
 
                 return {
@@ -54,16 +55,16 @@
            }
 
            return {
-               calendar: $resource(Routes.generate('api.calendar'), {id:'@id'}, angular.extend(_methods(), {
+               calendar: $resource(Routes.generate('api.calendar', [':id']), {id:'@id'}, angular.extend(_methods(), {
                    // more custom methods here
                })),
-               event: $resource(Routes.generate('api.event'), {id:'@id'}, angular.extend(_methods(), {
+               event: $resource(Routes.generate('api.event', [':id']), {id:'@id'}, angular.extend(_methods(), {
                    // more custom methods here
                })),
-               eventNullify: $resource(Routes.generate('api.eventNullify'), {eventTimeID:'@eventTimeID',id:'@id'}, angular.extend(_methods(), {
+               eventNullify: $resource(Routes.generate('api.eventNullify', [':eventTimeID', ':id']), {eventTimeID:'@eventTimeID',id:'@id'}, angular.extend(_methods(), {
                    // more custom methods
                })),
-               eventTags: $resource(Routes.generate('api.eventTags'), {id:'@id'}, angular.extend(_methods(), {
+               eventTags: $resource(Routes.generate('api.eventTags', [':id']), {id:'@id'}, angular.extend(_methods(), {
 
                })),
                timezones: $resource(Routes.generate('api.timezones'), {}, {
@@ -80,7 +81,7 @@
      * Manually bootstrap the document
      */
     angular.element(document).ready(function(){
-        if( !(window['_Schedulizer']) ){
+        if( !(window['__schedulizer']) ){
             alert('Schedulizer is missing a configuration to run and has aborted.');
             return;
         }

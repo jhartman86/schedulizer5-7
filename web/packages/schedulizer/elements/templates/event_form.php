@@ -10,37 +10,42 @@
     </div>
 
     <div ng-show="(_ready && !warnAliased)">
-        <!-- delete event? -->
-        <div class="delete-event" ng-show="entity.id">
-            <button type="button" class="btn btn-warning btn-xs" ng-click="confirmDelete = !confirmDelete" ng-hide="confirmDelete">
-                Delete Event
-            </button>
-            <div ng-show="confirmDelete">
-                <div>
-                    <button type="button" class="btn btn-info btn-xs" ng-click="confirmDelete = !confirmDelete">
+        <ul class="nav nav-tabs">
+            <li ng-click="setMasterTabActive(1)" ng-class="{'active':activeMasterTab[1]}"><a>Basic Info</a></li>
+            <li ng-click="setMasterTabActive(2)" ng-class="{'active':activeMasterTab[2]}"><a>Attributes</a></li>
+            <li class="pull-right">
+                <button type="button" class="btn btn-success save-event" ng-click="submitHandler()">
+                    <span ng-hide="_requesting">Save</span>
+                    <img ng-show="_requesting" src="<?php echo SCHEDULIZER_IMAGE_PATH; ?>spinner.svg" />
+                </button>
+            </li>
+            <li class="pull-right delete-event" ng-show="entity.id">
+                <button type="button" class="btn btn-warning" ng-click="confirmDelete = !confirmDelete" ng-hide="confirmDelete">
+                    Delete Event
+                </button>
+                <div ng-show="confirmDelete">
+                    <button type="button" class="btn btn-danger" ng-click="deleteEvent()">
+                        <strong>Delete It</strong>
+                    </button>
+                    <button type="button" class="btn btn-info" ng-click="confirmDelete = !confirmDelete">
                         Nevermind!
                     </button>
                 </div>
-                <div>
-                    <button type="button" class="btn btn-danger btn-xs" ng-click="deleteEvent()">
-                        <strong>Delete It!</strong>
-                    </button>
-                </div>
-            </div>
-        </div>
+            </li>
+        </ul>
 
-        <!-- title -->
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="form-group">
-                    <label for="" class="sr-only">Title</label>
-                    <input type="text" class="form-control input-title" placeholder="Title" ng-model="entity.title" />
+        <div class="tab-content">
+            <div class="tab-pane" ng-class="{'active':activeMasterTab[1]}">
+                <!-- title -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="" class="sr-only">Title</label>
+                            <input type="text" class="form-control input-title" placeholder="Title" ng-model="entity.title" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-6">
                 <!-- timing tabs -->
                 <div class="row">
                     <div class="col-sm-12">
@@ -48,7 +53,7 @@
                             <li ng-repeat="timing in timingTabs" ng-click="setTimingTabActive($index)" ng-class="{active:timingTabs[$index].active}">
                                 <a>{{timing.label}}</a>
                             </li>
-                            <li ng-click="addTimeEntity()" class="add-time-entity"><a><i class="icon-plus"></i><span class="hidden-xs hidden-sm">Add Event Time</span></a></li>
+                            <li ng-click="addTimeEntity()" class="add-time-entity"><a><i class="icon-plus"></i></a></li>
                         </ul>
                     </div>
                 </div>
@@ -78,8 +83,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6">
+
+
                 <!-- description -->
                 <div class="row">
                     <div class="col-sm-12">
@@ -124,18 +129,12 @@
                         </div>
                     </div>
                 </div>
+
             </div>
-        </div>
 
-
-
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="form-group">
-                    <button type="button" class="btn btn-success btn-lg btn-block" ng-click="submitHandler()">
-                        <span ng-hide="_requesting">Save</span>
-                        <img ng-show="_requesting" src="<?php echo SCHEDULIZER_IMAGE_PATH; ?>spinner.svg" />
-                    </button>
+            <div class="tab-pane" ng-class="{'active':activeMasterTab[2]}">
+                <div custom-attributes ng-include="attributeForm">
+                    <!-- loaded via include -->
                 </div>
             </div>
         </div>

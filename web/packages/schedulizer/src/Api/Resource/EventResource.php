@@ -4,6 +4,7 @@
     use \Concrete\Package\Schedulizer\Src\Event;
     use \Concrete\Package\Schedulizer\Src\EventTime;
     use \Concrete\Package\Schedulizer\Src\EventTag;
+    use \Concrete\Package\Schedulizer\Src\Attribute\Key\SchedulizerEventKey;
     use \Concrete\Package\Schedulizer\Src\Api\ApiException;
     use \Symfony\Component\HttpFoundation\Response;
 
@@ -26,8 +27,21 @@
 
         /**
          * Create a new event.
+         * @note: if post method comes through with a route params /attributes,
+         * then we're handling updating attributes on an existing entity. Also note,
+         * whenever you save an event, the first request that comes through is to create
+         * the entity, and a second request will always be issued sending the attributes
+         * AFTER the event is created. C5's attribute system is just... yikes.
          */
         protected function httpPost(){
+            if( is_array($this->routeParams) && $this->routeParams[0] === 'attributes' ){
+                // $this->getEventByID handles errors if event doesn't exist or is invalid
+                $eventObj = $this->getEventByID($this->routeParams[1]);
+                $this->saveAttributesAgainst($eventObj);
+                $this->setResponseData((object)array('ok' => true));
+                return;
+            }
+
             $data = $this->scrubbedPostData();
             // Check its a member of an existing calendar
             if( empty(Calendar::getByID($data->calendarID)) ){
@@ -87,6 +101,7 @@
                 $tagObj = EventTag::createOrGetExisting($tagEntityData);
                 $tagObj->tagEvent($eventObj);
             }
+
             $this->setResponseData($eventObj);
             $this->setResponseCode(Response::HTTP_ACCEPTED);
         }
@@ -121,6 +136,22 @@
                 throw ApiException::notFound();
             }
             return $eventObj;
+        }
+
+        /**
+         * When attribute form gets POSTed, this handles saving.
+         * @param Event $eventObj
+         */
+        protected function saveAttributesAgainst( Event $eventObj ){
+            // This is hacky as f*ck, but internally the saveAttributeForm only
+            // uses the $_POST values in order to parse the send attributes. Since
+            // we are serializing and sending from the front-end, we have to set
+            // $_POST to $_REQUEST
+            $_POST = $_REQUEST;
+            $attrList = SchedulizerEventKey::getList();
+            foreach($attrList AS $akObj){
+                $akObj->saveAttributeForm($eventObj);
+            }
         }
     }
 
