@@ -350,8 +350,10 @@
                 $limitPerDay = sprintf(' LIMIT %s', (int)$this->limitPerDay);
             }
             $joinForTagFilters = '';
+            $groupByInternalRestrictor = '';
             if( $this->_setupQueryForTagFilter === true ){
                 $joinForTagFilters = " RIGHT JOIN SchedulizerTaggedEvents stag ON stag.eventID = sevt.eventID ";
+                $groupByInternalRestrictor = " GROUP BY sev.id";
             }
 
             return "SELECT {$selectColumns} FROM (
@@ -407,7 +409,7 @@
                   JOIN SchedulizerEventTime sevt ON sevt.eventID = sev.id
                   LEFT JOIN SchedulizerEventTimeWeekdays sevtwd ON sevtwd.eventTimeID = sevt.id
                   {$joinForTagFilters}
-                WHERE ({$restrictor}) ORDER BY sevt.startUTC asc {$limitPerDay}
+                WHERE ({$restrictor}) {$groupByInternalRestrictor} ORDER BY sevt.startUTC asc {$limitPerDay}
               ) AS _events
               WHERE(_events.isRepeating = 1
                 AND (_events.repeatIndefinite = 1 OR (_synthesized._syntheticDate <= _events.repeatEndUTC AND _events.repeatIndefinite = 0))

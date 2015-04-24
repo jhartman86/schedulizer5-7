@@ -1,9 +1,10 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
-    use DateTime;
-    use DateTimeZone;
-    use Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant;
-    use Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
+    use \DateTime;
+    use \DateTimeZone;
+    use \Concrete\Package\Schedulizer\Src\EventTimeNullify;
+    use \Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant;
+    use \Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
 
     /**
      * @package Concrete\Package\Schedulizer\Src
@@ -56,19 +57,19 @@
         protected $isRepeating = self::IS_REPEATING_FALSE;
 
         /** @definition({"cast":"string","nullable":true}) */
-        protected $repeatTypeHandle = null; //self::REPEAT_TYPE_HANDLE_DAILY;
+        protected $repeatTypeHandle = null;
 
         /** @definition({"cast":"int","nullable":true}) */
         protected $repeatEvery = null;
 
         /** @definition({"cast":"bool","nullable":true}) */
-        protected $repeatIndefinite = null; //self::REPEAT_INDEFINITE_TRUE;
+        protected $repeatIndefinite = null;
 
         /** @definition({"cast":"datetime","nullable":true}) */
         protected $repeatEndUTC = null;
 
         /** @definition({"cast":"string","nullable":true}) */
-        protected $repeatMonthlyMethod = null; //self::REPEAT_MONTHLY_METHOD_SPECIFIC;
+        protected $repeatMonthlyMethod = null;
 
         /** @definition({"cast":"int","nullable":true}) */
         protected $repeatMonthlySpecificDay = null;
@@ -162,6 +163,11 @@
 
         /** @return int|null */
         public function getRepeatMonthlyOrdinalWeekday(){ return $this->repeatMonthlyOrdinalWeekday; }
+
+        /** @return array Get all nullifiers */
+        public function getEventTimeNullifiers(){
+            return (array) EventTimeNullify::fetchAllByEventTimeID($this->id);
+        }
 
 
         /**

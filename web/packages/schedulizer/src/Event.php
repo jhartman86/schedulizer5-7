@@ -94,6 +94,16 @@
         /** @return int|null */
         public function getFileID(){ return $this->fileID; }
 
+        /** @return array Get all associated event times */
+        public function getEventTimes(){
+            return (array) EventTime::fetchAllByEventID($this->id);
+        }
+
+        /** @return array Get all associated tags */
+        public function getEventTags(){
+            return (array) EventTag::fetchTagsByEventID($this->id);
+        }
+
         /**
          * Return properties for JSON serialization
          * @return array|mixed
@@ -105,8 +115,8 @@
                 return $properties;
             }
             $properties                 = (object) get_object_vars($this);
-            $properties->_timeEntities  = (array) EventTime::fetchAllByEventID($this->id);
-            $properties->_tags          = (array) EventTag::fetchTagsByEventID($this->id);
+            $properties->_timeEntities  = $this->getEventTimes();
+            $properties->_tags          = $this->getEventTags();
             return $properties;
         }
 

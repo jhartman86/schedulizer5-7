@@ -95,13 +95,121 @@ angular.module('calendry', []);
 
 angular.module('schedulizer.app').
 
-    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$cacheFactory', 'API',
+    filter('numberContraction', function($filter) {
+
+        var suffixes = ["th", "st", "nd", "rd"];
+
+        return function(input) {
+            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
+            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
+            return suffix;
+        };
+    });
+angular.module('schedulizer.app').
+
+    /**
+     * AngularJS default filter with the following expression:
+     * "person in people | filter: {name: $select.search, age: $select.search}"
+     * performs a AND between 'name: $select.search' and 'age: $select.search'.
+     * We want to perform a OR.
+     * @link: https://github.com/angular-ui/ui-select/blob/master/examples/demo.js#L134
+     */
+    filter('propsFilter', function() {
+        return function(items, props) {
+            var out = [];
+
+            if (angular.isArray(items)) {
+                items.forEach(function(item) {
+                    var itemMatches = false;
+
+                    var keys = Object.keys(props);
+                    for (var i = 0; i < keys.length; i++) {
+                        var prop = keys[i];
+                        var text = props[prop].toLowerCase();
+                        if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+                            itemMatches = true;
+                            break;
+                        }
+                    }
+
+                    if (itemMatches) {
+                        out.push(item);
+                    }
+                });
+            } else {
+                // Let the output be the input untouched
+                out = items;
+            }
+
+            return out;
+        };
+    });
+angular.module('schedulizer.app').
+
+    /**
+     * @description MomentJS provider
+     * @param $window
+     * @param $log
+     * @returns Moment | false
+     */
+    provider('_moment', function(){
+        this.$get = ['$window', '$log',
+            function( $window, $log ){
+                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
+            }
+        ];
+    });
+angular.module('schedulizer.app').
+
+    controller('CtrlCalendarForm', ['$scope', '$q', '$window', 'ModalManager', 'API',
+        function( $scope, $q, $window, ModalManager, API ){
+
+            // Show loading message
+            $scope._ready       = false;
+            $scope._requesting  = false;
+
+            // Create requests promise queue, always loading available timezones list
+            var _requests = [API.timezones.get().$promise];
+
+            // If calendarID is available; try to load it, and push to the requests queue
+            if( ModalManager.data.calendarID ){
+                _requests.push(API.calendar.get({id:ModalManager.data.calendarID}).$promise);
+            }
+
+            // When all requests are finished; proceed...
+            $q.all(_requests).then(function( returned ){
+                $scope.timezoneOptions = returned[0];
+                $scope.entity = returned[1] || new API.calendar({
+                    defaultTimezone: $scope.timezoneOptions[$scope.timezoneOptions.indexOf('America/Denver')]
+                });
+                $scope._ready = true;
+            }, function( resp ){
+                console.log(resp);
+            });
+
+            // Save the resource
+            $scope.submitHandler = function(){
+                $scope._requesting = true;
+                // If entity already has ID, $update, otherwise $save (create), and bind callback
+                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
+                    function( resp ){
+                        $scope._requesting = false;
+                        $window.location.href = API._routes.generate('dashboard',['calendars','manage',resp.id]);
+                    }
+                );
+            };
+        }
+    ]);
+angular.module('schedulizer.app').
+
+    controller('CtrlCalendarPage', ['$rootScope', '$scope', '$http', '$cacheFactory', 'API',
         function( $rootScope, $scope, $http, $cacheFactory, API ){
 
-            $scope.searchOpen = false;
-            $scope.eventTagList = [];
+            $scope.updateInProgress = false;
+            $scope.searchOpen       = false;
+            $scope.eventTagList     = [];
             $scope.searchFiltersSet = false;
-            $scope.searchFields = {
+            $scope.searchFields     = {
                 keywords: null,
                 tags: []
             };
@@ -117,6 +225,7 @@ angular.module('schedulizer.app').
             // $scope.calendarID is ng-init'd from the view!
             var _cache = $cacheFactory('calendarData');
 
+            // Tell the API what fields we want back
             var _fields = [
                 'eventID', 'eventTimeID', 'calendarID', 'title',
                 'eventColor', 'isAllDay', 'isSynthetic', 'computedStartUTC',
@@ -171,18 +280,31 @@ angular.module('schedulizer.app').
              * @private
              */
             function _updateCalendar(){
+                $scope.updateInProgress = true;
                 _cache.removeAll();
                 _fetch($scope.instance.monthMap, true).then(function( resp ){
                     $scope.instance.events = resp.data;
+                    $scope.updateInProgress = false;
                 });
+                $scope.searchOpen = false;
             }
+
+            /**
+             * Clear the search fields and update calendar.
+             */
+            $scope.clearSearchFields = function(){
+                $scope.searchFields = {
+                    keywords: null,
+                    tags: []
+                };
+                _updateCalendar();
+            };
 
             /**
              * Method to trigger calendar refresh callable from the scope.
              * @type {_updateCalendar}
              */
             $scope.sendSearch = function(){
-                $scope.searchOpen = false;
                 _updateCalendar();
             };
 
@@ -193,9 +315,7 @@ angular.module('schedulizer.app').
             $scope.instance = {
                 parseDateField: 'computedStartLocal',
                 onMonthChange: function( monthMap ){
-                    _fetch(monthMap).then(function( resp ){
-                        $scope.instance.events = resp.data;
-                    });
+                    _updateCalendar();
                 },
                 onDropEnd: function( landingMoment, eventObj ){
                     console.log(landingMoment, eventObj);
@@ -208,47 +328,6 @@ angular.module('schedulizer.app').
              */
             $rootScope.$on('calendar.refresh', _updateCalendar);
 
-        }
-    ]);
-angular.module('schedulizer.app').
-
-    controller('CtrlCalendarForm', ['$scope', '$q', '$window', 'ModalManager', 'API',
-        function( $scope, $q, $window, ModalManager, API ){
-
-            // Show loading message
-            $scope._ready       = false;
-            $scope._requesting  = false;
-
-            // Create requests promise queue, always loading available timezones list
-            var _requests = [API.timezones.get().$promise];
-
-            // If calendarID is available; try to load it, and push to the requests queue
-            if( ModalManager.data.calendarID ){
-                _requests.push(API.calendar.get({id:ModalManager.data.calendarID}).$promise);
-            }
-
-            // When all requests are finished; proceed...
-            $q.all(_requests).then(function( returned ){
-                $scope.timezoneOptions = returned[0];
-                $scope.entity = returned[1] || new API.calendar({
-                    defaultTimezone: $scope.timezoneOptions[$scope.timezoneOptions.indexOf('America/Denver')]
-                });
-                $scope._ready = true;
-            }, function( resp ){
-                console.log(resp);
-            });
-
-            // Save the resource
-            $scope.submitHandler = function(){
-                $scope._requesting = true;
-                // If entity already has ID, $update, otherwise $save (create), and bind callback
-                ($scope.entity.id ? $scope.entity.$update() : $scope.entity.$save()).then(
-                    function( resp ){
-                        $scope._requesting = false;
-                        $window.location.href = API._routes.generate('dashboard',['calendars','manage',resp.id]);
-                    }
-                );
-            };
         }
     ]);
 /* global jQuery */
@@ -519,72 +598,6 @@ angular.module('schedulizer.app').
             };
         }
     ]);
-angular.module('schedulizer.app').
-
-    /**
-     * @description MomentJS provider
-     * @param $window
-     * @param $log
-     * @returns Moment | false
-     */
-    provider('_moment', function(){
-        this.$get = ['$window', '$log',
-            function( $window, $log ){
-                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
-            }
-        ];
-    });
-angular.module('schedulizer.app').
-
-    filter('numberContraction', function($filter) {
-
-        var suffixes = ["th", "st", "nd", "rd"];
-
-        return function(input) {
-            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
-            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
-            return suffix;
-        };
-    });
-angular.module('schedulizer.app').
-
-    /**
-     * AngularJS default filter with the following expression:
-     * "person in people | filter: {name: $select.search, age: $select.search}"
-     * performs a AND between 'name: $select.search' and 'age: $select.search'.
-     * We want to perform a OR.
-     * @link: https://github.com/angular-ui/ui-select/blob/master/examples/demo.js#L134
-     */
-    filter('propsFilter', function() {
-        return function(items, props) {
-            var out = [];
-
-            if (angular.isArray(items)) {
-                items.forEach(function(item) {
-                    var itemMatches = false;
-
-                    var keys = Object.keys(props);
-                    for (var i = 0; i < keys.length; i++) {
-                        var prop = keys[i];
-                        var text = props[prop].toLowerCase();
-                        if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
-                            itemMatches = true;
-                            break;
-                        }
-                    }
-
-                    if (itemMatches) {
-                        out.push(item);
-                    }
-                });
-            } else {
-                // Let the output be the input untouched
-                out = items;
-            }
-
-            return out;
-        };
-    });
 angular.module('schedulizer.app').
 
     directive('eventTimeForm', [function(){

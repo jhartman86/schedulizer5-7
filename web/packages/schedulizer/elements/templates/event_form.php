@@ -12,7 +12,7 @@
     <div ng-show="(_ready && !warnAliased)">
         <ul class="nav nav-tabs">
             <li ng-click="setMasterTabActive(1)" ng-class="{'active':activeMasterTab[1]}"><a>Basic Info</a></li>
-            <li ng-click="setMasterTabActive(2)" ng-class="{'active':activeMasterTab[2]}"><a>Attributes</a></li>
+            <li ng-click="setMasterTabActive(2)" ng-class="{'active':activeMasterTab[2]}"><a>Other</a></li>
             <li class="pull-right">
                 <button type="button" class="btn btn-success save-event" ng-click="submitHandler()">
                     <span ng-hide="_requesting">Save</span>

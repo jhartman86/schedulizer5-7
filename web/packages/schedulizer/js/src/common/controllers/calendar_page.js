@@ -1,12 +1,13 @@
 angular.module('schedulizer.app').
 
-    controller('CtrlCalendar', ['$rootScope', '$scope', '$http', '$cacheFactory', 'API',
+    controller('CtrlCalendarPage', ['$rootScope', '$scope', '$http', '$cacheFactory', 'API',
         function( $rootScope, $scope, $http, $cacheFactory, API ){
 
-            $scope.searchOpen = false;
-            $scope.eventTagList = [];
+            $scope.updateInProgress = false;
+            $scope.searchOpen       = false;
+            $scope.eventTagList     = [];
             $scope.searchFiltersSet = false;
-            $scope.searchFields = {
+            $scope.searchFields     = {
                 keywords: null,
                 tags: []
             };
@@ -22,6 +23,7 @@ angular.module('schedulizer.app').
             // $scope.calendarID is ng-init'd from the view!
             var _cache = $cacheFactory('calendarData');
 
+            // Tell the API what fields we want back
             var _fields = [
                 'eventID', 'eventTimeID', 'calendarID', 'title',
                 'eventColor', 'isAllDay', 'isSynthetic', 'computedStartUTC',
@@ -76,18 +78,31 @@ angular.module('schedulizer.app').
              * @private
              */
             function _updateCalendar(){
+                $scope.updateInProgress = true;
                 _cache.removeAll();
                 _fetch($scope.instance.monthMap, true).then(function( resp ){
                     $scope.instance.events = resp.data;
+                    $scope.updateInProgress = false;
                 });
+                $scope.searchOpen = false;
             }
+
+            /**
+             * Clear the search fields and update calendar.
+             */
+            $scope.clearSearchFields = function(){
+                $scope.searchFields = {
+                    keywords: null,
+                    tags: []
+                };
+                _updateCalendar();
+            };
 
             /**
              * Method to trigger calendar refresh callable from the scope.
              * @type {_updateCalendar}
              */
             $scope.sendSearch = function(){
-                $scope.searchOpen = false;
                 _updateCalendar();
             };
 
@@ -98,9 +113,7 @@ angular.module('schedulizer.app').
             $scope.instance = {
                 parseDateField: 'computedStartLocal',
                 onMonthChange: function( monthMap ){
-                    _fetch(monthMap).then(function( resp ){
-                        $scope.instance.events = resp.data;
-                    });
+                    _updateCalendar();
                 },
                 onDropEnd: function( landingMoment, eventObj ){
                     console.log(landingMoment, eventObj);

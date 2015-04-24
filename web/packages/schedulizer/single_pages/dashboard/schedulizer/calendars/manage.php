@@ -19,7 +19,7 @@
 </script>
 
 <!-- Page view -->
-<div class="schedulizer-app" ng-controller="CtrlCalendar" ng-init="calendarID = <?php echo $calendarObj->getID(); ?>">
+<div class="schedulizer-app" ng-controller="CtrlCalendarPage" ng-init="calendarID = <?php echo $calendarObj->getID(); ?>">
     <div class="ccm-dashboard-content-full" ng-class="{'search-open':searchOpen}">
 
         <div class="not-stupid-header-style">
@@ -41,6 +41,7 @@
 
         <div class="app-wrap">
             <form class="calendar-event-search">
+                <a class="btn btn-sm clear-fields" ng-click="clearSearchFields()">Clear</a>
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-sm-6">
@@ -69,7 +70,7 @@
                 </div>
             </form>
 
-            <div class="calendar-wrap">
+            <div class="calendar-wrap" ng-class="{'updating':updateInProgress}">
                 <!-- Note: transclusion of items *inside* calendry represents the EVENT objects on the day cells. -->
                 <div calendry="instance" ng-cloak>
                     <a class="event-cell" modalize="/event_form" data-using="{eventObj:eventObj}" ng-style="{background:eventObj.eventColor,color:helpers.eventFontColor(eventObj.eventColor)}">
