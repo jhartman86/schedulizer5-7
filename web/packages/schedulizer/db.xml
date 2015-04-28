@@ -51,10 +51,22 @@
         <field name="modifiedUTC" type="T">
             <NOTNULL/>
         </field>
+    </table>
+
+    <table name="SchedulizerEventVersion">
+        <field name="eID" type="I">
+            <key />
+            <unsigned />
+        </field>
+        <field name="vID" type="I">
+            <key/>
+            <default value="1" />
+            <unsigned />
+        </field>
         <field name="calendarID" type="I" size="11">
             <NOTNULL/>
             <unsigned />
-            <KEY/>
+            <!--<KEY/>-->
         </field>
         <field name="title" type="C" size="255" />
         <field name="description" type="X2" />
@@ -70,7 +82,7 @@
             <default value="#E1E1E1" />
         </field>
         <field name="ownerID" type="I">
-            <KEY/>
+            <!--<KEY/>-->
             <UNSIGNED />
             <NOTNULL />
             <DEFAULT value="0"/>

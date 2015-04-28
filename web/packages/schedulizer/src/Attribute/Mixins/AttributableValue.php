@@ -33,7 +33,7 @@
          * @return AttributableValue
          */
         public static function getByID( $avID ){
-            $eav = new self();
+            $eav = new static();
             $eav->load($avID);
             if( $eav->getAttributeValueID() === $avID ){
                 return $eav;

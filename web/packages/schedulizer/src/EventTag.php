@@ -20,18 +20,15 @@
         /** @definition({"cast":"string","nullable":false}) */
         protected $handle;
 
-        /**
-         * @param null $string
-         */
+        /** @param null $string */
         public function __construct( $string = null ){
             if( $string !== null ){
                 $this->displayText = $string;
             }
         }
 
-        public function __toString(){
-            return $this->displayText;
-        }
+        /** @return string|null */
+        public function __toString(){ return $this->displayText;}
 
         protected function onBeforePersist(){
             if( $this->handle === null ){

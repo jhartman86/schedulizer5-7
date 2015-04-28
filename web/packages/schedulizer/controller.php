@@ -105,13 +105,18 @@
             parent::uninstall();
 
             $tables   = array(
+                'btSchedulizer',
+                'btSchedulizerEvent',
                 'SchedulizerCalendar',
                 'SchedulizerEvent',
+                'SchedulizerEventVersion',
                 'SchedulizerEventTag',
                 'SchedulizerTaggedEvents',
                 'SchedulizerEventTime',
                 'SchedulizerEventTimeWeekdays',
-                'SchedulizerEventTimeNullify'
+                'SchedulizerEventTimeNullify',
+                'SchedulizerEventAttributeValues',
+                'SchedulizerEventSearchIndexAttributes'
             );
             try {
                 $database = Loader::db();

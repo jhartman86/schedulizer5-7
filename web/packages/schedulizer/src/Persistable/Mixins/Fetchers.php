@@ -13,7 +13,7 @@
          * @throws \Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspectorException
          */
         public static function adhocQuery( \Closure $callback ){
-            $instance   = new self();
+            $instance   = new static();
             $definition = DefinitionInspector::parse($instance);
             $connection = \Core::make('SchedulizerDB');
 
@@ -31,7 +31,7 @@
          * @return $this|void
          */
         public static function fetchOneBy( \Closure $callback ){
-            $instance   = new self();
+            $instance   = new static();
             $definition = DefinitionInspector::parse($instance);
             $connection = \Core::make('SchedulizerDB');
 
@@ -55,7 +55,7 @@
          * @return $this|void
          */
         public static function fetchMultipleBy( \Closure $callback ){
-            $instance   = new self();
+            $instance   = new static();
             $definition = DefinitionInspector::parse($instance);
             $connection = \Core::make('SchedulizerDB');
 
@@ -72,7 +72,7 @@
             // Loop through all the records and turn into the entities, invoking onAfterFetch
             // each time
             return array_map(function( $result ) use ($definition){
-                $instance = new self();
+                $instance = new static();
                 $definition->reflectAllOntoInstance($instance, $result);
                 $instance->onAfterFetch($result);
                 return $instance;

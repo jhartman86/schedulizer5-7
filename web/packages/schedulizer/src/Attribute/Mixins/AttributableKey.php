@@ -56,7 +56,7 @@
          * @return AttributableKey
          */
         public static function getByID( $akID ){
-            $ak = new self();
+            $ak = new static();
             $ak->load($akID);
             if( $ak->getAttributeKeyID() > 0 ){
                 return $ak;

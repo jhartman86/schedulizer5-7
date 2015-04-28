@@ -28,7 +28,7 @@
          * @return $this|void
          */
         public static function getByID( $id ){
-            return self::fetchOneBy(function(\PDO $connection, $tableName) use ($id){
+            return static::fetchOneBy(function(\PDO $connection, $tableName) use ($id){
                 $statement = $connection->prepare("SELECT * FROM {$tableName} WHERE id=:id");
                 $statement->bindValue(':id', $id);
                 return $statement;
@@ -49,7 +49,7 @@
          * @return $this
          */
         public static function create( $data ){
-            $instance   = new self();
+            $instance = new static();
             $instance->mergePropertiesFrom($data);
             return $instance->save();
         }
@@ -83,7 +83,7 @@
         public function delete(){
             $this->onBeforeDelete();
             $id = $this->id;
-            self::adhocQuery(function(\PDO $connection, $tableName) use ($id){
+            static::adhocQuery(function(\PDO $connection, $tableName) use ($id){
                 $statement = $connection->prepare("DELETE FROM {$tableName} WHERE id=:id");
                 $statement->bindValue(':id', $id);
                 return $statement;
