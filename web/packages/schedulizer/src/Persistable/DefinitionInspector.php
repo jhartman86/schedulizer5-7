@@ -5,31 +5,33 @@
     use \ReflectionClass;
     use \ReflectionObject;
     use \ReflectionProperty;
+    use \Concrete\Package\Schedulizer\Src\Persistable\DefinitionProperty;
     use \Concrete\Package\Schedulizer\Src\Persistable\DefinitionInspectorException;
 
-    class DefinitionInspector {
+    /**
+     * Class DefinitionInspector. Pay attention to the fact that this EXTENDS CORE
+     * REFLECTIONCLASS.
+     * @package Concrete\Package\Schedulizer\Src\Persistable
+     */
+    class DefinitionInspector extends \ReflectionClass {
 
         protected static $parsedCache = array();
 
-        protected $reflectionClass;
         protected $_propertyDefinitions;
         protected $_classDefinition;
         protected $_declarablePropertyDefinitions;
         protected $_persistablePropertyDefinitions;
 
-        protected function __construct( $object ){
-            $this->reflectionClass = new ReflectionClass($object);
-        }
-
         /**
-         * @param $object
+         * @param $mixed Object or class name
          * @return DefinitionInspector
          */
-        public static function parse( $object ){
-            if( ! self::$parsedCache[get_class($object)] ){
-                self::$parsedCache[get_class($object)] = new self($object);
+        public static function parse( $mixed ){
+            $klass = is_object($mixed) ? get_class($mixed) : $mixed;
+            if( ! self::$parsedCache[$klass] ){
+                self::$parsedCache[$klass] = new self($mixed);
             }
-            return self::$parsedCache[get_class($object)];
+            return self::$parsedCache[$klass];
         }
 
         /**
@@ -39,47 +41,54 @@
          */
         public function classDefinition(){
             if( $this->_classDefinition === null ){
-                if( preg_match('/@definition\((.*)\)/', $this->reflectionClass->getDocComment(), $def) ){
+                if( preg_match('/@definition\((.*)\)/', $this->getDocComment(), $def) ){
                     $this->_classDefinition = json_decode($def[1]);
                 }else{
-                    throw DefinitionInspectorException::classNotAnnotated($this->reflectionClass);
+                    throw DefinitionInspectorException::classNotAnnotated($this);
                 }
             }
             return $this->_classDefinition;
         }
 
         /**
-         * Analyze comments marked as @definition({ ..VALID_JSON.. }) on properties
-         * @return array
-         * @throws DefinitionInspectorException
-         */
-        public function propertyDefinitions(){
-            if( $this->_propertyDefinitions === null ){
-                $this->_propertyDefinitions = array();
-                foreach( $this->reflectionClass->getProperties() AS $reflProp ){
-                    if( $reflProp->isDefault() ){
-                        if( preg_match('/@definition\((.*)\)/', $reflProp->getDocComment(), $def) ){
-                            $declaration = json_decode($def[1]);
-                            if( $declaration ){
-                                $this->_propertyDefinitions[$reflProp->getName()] = $declaration;
-                            }else{
-                                throw DefinitionInspectorException::invalidPropertyAnnotation($reflProp);
-                            }
-                        }
-                    }
-                }
-            }
-            return $this->_propertyDefinitions;
-        }
-
-        /**
-         *
+         * Get the definition for a specific property.
          * @param $propertyName
          * @return mixed
          * @throws DefinitionInspectorException
          */
         public function definitionForProperty( $propertyName ){
             return $this->propertyDefinitions()[$propertyName];
+        }
+
+        /**
+         * Analyze comments marked as @definition({ ..VALID_JSON.. }) on properties
+         * @param \Closure callback You can pass a function into this method which will
+         * receive the list of ALL property definitions, and you can filter further from
+         * that. Then the return value of the callback (which should return a filtered
+         * list of propertyDefinitions) will be returned instead of the full list.
+         * @return array
+         * @throws DefinitionInspectorException
+         */
+        public function propertyDefinitions(){
+            if( $this->_propertyDefinitions === null ){
+                $this->_propertyDefinitions = array();
+                foreach( $this->getProperties() AS $reflProp ){
+                    // isDefault() checks whether prop declared at compile vs runtime
+                    if( $reflProp->isDefault() ){
+                        if( preg_match('/@definition\((.*)\)/', $reflProp->getDocComment(), $def) ){
+                            /** @var $declaration stdObject */
+                            $definition = json_decode($def[1]);
+                            if( ! $definition ){
+                                throw DefinitionInspectorException::invalidPropertyAnnotation($reflProp);
+                            }
+                            // Push onto list
+                            $this->_propertyDefinitions[$reflProp->getName()] = new DefinitionProperty($reflProp, $definition);
+                        }
+                    }
+                }
+            }
+
+            return $this->_propertyDefinitions;
         }
 
         /**
@@ -117,6 +126,7 @@
                     }
                 );
             }
+
             return $this->_persistablePropertyDefinitions;
         }
 

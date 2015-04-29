@@ -27,13 +27,15 @@
          * @param $entity
          */
         public function __construct( DefinitionInspector $definition, $entity ){
-            $this->definition = $definition;
-            $this->entity = $entity;
+            $this->definition       = $definition;
+            $this->entity           = $entity;
             $this->entityReflection = new ReflectionObject($entity);
         }
 
         /**
-         * Execute the transaction.
+         * Execute the appropriate statement. This is a convenience method which
+         * automatically determines whether to create or update the record based
+         * on whether its been persisted or not (meaning, does it have an id?)
          */
         public function commit(){
             if( $this->entity->isPersisted() ){
@@ -42,17 +44,37 @@
             }
             // With create statements we have to reflect the ID back
             $this->createStatement()->execute();
-            $reflPropID = $this->entityReflection->getProperty('id');
-            $reflPropID->setAccessible(true);
-            $reflPropID->setValue($this->entity, (int)$this->connection()->lastInsertId());
+            // @todo: way to denote what property should have lastInsertId auto-set?
+            if( $this->entityReflection->hasProperty('id') ){
+                $reflPropID = $this->entityReflection->getProperty('id');
+                $reflPropID->setAccessible(true);
+                $reflPropID->setValue($this->entity, (int)$this->connection()->lastInsertId());
+            }
+        }
+
+        /**
+         * Specifically, this addresses returning properties that are defined in the
+         * immediate entity class Handler is working on, and NOT any properties defined
+         * in a parent class. ie. Event extends EventVersion; whereas both classes
+         * define properties.
+         */
+        protected function propertiesDefinedInEntityClassOnly(){
+            return array_filter($this->definition->persistablePropertyDefinitions(), function($def){
+                /** @var $def DefinitionProperty */
+                if( !($def->getDeclaringClass()->getName() === $this->definition->getName()) ){
+                    return false;
+                }
+                return true;
+            });
         }
 
         /**
          * @return \PDOStatement
          */
-        protected function updateStatement(){
-            $persistable = array_filter($this->definition->persistablePropertyDefinitions(), function($definition){
-                if( is_array($definition->autoSet) && !in_array('onUpdate', $definition->autoSet) ){
+        public function updateStatement(){
+            $persistable = array_filter($this->propertiesDefinedInEntityClassOnly(), function( $def ){
+                /** @var $def DefinitionProperty */
+                if( is_array($def->autoSet) && !in_array('onUpdate', $def->autoSet) ){
                     return false;
                 }
                 return true;
@@ -74,11 +96,15 @@
         }
 
         /**
+         * Making this public so it can be called directly on the handler, so we
+         * can skip the commit() method's auto-detection (necessary for the Event/EventVersion
+         * inheritance stuff).
          * @return \PDOStatement
          */
-        protected function createStatement(){
-            $persistable = array_filter($this->definition->persistablePropertyDefinitions(), function($definition){
-                if( is_array($definition->autoSet) && !in_array('onCreate', $definition->autoSet) ){
+        public function createStatement( \Closure $callback = null ){
+            $persistable = array_filter($this->propertiesDefinedInEntityClassOnly(), function( $def ){
+                /** @var $def DefinitionProperty */
+                if( is_array($def->autoSet) && !in_array('onCreate', $def->autoSet) ){
                     return false;
                 }
                 return true;
@@ -88,10 +114,21 @@
             $columnNames    = array_keys($persistable);
             $columnsJoined  = join(',', $columnNames);
             $placeholders   = join(',', array_map(function($col){return ":{$col}";}, $columnNames));
-            $statement      = $this->connection()->prepare("INSERT INTO {$tableName} ({$columnsJoined}) VALUES({$placeholders})");
+            // If callback is passed, it should return a SEQUEL STATEMENT with parameter settings
+            if( $callback instanceof \Closure ){
+                $statement = $this->connection()->prepare($callback($tableName, $columnNames));
+            }else{
+                $statement = $this->connection()->prepare("INSERT INTO {$tableName} ({$columnsJoined}) VALUES({$placeholders})");
+            }
             // Bind values
             foreach($persistable AS $propName => $propDefinition){
-                $this->castAndBindToStatement($statement, $propName, $propDefinition);
+                // Since the $callback might adjust the query such that a parameter may or may
+                // not be bound, we have to check if the parameter exists before saying bind
+                // a value to it. So we look at the configured query string first and then
+                // run castAndBindToStatement()
+                if( strpos($statement->queryString, ":{$propName}") !== false ){
+                    $this->castAndBindToStatement($statement, $propName, $propDefinition);
+                }
             }
             return $statement;
         }

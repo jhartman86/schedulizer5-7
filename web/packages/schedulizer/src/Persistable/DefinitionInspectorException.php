@@ -21,6 +21,16 @@
             return new self(sprintf("Invalid annotation syntax on property %s in class %s", $reflected->name, $reflected->class));
         }
 
+        /**
+         * Property names must not conflict with default properties of the \ReflectionProperty
+         * class (so a definition cannot have "name" or "class" as a property).
+         * @param \ReflectionProperty $reflected
+         * @return DefinitionInspectorException
+         */
+        public static function illegalPropertyAnnotation( \ReflectionProperty $reflected, $definitionKey ){
+            return new self(sprintf("Property %s in class %s is using the key: %s in its definition, which is not allowed.", $reflected->name, $reflected->class, $definitionKey));
+        }
+
     }
 
 }

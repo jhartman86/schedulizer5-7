@@ -51,22 +51,33 @@
         <field name="modifiedUTC" type="T">
             <NOTNULL/>
         </field>
-    </table>
-
-    <table name="SchedulizerEventVersion">
-        <field name="eID" type="I">
-            <key />
-            <unsigned />
-        </field>
-        <field name="vID" type="I">
-            <key/>
-            <default value="1" />
-            <unsigned />
-        </field>
         <field name="calendarID" type="I" size="11">
             <NOTNULL/>
             <unsigned />
-            <!--<KEY/>-->
+            <KEY/>
+        </field>
+        <field name="ownerID" type="I">
+            <KEY/>
+            <UNSIGNED />
+            <NOTNULL />
+            <DEFAULT value="0"/>
+        </field>
+    </table>
+
+    <table name="SchedulizerEventVersion">
+        <field name="id" type="I">
+            <autoincrement />
+            <key />
+            <unsigned />
+        </field>
+        <field name="eventID" type="I">
+            <key />
+            <unsigned />
+        </field>
+        <field name="versionID" type="I">
+            <key/>
+            <default value="1" />
+            <unsigned />
         </field>
         <field name="title" type="C" size="255" />
         <field name="description" type="X2" />
@@ -81,14 +92,12 @@
         <field name="eventColor" type="C" size="10">
             <default value="#E1E1E1" />
         </field>
-        <field name="ownerID" type="I">
-            <!--<KEY/>-->
-            <UNSIGNED />
-            <NOTNULL />
-            <DEFAULT value="0"/>
-        </field>
         <field name="fileID" type="I">
             <UNSIGNED />
+        </field>
+        <field name="isApproved" type="I1">
+            <notnull />
+            <default value="0" />
         </field>
 
         <index name="title">
@@ -116,6 +125,10 @@
             <NOTNULL/>
             <unsigned />
             <KEY/>
+        </field>
+        <field name="versionID" type="I">
+            <key/>
+            <unsigned />
         </field>
         <field name="startUTC" type="T">
             <NOTNULL/>
@@ -242,6 +255,11 @@
             <NOTNULL/>
             <unsigned />
             <KEY/>
+        </field>
+        <field name="versionID" type="I">
+            <NOTNULL/>
+            <key/>
+            <unsigned />
         </field>
         <field name="eventTagID" type="I" size="11">
             <NOTNULL/>

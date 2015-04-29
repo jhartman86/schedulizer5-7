@@ -41,6 +41,9 @@
         /** @definition({"cast":"int"}) */
         protected $eventID;
 
+        /** @definition({"cast":"int"}) */
+        protected $versionID;
+
         /** @definition({"cast":"datetime","nullable":false}) */
         protected $startUTC;
 
