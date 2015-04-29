@@ -11,7 +11,7 @@
      * @package Concrete\Package\Schedulizer\Src
      * @definition({"table":"SchedulizerEvent"})
      */
-    class Event extends Persistant {
+    abstract class Event extends Persistant {
 
         use Crud, AttributableEntity;
 
