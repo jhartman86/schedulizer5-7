@@ -10,6 +10,7 @@
         protected $_userObj;
 
         public function on_start(){
+            parent::on_start();
             $this->requireAsset('redactor');
             $this->requireAsset('core/file-manager');
             $this->addHeaderItem( \Core::make('helper/html')->css('app.css', 'schedulizer') );

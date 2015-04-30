@@ -16,5 +16,8 @@
         <testsuite name="_persistable">
             <directory>./Tests/Persistable</directory>
         </testsuite>
+        <testsuite name="_permissions">
+            <directory>./Tests/Permissions</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

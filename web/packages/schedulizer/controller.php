@@ -34,7 +34,7 @@
 
         protected $pkgHandle                = self::PACKAGE_HANDLE;
         protected $appVersionRequired       = '5.7.3.2';
-        protected $pkgVersion               = '0.49';
+        protected $pkgVersion               = '0.52';
 
         public function getPackageName(){ return t('Schedulizer'); }
         public function getPackageDescription(){ return t('Schedulizer Calendar Package'); }
@@ -296,22 +296,26 @@
                         $permKeyCategory->associateAccessEntityType($paet);
                     }
                 }
-                // Setup keys
-                foreach(array(
+            }
+
+            // Setup keys
+            foreach(array(
                     'create_tag'    => array(
-                        'name'      => t('Create Tag'),
-                        'descr'     => t('Can create new tags')
+                        'name'      => t('Create Tags'),
+                        'descr'     => t('Is Allowed To Create New Tags')
+                    ),
+                    'create_calendar' => array(
+                        'name'      => t('Add Calendars'),
+                        'descr'     => t('Is Allowed To Create New Calendars')
+                    ),
+                    'manage_calendar_permissions' => array(
+                        'name'      => t('Edit Calendar Permissions'),
+                        'descr'     => t('Can Edit Calendar Permissions')
                     )
-                ) AS $keyHandle => $keyData){
-                    SchedulizerPermissionKey::add(
-                        'schedulizer',
-                        $keyHandle,
-                        $keyData['name'],
-                        $keyData['descr'],
-                        1,
-                        0,
-                        $this->packageObject()
-                    );
+            ) AS $keyHandle => $keyData){
+                $keyObj = SchedulizerPermissionKey::getByHandle($keyHandle);
+                if( ! $keyObj ){
+                    SchedulizerPermissionKey::add('schedulizer', $keyHandle, $keyData['name'], $keyData['descr'], 1, 0, $this->packageObject());
                 }
             }
 

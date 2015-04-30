@@ -54,7 +54,9 @@
                     break;
 
                 case 'save_permission':
-
+                    $pkObj = SchedulizerKey::getByID($pkID);
+                    $paObj = PermissionAccess::getByID($paID, $pkObj);
+                    $paObj->save($_POST);
                     break;
 
                 case 'save_workflows':
