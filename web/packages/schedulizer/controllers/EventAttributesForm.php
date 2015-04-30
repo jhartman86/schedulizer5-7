@@ -1,4 +1,4 @@
-<?php namespace Concrete\Package\Schedulizer\Controller\Ajax {
+<?php namespace Concrete\Package\Schedulizer\Controller {
 
     use Request;
     use \Concrete\Package\Schedulizer\Src\Event;

@@ -15,7 +15,10 @@
     use \Concrete\Core\Attribute\Key\Category AS AttributeKeyCategory;
     use \Concrete\Core\Attribute\Type AS AttributeType;
     use \Concrete\Package\Schedulizer\Src\Api\ApiOnStart;
-
+    use PermissionKeyCategory;
+    //use \Concrete\Core\Permission\Category AS PermissionCategory;
+    use \Concrete\Core\Permission\Access\Entity\Type AS PermissionAccessEntityType;
+    use \Concrete\Package\Schedulizer\Src\Permission\Key\SchedulizerKey AS SchedulizerPermissionKey;
 
     /**
      * Class Controller
@@ -31,7 +34,7 @@
 
         protected $pkgHandle                = self::PACKAGE_HANDLE;
         protected $appVersionRequired       = '5.7.3.2';
-        protected $pkgVersion               = '0.46';
+        protected $pkgVersion               = '0.49';
 
         public function getPackageName(){ return t('Schedulizer'); }
         public function getPackageDescription(){ return t('Schedulizer Calendar Package'); }
@@ -61,6 +64,10 @@
             \Core::bind('SchedulizerDB', function(){
                 return Database::connection(Database::getDefaultConnection())->getWrappedConnection();
             }, true);
+
+            // Core file's \Concrete\Core\Permission\Access\Access getByID() method doesn't
+            // account for namespacing to packages, so we have to bind this here.
+            \Core::bind('\\Concrete\\Core\\Permission\\Access\\SchedulizerAccess', '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Access\\SchedulizerAccess');
 
             // Composer Autoloader
             require __DIR__ . '/vendor/autoload.php';
@@ -92,11 +99,22 @@
             // so to pass an optional parameter we have to register the route twice :(
             Route::register(
                 Router::route(array('event_attributes_form/{id}', 'schedulizer')),
-                '\Concrete\Package\Schedulizer\Controller\Ajax\EventAttributesForm::view'
+                '\Concrete\Package\Schedulizer\Controller\EventAttributesForm::view'
             );
             Route::register(
                 Router::route(array('event_attributes_form', 'schedulizer')),
-                '\Concrete\Package\Schedulizer\Controller\Ajax\EventAttributesForm::view'
+                '\Concrete\Package\Schedulizer\Controller\EventAttributesForm::view'
+            );
+
+            // Permission dialogs
+            Route::register(
+                Router::route(array('schedulizer_permission_dialog', 'schedulizer')),
+                '\Concrete\Package\Schedulizer\Controller\SchedulizerPermissionDialog::view'
+            );
+
+            Route::register(
+                Router::route(array('permission_category_handler', 'schedulizer')),
+                '\Concrete\Package\Schedulizer\Controller\PermissionCategoryHandler::view'
             );
         }
 
@@ -185,7 +203,8 @@
         private function installAndUpdate(){
             $this->setupBlocks()
                  ->setupSinglePages()
-                 ->setupAttributeCategories();
+                 ->setupAttributeCategories()
+                 ->setupPermissions();
 
             /** @var $connection \PDO :: Setup foreign key associations */
             try {
@@ -235,6 +254,7 @@
             SinglePage::add('/dashboard/schedulizer/', $this->packageObject());
             SinglePage::add('/dashboard/schedulizer/calendars', $this->packageObject());
             SinglePage::add('/dashboard/schedulizer/attributes', $this->packageObject());
+            SinglePage::add('/dashboard/schedulizer/permissions', $this->packageObject());
             SinglePage::add('/dashboard/schedulizer/settings', $this->packageObject());
             // Hidden
             $spManage = SinglePage::add('/dashboard/schedulizer/calendars/manage', $this->packageObject());
@@ -256,8 +276,43 @@
                 $attrKeyCat->associateAttributeKeyType( $this->attributeType('boolean') );
                 $attrKeyCat->associateAttributeKeyType( $this->attributeType('number') );
                 $attrKeyCat->associateAttributeKeyType( $this->attributeType('select') );
-//                $attrKeyCat->associateAttributeKeyType( $this->attributeType('textarea') );
-//                $attrKeyCat->associateAttributeKeyType( $this->attributeType('image_file') );
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('textarea') );
+                $attrKeyCat->associateAttributeKeyType( $this->attributeType('image_file') );
+            }
+
+            return $this;
+        }
+
+        /**
+         * @return $this
+         */
+        private function setupPermissions(){
+            if( ! PermissionKeyCategory::getByHandle('schedulizer') ){
+                /** @var $permKeyCategory PermissionCategory */
+                $permKeyCategory = PermissionKeyCategory::add('schedulizer', $this->packageObject());
+                // Associate access entity types
+                foreach(array('group', 'user', 'group_set', 'group_combination') AS $paetHandle){
+                    if( $paet = PermissionAccessEntityType::getByHandle($paetHandle) ){
+                        $permKeyCategory->associateAccessEntityType($paet);
+                    }
+                }
+                // Setup keys
+                foreach(array(
+                    'create_tag'    => array(
+                        'name'      => t('Create Tag'),
+                        'descr'     => t('Can create new tags')
+                    )
+                ) AS $keyHandle => $keyData){
+                    SchedulizerPermissionKey::add(
+                        'schedulizer',
+                        $keyHandle,
+                        $keyData['name'],
+                        $keyData['descr'],
+                        1,
+                        0,
+                        $this->packageObject()
+                    );
+                }
             }
 
             return $this;
