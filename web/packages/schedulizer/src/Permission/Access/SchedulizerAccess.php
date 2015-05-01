@@ -2,9 +2,5 @@
 
     use PermissionAccess;
 
-    class SchedulizerAccess extends PermissionAccess {
-//        public function canCreateTag(){
-//
-//        }
-    }
+    class SchedulizerAccess extends PermissionAccess {}
 }

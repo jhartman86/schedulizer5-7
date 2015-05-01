@@ -10,15 +10,15 @@
     use SinglePage; /** @see \Concrete\Core\Page\Single */
     use Route;
     use Router;
-    use \DateTime; /** @see \DateTime */
-    use \DateTimeZone; /** @see \DateTimeZone */
+    use \DateTime;
+    use \DateTimeZone;
     use \Concrete\Core\Attribute\Key\Category AS AttributeKeyCategory;
     use \Concrete\Core\Attribute\Type AS AttributeType;
     use \Concrete\Package\Schedulizer\Src\Api\ApiOnStart;
-    use PermissionKeyCategory;
-    //use \Concrete\Core\Permission\Category AS PermissionCategory;
+    use PermissionKeyCategory; /** @see \Concrete\Core\Permission\Category */
     use \Concrete\Core\Permission\Access\Entity\Type AS PermissionAccessEntityType;
     use \Concrete\Package\Schedulizer\Src\Permission\Key\SchedulizerKey AS SchedulizerPermissionKey;
+    use \Concrete\Package\Schedulizer\Src\Permission\Key\SchedulizerCalendarKey AS SchedulizerCalendarPermissionKey;
 
     /**
      * Class Controller
@@ -34,7 +34,7 @@
 
         protected $pkgHandle                = self::PACKAGE_HANDLE;
         protected $appVersionRequired       = '5.7.3.2';
-        protected $pkgVersion               = '0.52';
+        protected $pkgVersion               = '0.55';
 
         public function getPackageName(){ return t('Schedulizer'); }
         public function getPackageDescription(){ return t('Schedulizer Calendar Package'); }
@@ -68,6 +68,10 @@
             // Core file's \Concrete\Core\Permission\Access\Access getByID() method doesn't
             // account for namespacing to packages, so we have to bind this here.
             \Core::bind('\\Concrete\\Core\\Permission\\Access\\SchedulizerAccess', '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Access\\SchedulizerAccess');
+            \Core::bind('\\Concrete\\Core\\Permission\\Access\\SchedulizerCalendarAccess', '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Access\\SchedulizerCalendarAccess');
+
+            // Same thing but for Calendar Owner Access Entity Type
+            \Core::bind('\\Concrete\\Core\\Permission\\Access\\Entity\\CalendarOwnerEntity', '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Access\\Entity\\CalendarOwnerEntity');
 
             // Composer Autoloader
             require __DIR__ . '/vendor/autoload.php';
@@ -98,23 +102,40 @@
             // Symfony routing options (hence why we customize the API stuff above),
             // so to pass an optional parameter we have to register the route twice :(
             Route::register(
-                Router::route(array('event_attributes_form/{id}', 'schedulizer')),
+                Router::route(array('event_attributes_form/{id}', self::PACKAGE_HANDLE)),
                 '\Concrete\Package\Schedulizer\Controller\EventAttributesForm::view'
             );
             Route::register(
-                Router::route(array('event_attributes_form', 'schedulizer')),
+                Router::route(array('event_attributes_form', self::PACKAGE_HANDLE)),
                 '\Concrete\Package\Schedulizer\Controller\EventAttributesForm::view'
             );
 
             // Permission dialogs
             Route::register(
-                Router::route(array('schedulizer_permission_dialog', 'schedulizer')),
-                '\Concrete\Package\Schedulizer\Controller\SchedulizerPermissionDialog::view'
+                Router::route(array('permission/dialog/schedulizer', self::PACKAGE_HANDLE)),
+                '\Concrete\Package\Schedulizer\Controller\Permission\Dialog\Schedulizer::view'
             );
 
             Route::register(
-                Router::route(array('permission_category_handler', 'schedulizer')),
-                '\Concrete\Package\Schedulizer\Controller\PermissionCategoryHandler::view'
+                Router::route(array('permission/dialog/schedulizer_calendar', self::PACKAGE_HANDLE)),
+                '\Concrete\Package\Schedulizer\Controller\Permission\Dialog\SchedulizerCalendar::view'
+            );
+
+            // Permission Category routes
+            Route::register(
+                Router::route(array('permission/category/schedulizer', self::PACKAGE_HANDLE)),
+                '\Concrete\Package\Schedulizer\Controller\Permission\Category\Schedulizer::view'
+            );
+
+            Route::register(
+                Router::route(array('permission/category/schedulizer_calendar', self::PACKAGE_HANDLE)),
+                '\Concrete\Package\Schedulizer\Controller\Permission\Category\SchedulizerCalendar::view'
+            );
+
+            // Calendar Owner permissionable entity type
+            Route::register(
+                Router::route(array('permission/access/entity/types/calendar_owner', self::PACKAGE_HANDLE)),
+                'Concrete\Package\Schedulizer\Controller\Permission\Access\Entity\Types\CalendarOwner::view'
             );
         }
 
@@ -287,6 +308,7 @@
          * @return $this
          */
         private function setupPermissions(){
+            // These would be "task" permissions, NOT related to specific entities
             if( ! PermissionKeyCategory::getByHandle('schedulizer') ){
                 /** @var $permKeyCategory PermissionCategory */
                 $permKeyCategory = PermissionKeyCategory::add('schedulizer', $this->packageObject());
@@ -309,13 +331,41 @@
                         'descr'     => t('Is Allowed To Create New Calendars')
                     ),
                     'manage_calendar_permissions' => array(
-                        'name'      => t('Edit Calendar Permissions'),
-                        'descr'     => t('Can Edit Calendar Permissions')
+                        'name'      => t('Manage Calendar Permissions'),
+                        'descr'     => t('Can Manage Calendar Permissions')
                     )
             ) AS $keyHandle => $keyData){
-                $keyObj = SchedulizerPermissionKey::getByHandle($keyHandle);
-                if( ! $keyObj ){
+                if( ! SchedulizerPermissionKey::getByHandle($keyHandle) ){
                     SchedulizerPermissionKey::add('schedulizer', $keyHandle, $keyData['name'], $keyData['descr'], 1, 0, $this->packageObject());
+                }
+            }
+
+            // Calendar permissions: first, we need to create a new permission entity type for "calendar owner"!
+            if( ! PermissionAccessEntityType::getByHandle('calendar_owner') ){
+                PermissionAccessEntityType::add('calendar_owner', 'Calendar Owner', $this->packageObject());
+            }
+
+            if( ! PermissionKeyCategory::getByHandle('schedulizer_calendar') ){
+                $schedCalPermKeyCategory = PermissionKeyCategory::add('schedulizer_calendar', $this->packageObject());
+                foreach(array('group', 'user', 'group_set', 'group_combination', 'calendar_owner') AS $paetHandle){
+                    if( $paetObj = PermissionAccessEntityType::getByHandle($paetHandle) ){
+                        $schedCalPermKeyCategory->associateAccessEntityType($paetObj);
+                    }
+                }
+            }
+
+            foreach(array(
+                'add_events'    => array(
+                    'name'      => t('Add Events'),
+                    'descr'     => t('Can Add Events To The Calendar')
+                ),
+                'delete_events' => array(
+                    'name'      => t('Delete Events'),
+                    'descr'     => t('Can Delete Events From Calendar')
+                )
+            ) AS $keyHandle => $keyData){
+                if( ! SchedulizerCalendarPermissionKey::getByHandle($keyHandle) ){
+                    SchedulizerCalendarPermissionKey::add('schedulizer_calendar', $keyHandle, $keyData['name'], $keyData['descr'], 1, 0, $this->packageObject());
                 }
             }
 

@@ -5,5 +5,5 @@
 
 ?>
 <script type="text/javascript">
-    var ccm_permissionDialogURL = '<?php echo Router::route(array('permission/dialog/schedulizer', 'schedulizer')); ?>';
+    var ccm_permissionDialogURL = '<?php echo Router::route(array('permission/dialog/schedulizer_calendar', 'schedulizer')); ?>';
 </script>

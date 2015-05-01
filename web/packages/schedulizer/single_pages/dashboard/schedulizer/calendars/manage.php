@@ -12,7 +12,7 @@
     <?php Loader::packageElement('templates/event_timing_form', 'schedulizer'); ?>
 </script>
 <script type="text/ng-template" id="/calendar_form">
-<?php Loader::packageElement('templates/calendar_form', 'schedulizer'); ?>
+<?php Loader::packageElement('templates/calendar_form', 'schedulizer', array('calendarObj' => $calendarObj)); ?>
 </script>
 <script type="text/ng-template" id="/calendry">
 <?php Loader::packageElement('templates/calendry', 'schedulizer'); ?>

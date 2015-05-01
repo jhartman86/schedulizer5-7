@@ -37,5 +37,16 @@ angular.module('schedulizer.app').
                     }
                 );
             };
+
+            // Launch C5's default modal stuff
+            $scope.permissionModal = function( _href ){
+                jQuery.fn.dialog.open({
+                    title:  'Calendar Permissions',
+                    href:   _href,
+                    modal:  false,
+                    width:  500,
+                    height: 380
+                });
+            };
         }
     ]);

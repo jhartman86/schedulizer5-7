@@ -25,6 +25,7 @@
 <script type="text/javascript">
     ccm_permissionLaunchDialog = function( link ){
         var $link   = $(link),
+            // not sure when duplicate is ever used? just copying from core files as example...
             dupe    = $link.attr('data-duplicate');
         if( dupe != 1 ){ dupe = 0; }
         var params = jQuery.param({
@@ -34,7 +35,7 @@
         });
         jQuery.fn.dialog.open({
             title: $link.attr('dialog-title'),
-            href: '<?php echo Router::route(array('schedulizer_permission_dialog', 'schedulizer')); ?>' + '?' + params,
+            href: '<?php echo Router::route(array('permission/dialog/schedulizer', 'schedulizer')); ?>' + '?' + params,
             modal: false,
             width: 500,
             height: 380

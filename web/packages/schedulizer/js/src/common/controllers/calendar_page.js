@@ -80,9 +80,12 @@ angular.module('schedulizer.app').
             function _updateCalendar(){
                 $scope.updateInProgress = true;
                 _cache.removeAll();
-                _fetch($scope.instance.monthMap, true).then(function( resp ){
+                _fetch($scope.instance.monthMap, true).success(function( resp ){
                     $scope.instance.events = resp.data;
                     $scope.updateInProgress = false;
+                }).error(function( data, status, headers, config ){
+                    $scope.updateInProgress = false;
+                    console.warn(status, 'Failed fetching calendar data.');
                 });
                 $scope.searchOpen = false;
             }

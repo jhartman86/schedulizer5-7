@@ -2,10 +2,6 @@
 <?php Loader::packageElement('templates/calendar_form', 'schedulizer'); ?>
 </script>
 
-<!--<div class="ccm-dashboard-header-buttons">-->
-<!--    <button class="btn btn-primary" modalize="/calendar_form">--><?php //echo t("Create Calendar"); ?><!--</button>-->
-<!--</div>-->
-
 <div class="schedulizer-app">
     <div class="ccm-dashboard-content-full">
         <div class="not-stupid-header-style">
@@ -15,9 +11,11 @@
                         <div class="pull-left">
                             <h3><?php echo $pageTitle; ?></h3>
                         </div>
+                        <?php if($permissionsObj->canCreateCalendar()): ?>
                         <div class="pull-right">
                             <button class="btn btn-primary" modalize="/calendar_form"><?php echo t("Create Calendar"); ?></button>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

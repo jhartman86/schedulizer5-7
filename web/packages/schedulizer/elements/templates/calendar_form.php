@@ -1,3 +1,4 @@
+<?php /** @var $calendarObj \Concrete\Package\Schedulizer\Src\Calendar || null */ ?>
 <form class="calendar container-fluid" ng-controller="CtrlCalendarForm" ng-submit="submitHandler()">
     <?php Loader::packageElement('templates/loading', 'schedulizer'); ?>
 
@@ -21,6 +22,31 @@
                 </div>
             </div>
         </div>
+
+        <!-- permissions -->
+        <?php if( is_object($calendarObj) ): $permissionsObj = new Permissions(); ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <label>Calendar Permissions</label>
+                <div class="form-group">
+                    <?php if( $permissionsObj->canManageCalendarPermissions() ): ?>
+                        <!--<a href="<?php echo $calendarObj->getPermissionCategoryToolsUrlShim('display_list'); ?>"
+                           class="btn btn-default"
+                           id="data-permissions-dialog-button"
+                           data-permissions-dialog-button=""
+                           dialog-title="Permissions"
+                           dialog-modal="true"
+                           dialog-height="500"
+                           dialog-width="420"
+                           dialog-append-buttons="true">Manage</a>-->
+                        <a ng-click="permissionModal('<?php echo $calendarObj->getPermissionCategoryToolsUrlShim('display_list'); ?>')">Manage</a>
+                    <?php else: ?>
+                        <strong>You do not have access.</strong>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <div class="row">
             <div class="col-sm-12">

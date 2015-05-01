@@ -1,8 +1,12 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
     use DateTimeZone;
-    use Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant;
-    use Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
+    use \Concrete\Package\Schedulizer\Src\Persistable\Contracts\Persistant;
+    use \Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud;
+    use Permissions;
+    use Router;
+    use Loader;
+    use \Concrete\Core\Permission\Category AS PermissionKeyCategory;
 
     /**
      * Class Calendar
@@ -10,6 +14,9 @@
      * @definition({"table":"SchedulizerCalendar"})
      */
     class Calendar extends Persistant {
+
+        // req'd by PermissionableEntityMixin
+        const PERMISSION_KEY_CATEGORY = 'schedulizer_calendar';
 
         use Crud;
 
@@ -87,6 +94,49 @@
             return (array) self::fetchMultipleBy(function( \PDO $connection, $tableName ){
                 return $connection->prepare("SELECT * FROM {$tableName}");
             });
+        }
+
+
+        /****************************************************************
+         * Permissioning stuff
+         ***************************************************************/
+
+        /**
+         * Ideally you could create a custom "...Category" class, but the current
+         * structure doesn't permit overriding.
+         */
+        public function getPermissionCategoryToolsUrlShim( $task = false ){
+            if( ! $task ){
+                $task = 'save_permission';
+            }
+            $query = http_build_query(array(
+                'task'       => $task,
+                'calendarID' => $this->id
+            )) . sprintf("&%s", Loader::helper('validation/token')->getParameter($task));
+
+            return Router::route(array(sprintf('permission/category/schedulizer_calendar?%s',$query), 'schedulizer'));
+        }
+
+        public function getPermissionKeyCategory(){
+            if( $this->_permissionKeyCategory === null ){
+                $this->_permissionKeyCategory = PermissionKeyCategory::getByHandle(self::PERMISSION_KEY_CATEGORY);
+            }
+            return $this->_permissionKeyCategory;
+        }
+
+        public function getPermissionAssignmentClassName(){
+            return '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Assignment\\SchedulizerCalendarAssignment';
+        }
+
+        public function getPermissions(){
+            if( $this->_permissions === null ){
+                $this->_permissions = new Permissions($this);
+            }
+            return $this->_permissions;
+        }
+
+        public function getPermissionObjectIdentifier(){
+            return $this->getID();
         }
     }
 

@@ -294,4 +294,23 @@
         </field>
     </table>
 
+    <!-- Permissions -->
+    <table name="SchedulizerCalendarPermissionAssignments">
+        <field name="calendarID" type="I" size="11">
+            <KEY/>
+            <NOTNULL/>
+            <UNSIGNED/>
+        </field>
+        <field name="paID" type="I" size="11">
+            <KEY/>
+            <NOTNULL/>
+            <UNSIGNED/>
+        </field>
+        <field name="pkID" type="I" size="11">
+            <KEY/>
+            <NOTNULL/>
+            <UNSIGNED/>
+        </field>
+    </table>
+
 </schema>

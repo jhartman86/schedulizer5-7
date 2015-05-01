@@ -18,12 +18,11 @@
             if( ! $task ){
                 $task = 'save_permission';
             }
-            $token = Loader::helper('validation/token')->getParameter($task);
             $query = http_build_query(array(
                 'task'      => $task,
                 'pkID'      => $this->pk->getPermissionKeyID()
-            )) . "&{$token}";
-            return Router::route(array('permission_category_handler?'.$query, 'schedulizer'));
+            )) . sprintf("&%s", Loader::helper('validation/token')->getParameter($task));
+            return Router::route(array(sprintf('permission/category/schedulizer?%s',$query), 'schedulizer'));
         }
 
     }
