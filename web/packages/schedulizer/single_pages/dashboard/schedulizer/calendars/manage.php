@@ -27,11 +27,17 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="pull-left">
-                            <h3><?php echo $pageTitle; ?></h3>
+                            <h3 modalize="/calendar_form" data-using="{calendarID:<?php echo $calendarObj->getID(); ?>}">
+                                <?php echo $pageTitle; ?><i class="icon-config"></i>
+                            </h3>
                         </div>
                         <div class="pull-right">
-                            <button class="btn btn-primary" modalize="/event_form" data-using="{eventObj:{calendarID:<?php echo $calendarObj->getID(); ?>}}"><?php echo t("Create Event"); ?></button>
-                            <button class="btn btn-default" modalize="/calendar_form" data-using="{calendarID:<?php echo $calendarObj->getID(); ?>}"><?php echo t("Calendar Settings"); ?></button>
+                            <?php if($calendarObj->getPermissions()->canAddEvents()): ?>
+                            <button class="btn btn-primary" modalize="/event_form" data-using="{eventObj:{calendarID:<?php echo $calendarObj->getID(); ?>}}"><?php echo t("Add Event"); ?></button>
+                            <?php endif; ?>
+                            <?php if($calendarObj->getPermissions()->canManageCalendarPermissions()): ?>
+                                <button class="btn btn-default" ng-click="permissionModal('<?php echo $calendarObj->getPermissionCategoryToolsUrlShim('display_list'); ?>')"><?php echo t("Permissions"); ?></button>
+                            <?php endif; ?>
                             <button type="button" class="btn btn-default" ng-click="toggleSearch()" ng-class="{'btn-success':searchFiltersSet}"><i class="icon-search"></i></button>
                         </div>
                     </div>

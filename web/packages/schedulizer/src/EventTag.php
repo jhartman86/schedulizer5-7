@@ -52,20 +52,22 @@
             }
         }
 
-        public static function purgeAllEventTags( Event $eventObj ){
-            $eventID = $eventObj->getID();
-            self::adhocQuery(function(\PDO $connection) use ($eventObj, $eventID){
-                $statement = $connection->prepare("DELETE FROM SchedulizerTaggedEvents WHERE eventID=:eventID");
-                $statement->bindValue(':eventID', $eventObj->getID());
-                return $statement;
-            });
-        }
+        // With versioning implemented, this isn't needed right?
+//        public static function purgeAllEventTags( Event $eventObj ){
+//            $eventID = $eventObj->getID();
+//            self::adhocQuery(function(\PDO $connection) use ($eventObj, $eventID){
+//                $statement = $connection->prepare("DELETE FROM SchedulizerTaggedEvents WHERE eventID=:eventID");
+//                $statement->bindValue(':eventID', $eventObj->getID());
+//                return $statement;
+//            });
+//        }
 
         public function tagEvent( Event $eventObj ){
             $tagID = $this->id;
             self::adhocQuery(function(\PDO $connection) use ($eventObj, $tagID){
-                $statement = $connection->prepare("INSERT INTO SchedulizerTaggedEvents (eventID, eventTagID) VALUES(:eventID,:eventTagID)");
+                $statement = $connection->prepare("INSERT INTO SchedulizerTaggedEvents (eventID, versionID, eventTagID) VALUES(:eventID,:versionID,:eventTagID)");
                 $statement->bindValue(':eventID', $eventObj->getID());
+                $statement->bindValue(':versionID', $eventObj->getVersionID());
                 $statement->bindValue(':eventTagID', $tagID);
                 return $statement;
             });
@@ -82,12 +84,13 @@
             });
         }
 
-        public static function fetchTagsByEventID( $eventID ){
-            return (array) self::fetchMultipleBy(function(\PDO $connection, $tableName) use ($eventID){
+        public static function fetchTagsByEventID( $eventID, $versionID ){
+            return (array) self::fetchMultipleBy(function(\PDO $connection, $tableName) use ($eventID, $versionID){
                 $statement = $connection->prepare("SELECT sevt.* FROM SchedulizerEventTag sevt
                     JOIN SchedulizerTaggedEvents sete ON sevt.id = sete.eventTagID
-                    WHERE sete.eventID = :eventID");
-                $statement->bindValue('eventID', $eventID);
+                    WHERE sete.eventID = :eventID AND sete.versionID = :versionID");
+                $statement->bindValue(':eventID', $eventID);
+                $statement->bindValue(':versionID', $versionID);
                 return $statement;
             });
         }

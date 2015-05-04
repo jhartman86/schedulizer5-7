@@ -15,7 +15,7 @@
         /**
          * @return \PDO
          */
-        private function connection(){
+        public function connection(){
             if( $this->pdoConnection === null ){
                 $this->pdoConnection = \Core::make('SchedulizerDB');
             }

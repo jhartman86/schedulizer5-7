@@ -46,7 +46,12 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
   input, select, textarea, button, a {&:focus {outline:none !important;}}
 
   .not-stupid-header-style {padding:1rem 0;background:#f1f1f1;position:relative;z-index:2;
-    h3 {margin:0;padding:4px 0;}
+    h3 {margin:0;padding:4px 0;position:relative;cursor:pointer;color:#006699;
+      i {position:absolute;top:0;left:100%;margin-left:2px;font-size:20px;opacity:0;@include transform(translateX(-100%));@include transition(all 0.25s ease);}
+      &:hover {text-decoration:underline;
+        i {opacity:1;@include transform(translateX(0));}
+      }
+    }
   }
 
   .ccm-dashboard-content-full {margin: 0 !important;
@@ -130,7 +135,7 @@ $icomoon-font-path:         '/packages/schedulizer/css/_fonts';
 
       .ccm-file-selector {@include border-radius(0);}
       .redactor_editor {padding:10px;max-height:350px;}
-      .input-title {font-weight:200;border:0;outline:0;padding:5px;margin-bottom:($grid-gutter-width/2);border-bottom:1px solid $input-border;height:auto;font-size:180%;background:transparent;text-transform:capitalize;@include box-shadow(none);}
+      .input-title {font-weight:200;border:0;outline:0;padding:5px;margin-bottom:($grid-gutter-width/2);border-bottom:1px solid $input-border;height:auto;font-size:180%;background:transparent;@include box-shadow(none);}
 
       // start/end time display
       .row {

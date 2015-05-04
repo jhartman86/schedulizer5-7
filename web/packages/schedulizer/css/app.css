@@ -3016,7 +3016,32 @@
     z-index: 2; }
     .schedulizer-app .not-stupid-header-style h3 {
       margin: 0;
-      padding: 4px 0; }
+      padding: 4px 0;
+      position: relative;
+      cursor: pointer;
+      color: #006699; }
+      .schedulizer-app .not-stupid-header-style h3 i {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        margin-left: 2px;
+        font-size: 20px;
+        opacity: 0;
+        -moz-transform: translateX(-100%);
+        -ms-transform: translateX(-100%);
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+        -webkit-transition: all 0.25s ease;
+        -o-transition: all 0.25s ease;
+        transition: all 0.25s ease; }
+      .schedulizer-app .not-stupid-header-style h3:hover {
+        text-decoration: underline; }
+        .schedulizer-app .not-stupid-header-style h3:hover i {
+          opacity: 1;
+          -moz-transform: translateX(0);
+          -ms-transform: translateX(0);
+          -webkit-transform: translateX(0);
+          transform: translateX(0); }
   .schedulizer-app .ccm-dashboard-content-full {
     margin: 0 !important; }
     .schedulizer-app .ccm-dashboard-content-full .app-wrap {
@@ -3245,7 +3270,6 @@
     height: auto;
     font-size: 180%;
     background: transparent;
-    text-transform: capitalize;
     -webkit-box-shadow: none;
     box-shadow: none; }
   [modal-window] form.event .row.is-all-day .form-group {

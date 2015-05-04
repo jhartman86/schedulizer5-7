@@ -1,5 +1,6 @@
 <?php namespace Schedulizer\Tests\Package {
 
+    use Loader;
     use Package;
 
     /**

@@ -90,9 +90,9 @@
     });
 
 })(window, window.angular);
+angular.module('schedulizer.app', []);
 angular.module('calendry', []);
 
-angular.module('schedulizer.app', []);
 ;(function( window, angular, undefined ){
     'use strict';
 
@@ -469,17 +469,6 @@ angular.module('schedulizer.app').
                     }
                 );
             };
-
-            // Launch C5's default modal stuff
-            $scope.permissionModal = function( _href ){
-                jQuery.fn.dialog.open({
-                    title:  'Calendar Permissions',
-                    href:   _href,
-                    modal:  false,
-                    width:  500,
-                    height: 380
-                });
-            };
         }
     ]);
 angular.module('schedulizer.app').
@@ -565,7 +554,7 @@ angular.module('schedulizer.app').
                 $scope.updateInProgress = true;
                 _cache.removeAll();
                 _fetch($scope.instance.monthMap, true).success(function( resp ){
-                    $scope.instance.events = resp.data;
+                    $scope.instance.events = resp;
                     $scope.updateInProgress = false;
                 }).error(function( data, status, headers, config ){
                     $scope.updateInProgress = false;
@@ -612,6 +601,17 @@ angular.module('schedulizer.app').
              * from other things in the app.
              */
             $rootScope.$on('calendar.refresh', _updateCalendar);
+
+            // Launch C5's default modal stuff
+            $scope.permissionModal = function( _href ){
+                jQuery.fn.dialog.open({
+                    title:  'Calendar Permissions',
+                    href:   _href,
+                    modal:  false,
+                    width:  500,
+                    height: 380
+                });
+            };
 
         }
     ]);
@@ -885,18 +885,54 @@ angular.module('schedulizer.app').
     ]);
 angular.module('schedulizer.app').
 
+    filter('numberContraction', function($filter) {
+
+        var suffixes = ["th", "st", "nd", "rd"];
+
+        return function(input) {
+            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
+            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
+            return suffix;
+        };
+    });
+angular.module('schedulizer.app').
+
     /**
-     * @description MomentJS provider
-     * @param $window
-     * @param $log
-     * @returns Moment | false
+     * AngularJS default filter with the following expression:
+     * "person in people | filter: {name: $select.search, age: $select.search}"
+     * performs a AND between 'name: $select.search' and 'age: $select.search'.
+     * We want to perform a OR.
+     * @link: https://github.com/angular-ui/ui-select/blob/master/examples/demo.js#L134
      */
-    provider('_moment', function(){
-        this.$get = ['$window', '$log',
-            function( $window, $log ){
-                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
+    filter('propsFilter', function() {
+        return function(items, props) {
+            var out = [];
+
+            if (angular.isArray(items)) {
+                items.forEach(function(item) {
+                    var itemMatches = false;
+
+                    var keys = Object.keys(props);
+                    for (var i = 0; i < keys.length; i++) {
+                        var prop = keys[i];
+                        var text = props[prop].toLowerCase();
+                        if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+                            itemMatches = true;
+                            break;
+                        }
+                    }
+
+                    if (itemMatches) {
+                        out.push(item);
+                    }
+                });
+            } else {
+                // Let the output be the input untouched
+                out = items;
             }
-        ];
+
+            return out;
+        };
     });
 angular.module('schedulizer.app').
 
@@ -983,57 +1019,6 @@ angular.module('schedulizer.app').
 
         return this;
     }]);
-angular.module('schedulizer.app').
-
-    filter('numberContraction', function($filter) {
-
-        var suffixes = ["th", "st", "nd", "rd"];
-
-        return function(input) {
-            var relevant = (input < 20) ? input : input % (Math.floor(input / 10) * 10);
-            var suffix   = (relevant <= 3) ? suffixes[relevant] : suffixes[0];
-            return suffix;
-        };
-    });
-angular.module('schedulizer.app').
-
-    /**
-     * AngularJS default filter with the following expression:
-     * "person in people | filter: {name: $select.search, age: $select.search}"
-     * performs a AND between 'name: $select.search' and 'age: $select.search'.
-     * We want to perform a OR.
-     * @link: https://github.com/angular-ui/ui-select/blob/master/examples/demo.js#L134
-     */
-    filter('propsFilter', function() {
-        return function(items, props) {
-            var out = [];
-
-            if (angular.isArray(items)) {
-                items.forEach(function(item) {
-                    var itemMatches = false;
-
-                    var keys = Object.keys(props);
-                    for (var i = 0; i < keys.length; i++) {
-                        var prop = keys[i];
-                        var text = props[prop].toLowerCase();
-                        if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
-                            itemMatches = true;
-                            break;
-                        }
-                    }
-
-                    if (itemMatches) {
-                        out.push(item);
-                    }
-                });
-            } else {
-                // Let the output be the input untouched
-                out = items;
-            }
-
-            return out;
-        };
-    });
 angular.module('schedulizer.app').
 
     directive('eventTimeForm', [function(){
@@ -1392,3 +1377,18 @@ angular.module('schedulizer.app').
             link:       _link
         };
     }]);
+angular.module('schedulizer.app').
+
+    /**
+     * @description MomentJS provider
+     * @param $window
+     * @param $log
+     * @returns Moment | false
+     */
+    provider('_moment', function(){
+        this.$get = ['$window', '$log',
+            function( $window, $log ){
+                return $window['moment'] || ($log.warn('MomentJS unavailable!'), false);
+            }
+        ];
+    });

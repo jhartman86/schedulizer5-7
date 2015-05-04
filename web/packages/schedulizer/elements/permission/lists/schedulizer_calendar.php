@@ -3,7 +3,7 @@
 ?>
 <div class="ccm-ui">
     <form id="ccm-permission-list-form" method="POST" action="<?php echo $calendarObj->getPermissionCategoryToolsUrlShim('save_permission_assignments'); ?>">
-        <table class="ccm-permission-grid">
+        <table class="ccm-permission-grid table table-striped">
             <?php foreach($permissionKeyList AS $pkObj): /** @var $pkObj \Concrete\Package\Schedulizer\Src\Permission\Key\SchedulizerCalendarKey */
                 $pkObj->setPermissionObject($calendarObj);
                 ?>

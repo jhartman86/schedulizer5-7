@@ -15,9 +15,7 @@
 
         const USE_CALENDAR_TIMEZONE_TRUE    = true,
               USE_CALENDAR_TIMEZONE_FALSE   = false,
-              EVENT_COLOR_DEFAULT           = '#E1E1E1',
-              UNAPPROVED                    = false,
-              APPROVED                      = true;
+              EVENT_COLOR_DEFAULT           = '#E1E1E1';
 
         /** @definition({"cast":"int"}) */
         protected $eventID;
@@ -42,9 +40,6 @@
 
         /** @definition({"cast":"int","nullable":true}) */
         protected $fileID;
-
-        /** @definition({"cast":"bool","nullable":false}) */
-        protected $isApproved = self::UNAPPROVED;
 
         /**
          * @param $setters
@@ -78,6 +73,24 @@
         public function getFileID(){ return $this->fileID; }
 
         /**
+         * Mark the current entity as the approved one
+         */
+//        public function markVersionApproved(){
+//            /** @var $connection \PDO */
+//            $connection = \Core::make('SchedulizerDB');
+//            $connection->beginTransaction();
+//            $statement1 = $connection->prepare("UPDATE SchedulizerEventVersion SET isApproved = 0 WHERE eventID = :eventID");
+//            $statement1->bindValue(':eventID', $this->eventID);
+//            $statement1->execute();
+//            $statement2 = $connection->prepare("UPDATE SchedulizerEventVersion SET isApproved = 1 WHERE eventID = :eventID AND versionID = :versionID");
+//            $statement2->bindValue(':eventID', $this->eventID);
+//            $statement2->bindValue(':versionID', $this->versionID);
+//            $statement2->execute();
+//            $connection->commit();
+//            $this->isApproved = true;
+//        }
+
+        /**
          * Every time an event gets saved, we have to create a new
          * version. This handles that. Note - we're not using the default Handler
          * stuff here, but instead calling the createStatement directly as
@@ -101,6 +114,14 @@
                 return "INSERT INTO {$tableName} ({$columns}) SELECT {$params}";
             })->execute();
 
+            // Now, update the versionID property on this object by seeing what the
+            // last record inserted was (for the EventVersion table) and pull the
+            // versionID
+            $statement = $handler->connection()->prepare("SELECT versionID
+            FROM SchedulizerEventVersion sev WHERE sev.id = :eventVersionID");
+            $statement->bindValue(':eventVersionID', $handler->connection()->lastInsertId());
+            $statement->execute();
+            $this->versionID = (int)$statement->fetchColumn(0);
         }
 
     }

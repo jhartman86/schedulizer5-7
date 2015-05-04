@@ -35,6 +35,10 @@
             return new self($message, Response::HTTP_FAILED_DEPENDENCY);
         }
 
+        public static function permissionInvalid( $message = 'Insufficient permission level.' ){
+            return new self($message, Response::HTTP_UNAUTHORIZED);
+        }
+
     }
 
 }

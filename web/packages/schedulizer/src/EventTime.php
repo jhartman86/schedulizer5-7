@@ -282,15 +282,16 @@
          * @param $eventID
          * @return array|null [$this, $this]
          */
-        public static function fetchAllByEventID( $eventID ){
-            return self::fetchMultipleBy(function( \PDO $connection, $tableName ) use ($eventID){
+        public static function fetchAllByEventID( $eventID, $versionID ){
+            return self::fetchMultipleBy(function( \PDO $connection, $tableName ) use ($eventID, $versionID){
                 $statement = $connection->prepare("SELECT tblEt.*, tblEtw.weeklyDays FROM {$tableName} tblEt
                 LEFT JOIN (
                   SELECT _wd.eventTimeID, GROUP_CONCAT(repeatWeeklyDay SEPARATOR ',') AS weeklyDays FROM
                   SchedulizerEventTimeWeekdays _wd GROUP BY _wd.eventTimeID
                 ) AS tblEtw ON tblEtw.eventTimeID = tblEt.id
-                WHERE tblEt.eventID=:eventID");
+                WHERE tblEt.eventID=:eventID AND tblEt.versionID=:versionID");
                 $statement->bindValue(':eventID', $eventID);
+                $statement->bindValue(':versionID', $versionID);
                 return $statement;
             });
         }

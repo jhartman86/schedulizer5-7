@@ -81,7 +81,7 @@ angular.module('schedulizer.app').
                 $scope.updateInProgress = true;
                 _cache.removeAll();
                 _fetch($scope.instance.monthMap, true).success(function( resp ){
-                    $scope.instance.events = resp.data;
+                    $scope.instance.events = resp;
                     $scope.updateInProgress = false;
                 }).error(function( data, status, headers, config ){
                     $scope.updateInProgress = false;
@@ -128,6 +128,17 @@ angular.module('schedulizer.app').
              * from other things in the app.
              */
             $rootScope.$on('calendar.refresh', _updateCalendar);
+
+            // Launch C5's default modal stuff
+            $scope.permissionModal = function( _href ){
+                jQuery.fn.dialog.open({
+                    title:  'Calendar Permissions',
+                    href:   _href,
+                    modal:  false,
+                    width:  500,
+                    height: 380
+                });
+            };
 
         }
     ]);

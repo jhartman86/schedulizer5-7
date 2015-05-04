@@ -11,6 +11,32 @@
      */
     class EventVersionTest extends \PHPUnit_Framework_TestCase {
 
+        public function testCreate(){
+            $eventObj = Event::create(array(
+                'title'      => 'An Event',
+                'calendarID' => 1,
+                'eventColor' => '#dadada'
+            ));
+
+            $i = 1;
+            while( $i < 5 ){
+                $i++;
+                $eventObj->update(array(
+                    'title' => 'changed',
+                    'eventColor' => '#1d1d1d',
+                    'timezoneName' => 'America/New_York'
+                ));
+            }
+
+            //print_r($eventObj);
+        }
+
+        public function testGet(){
+            $evObj = Event::getByID(2, 3);
+            print_r($evObj);
+            exit;
+        }
+
 //        public function testOne(){
 //            $calObj = Calendar::create(array(
 //                'title' => 'A calendar'
@@ -27,7 +53,7 @@
 //
 //            return $calObj;
 //        }
-//
+
 //        /**
 //         * @depends testOne
 //         */
@@ -38,13 +64,13 @@
 //            ));
 //        }
 
-        public function testThree(){
-            $evObj = Event::getByID(1);
-            $evObj->update(array(
-                'title' => 'another new version eh'
-            ));
-            print_r($evObj);
-        }
+//        public function testThree(){
+//            $evObj = Event::getByID(1);
+//            $evObj->update(array(
+//                'title' => 'another new version eh'
+//            ));
+//            print_r($evObj);
+//        }
 
     }
 

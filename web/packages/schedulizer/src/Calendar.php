@@ -124,15 +124,25 @@
             return $this->_permissionKeyCategory;
         }
 
-        public function getPermissionAssignmentClassName(){
-            return '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Assignment\\SchedulizerCalendarAssignment';
-        }
+
 
         public function getPermissions(){
             if( $this->_permissions === null ){
                 $this->_permissions = new Permissions($this);
             }
             return $this->_permissions;
+        }
+
+        public function getPermissionResponseClassName(){
+            return '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Response\\SchedulizerCalendarResponse';
+        }
+
+        public function getPermissionAssignmentClassName(){
+            return '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Assignment\\SchedulizerCalendarAssignment';
+        }
+
+        public function getPermissionObjectKeyCategoryHandle(){
+            return self::PERMISSION_KEY_CATEGORY;
         }
 
         public function getPermissionObjectIdentifier(){

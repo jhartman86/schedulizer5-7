@@ -143,6 +143,17 @@
         public function uninstall(){
             parent::uninstall();
 
+            // Uninstall permission key categories
+            /** @var $pkc1 \Concrete\Core\Permission\Category */
+//            if( $pkc1 = PermissionKeyCategory::getByHandle('schedulizer') ){
+//                $pkc1->delete();
+//            }
+//
+//            /** @var $pkc2 \Concrete\Core\Permission\Category */
+//            if( $pkc2 = PermissionKeyCategory::getByHandle('schedulizer_calendar') ){
+//                $pkc2->delete();
+//            }
+
             $tables   = array(
                 'btSchedulizer',
                 'btSchedulizerEvent',
@@ -232,7 +243,7 @@
                 $connection = Database::connection(Database::getDefaultConnection())->getWrappedConnection();
                 $connection->query("ALTER TABLE SchedulizerEvent ADD CONSTRAINT FK_calendar FOREIGN KEY (calendarID) REFERENCES SchedulizerCalendar(id) ON UPDATE CASCADE ON DELETE CASCADE");
                 $connection->query("ALTER TABLE SchedulizerEventVersion ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON DELETE CASCADE");
-                $connection->query("ALTER TABLE SchedulizerEventTime ADD CONSTRAINT FK_event FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
+                $connection->query("ALTER TABLE SchedulizerEventTime ADD CONSTRAINT FK_event2 FOREIGN KEY (eventID) REFERENCES SchedulizerEvent(id) ON UPDATE CASCADE ON DELETE CASCADE");
                 $connection->query("ALTER TABLE SchedulizerEventTimeWeekdays ADD CONSTRAINT FK_eventTime FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
                 $connection->query("ALTER TABLE SchedulizerEventTimeNullify ADD CONSTRAINT FK_eventTime2 FOREIGN KEY (eventTimeID) REFERENCES SchedulizerEventTime(id) ON UPDATE CASCADE ON DELETE CASCADE");
                 // Tag associations
@@ -308,12 +319,23 @@
          * @return $this
          */
         private function setupPermissions(){
-            // These would be "task" permissions, NOT related to specific entities
-            if( ! PermissionKeyCategory::getByHandle('schedulizer') ){
+            // Calendar permissions: first, we need to create a new permission entity type for "calendar owner"!
+            if( ! PermissionAccessEntityType::getByHandle('calendar_owner') ){
+                PermissionAccessEntityType::add('calendar_owner', 'Calendar Owner', $this->packageObject());
+            }
+
+            // These would be "task" permissions, NOT related to specific entities.
+            // The fucking PermissionKeyCategory class's getByHandle() implementation attempts
+            // to create an inline cache by storing results in a static class property in the category
+            // class, which means we can't rely on getByHandle() to accurately tell us whether
+            // it exists or not as a check. So execute a database query to tell reliably.
+
+            //if( ! PermissionKeyCategory::getByHandle('schedulizer') ){
+            if( empty(Loader::db()->GetOne("SELECT pkCategoryID FROM PermissionKeyCategories WHERE pkCategoryHandle = 'schedulizer'")) ){
                 /** @var $permKeyCategory PermissionCategory */
                 $permKeyCategory = PermissionKeyCategory::add('schedulizer', $this->packageObject());
                 // Associate access entity types
-                foreach(array('group', 'user', 'group_set', 'group_combination') AS $paetHandle){
+                foreach(array('group', 'user', 'group_set', 'group_combination', 'calendar_owner') AS $paetHandle){
                     if( $paet = PermissionAccessEntityType::getByHandle($paetHandle) ){
                         $permKeyCategory->associateAccessEntityType($paet);
                     }
@@ -340,12 +362,9 @@
                 }
             }
 
-            // Calendar permissions: first, we need to create a new permission entity type for "calendar owner"!
-            if( ! PermissionAccessEntityType::getByHandle('calendar_owner') ){
-                PermissionAccessEntityType::add('calendar_owner', 'Calendar Owner', $this->packageObject());
-            }
-
-            if( ! PermissionKeyCategory::getByHandle('schedulizer_calendar') ){
+            // Calendar entity-specific permissions
+            //if( ! PermissionKeyCategory::getByHandle('schedulizer_calendar') ){
+            if( empty(Loader::db()->GetOne("SELECT pkCategoryID FROM PermissionKeyCategories WHERE pkCategoryHandle = 'schedulizer_calendar'")) ){
                 $schedCalPermKeyCategory = PermissionKeyCategory::add('schedulizer_calendar', $this->packageObject());
                 foreach(array('group', 'user', 'group_set', 'group_combination', 'calendar_owner') AS $paetHandle){
                     if( $paetObj = PermissionAccessEntityType::getByHandle($paetHandle) ){

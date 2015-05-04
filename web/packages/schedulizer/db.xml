@@ -95,10 +95,6 @@
         <field name="fileID" type="I">
             <UNSIGNED />
         </field>
-        <field name="isApproved" type="I1">
-            <notnull />
-            <default value="0" />
-        </field>
 
         <index name="title">
             <col>title</col>

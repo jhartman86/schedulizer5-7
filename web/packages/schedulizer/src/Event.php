@@ -54,32 +54,36 @@
          * When returning an event, we have to join the SchedulizerEvent
          * with the APPROVED SchedulizerEventVersion
          * @param $id
-         * @param bool $approved
+         * @param $versionID int|null Null indicates "latest"
          * @return $this|void
          */
-        public static function getByID( $id, $approved = self::APPROVED ){
-            return static::fetchOneBy(function(\PDO $connection) use ($id){
+        public static function getByID( $id, $versionID = null ){
+            return static::fetchOneBy(function(\PDO $connection) use ($id, $versionID){
+                // Are we getting a specific event version? Append to where clause if so
+                $versionSpecificity = ((int)$versionID > 0) ? "AND sev.versionID = :versionID" : '';
+                // Prepare query
                 $statement = $connection->prepare("SELECT se.*, sev.eventID, sev.versionID,
                 sev.title, sev.description, sev.useCalendarTimezone,
                 sev.timezoneName, sev.eventColor, sev.fileID
                 FROM SchedulizerEvent se LEFT JOIN SchedulizerEventVersion sev
                 ON se.id = sev.eventID
-                WHERE se.id = :id AND sev.isApproved IN (:isApproved) LIMIT 1");
+                WHERE se.id = :id {$versionSpecificity} ORDER BY sev.versionID DESC LIMIT 1");
                 $statement->bindValue(':id', $id);
-                // @todo: implement actual is approved/not approved, OR BOTH option
-                $statement->bindValue(':isApproved', join(',', array(1)));
+                if( (int)$versionID > 0 ){
+                    $statement->bindValue(':versionID', (int)$versionID);
+                }
                 return $statement;
             });
         }
 
         /** @return array Get all associated event times */
         public function getEventTimes(){
-            return (array) EventTime::fetchAllByEventID($this->id);
+            return (array) EventTime::fetchAllByEventID($this->id, $this->versionID);
         }
 
         /** @return array Get all associated tags */
         public function getEventTags(){
-            return (array) EventTag::fetchTagsByEventID($this->id);
+            return (array) EventTag::fetchTagsByEventID($this->id, $this->versionID);
         }
 
         /** @return array|mixed */

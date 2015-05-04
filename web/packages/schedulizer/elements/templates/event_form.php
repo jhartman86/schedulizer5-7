@@ -1,3 +1,4 @@
+<?php $permissions = new Permissions(); ?>
 <form class="event container-fluid" ng-controller="CtrlEventForm">
     <?php Loader::packageElement('templates/loading', 'schedulizer'); ?>
 
@@ -98,7 +99,11 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="form-group ui-select-widget">
+                            <?php if( $permissions->canCreateTag() ): ?>
                             <ui-select multiple tagging="tagTransform" ng-model="entity._tags" theme="bootstrap" title="Tags">
+                            <?php else: ?>
+                                <ui-select multiple ng-model="entity._tags" theme="bootstrap" title="Tags">
+                            <?php endif; ?>
                                 <ui-select-match placeholder="Tags">{{ $item.displayText }}</ui-select-match>
                                 <ui-select-choices repeat="tag in eventTagList | propsFilter: {displayText: $select.search}">
                                     <!--<div ng-if="!tag.isTag" ng-bind-html="tag.displayText | highlight: $select.search"></div>
