@@ -19,6 +19,7 @@
     use \Concrete\Core\Permission\Access\Entity\Type AS PermissionAccessEntityType;
     use \Concrete\Package\Schedulizer\Src\Permission\Key\SchedulizerKey AS SchedulizerPermissionKey;
     use \Concrete\Package\Schedulizer\Src\Permission\Key\SchedulizerCalendarKey AS SchedulizerCalendarPermissionKey;
+    use Events;
 
     /**
      * Class Controller
@@ -137,6 +138,11 @@
                 Router::route(array('permission/access/entity/types/calendar_owner', self::PACKAGE_HANDLE)),
                 'Concrete\Package\Schedulizer\Controller\Permission\Access\Entity\Types\CalendarOwner::view'
             );
+
+            // Event system callbacks
+//            Events::addListener('schedulizer.event_save', function( $dispatched ){
+//                echo $dispatched->getData()->getTitle();
+//            });
         }
 
 

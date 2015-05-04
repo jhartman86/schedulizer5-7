@@ -1,6 +1,8 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
-    use \Concrete\Package\Schedulizer\Src\EventVersion,
+    use Events,
+        \Concrete\Package\Schedulizer\Src\SystemEvents\EventOnSave AS SystemEventOnSave,
+        \Concrete\Package\Schedulizer\Src\EventVersion,
         \Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud,
         \Concrete\Package\Schedulizer\Src\Attribute\Mixins\AttributableEntity;
 
@@ -15,7 +17,8 @@
 
         // Required for AttributableEntity trait
         const ATTR_KEY_CLASS    = '\Concrete\Package\Schedulizer\Src\Attribute\Key\SchedulizerEventKey',
-              ATTR_VALUE_CLASS  = '\Concrete\Package\Schedulizer\Src\Attribute\Value\SchedulizerEventValue';
+              ATTR_VALUE_CLASS  = '\Concrete\Package\Schedulizer\Src\Attribute\Value\SchedulizerEventValue',
+              EVENT_ON_SAVE     = 'schedulizer.event_save';
 
         /** @definition({"cast":"datetime", "declarable":false, "autoSet":["onCreate"]}) */
         protected $createdUTC;
@@ -47,7 +50,11 @@
          */
         protected function onAfterPersist(){
             $this->eventID = $this->id;
+            // Persist the version record
             parent::save_version();
+            // Fire event
+            $sysEvent = new SystemEventOnSave($this);
+            Events::dispatch(self::EVENT_ON_SAVE, $sysEvent);
         }
 
         /**

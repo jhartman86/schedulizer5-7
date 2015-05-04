@@ -1,5 +1,6 @@
 <?php namespace Schedulizer\Tests\Entities {
 
+    use Events;
     use \Concrete\Package\Schedulizer\Src\Calendar;
     use \Concrete\Package\Schedulizer\Src\Event;
     use \Concrete\Package\Schedulizer\Src\EventVersion;
@@ -11,31 +12,42 @@
      */
     class EventVersionTest extends \PHPUnit_Framework_TestCase {
 
-        public function testCreate(){
-            $eventObj = Event::create(array(
-                'title'      => 'An Event',
-                'calendarID' => 1,
-                'eventColor' => '#dadada'
+        public function testEventDispatching(){
+//            Events::addListener('schedulizer.event_save', function( $dispatchedEvent ){
+//                print_r($dispatchedEvent->getData());
+//            });
+
+            Event::create(array(
+                'title' => 'lorem ipsum',
+                'calendarID' => 1
             ));
-
-            $i = 1;
-            while( $i < 5 ){
-                $i++;
-                $eventObj->update(array(
-                    'title' => 'changed',
-                    'eventColor' => '#1d1d1d',
-                    'timezoneName' => 'America/New_York'
-                ));
-            }
-
-            //print_r($eventObj);
         }
 
-        public function testGet(){
-            $evObj = Event::getByID(2, 3);
-            print_r($evObj);
-            exit;
-        }
+//        public function testCreate(){
+//            $eventObj = Event::create(array(
+//                'title'      => 'An Event',
+//                'calendarID' => 1,
+//                'eventColor' => '#dadada'
+//            ));
+//
+//            $i = 1;
+//            while( $i < 5 ){
+//                $i++;
+//                $eventObj->update(array(
+//                    'title' => 'changed',
+//                    'eventColor' => '#1d1d1d',
+//                    'timezoneName' => 'America/New_York'
+//                ));
+//            }
+//
+//            //print_r($eventObj);
+//        }
+//
+//        public function testGet(){
+//            $evObj = Event::getByID(2, 3);
+//            print_r($evObj);
+//            exit;
+//        }
 
 //        public function testOne(){
 //            $calObj = Calendar::create(array(
