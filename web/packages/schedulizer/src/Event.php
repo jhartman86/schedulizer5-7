@@ -1,6 +1,7 @@
 <?php namespace Concrete\Package\Schedulizer\Src {
 
     use Events,
+        Package,
         \Concrete\Package\Schedulizer\Src\SystemEvents\EventOnSave AS SystemEventOnSave,
         \Concrete\Package\Schedulizer\Src\EventVersion,
         \Concrete\Package\Schedulizer\Src\Persistable\Mixins\Crud,
@@ -32,6 +33,9 @@
         /** @definition({"cast":"int","nullable":false}) */
         protected $ownerID;
 
+        /** @definition({"cast":"int","nullable":true}) */
+        protected $pageID;
+
         /** @return DateTime|null */
         public function getModifiedUTC(){ return $this->modifiedUTC; }
 
@@ -41,8 +45,11 @@
         /** @return int|null */
         public function getCalendarID(){ return $this->calendarID; }
 
-        /** @return Int */
+        /** @return int */
         public function getOwnerID(){ return $this->ownerID; }
+
+        /** @return int */
+        public function getPageID(){ return $this->pageID; }
 
         /**
          * On after persist is only called after the canonical Event record
@@ -52,9 +59,52 @@
             $this->eventID = $this->id;
             // Persist the version record
             parent::save_version();
+            // Configurable setting - create event pages?
+            $this->createEventPageIfConfigured();
             // Fire event
-            $sysEvent = new SystemEventOnSave($this);
-            Events::dispatch(self::EVENT_ON_SAVE, $sysEvent);
+            Events::dispatch(self::EVENT_ON_SAVE, new SystemEventOnSave($this));
+        }
+
+        /**
+         * Schedulizer Configuration settings allow for automatically
+         * creating event pages; this takes care of that.
+         */
+        protected function createEventPageIfConfigured(){
+            /** @var $packageObj \Concrete\Package\Schedulizer\Controller */
+            $packageObj = Package::getByHandle(self::PACKAGE_HANDLE);
+            if( (bool) $packageObj->configGet($packageObj::CONFIG_EVENT_AUTOGENERATE_PAGES) ){
+                // If autogen pages IS enabled, and this event already has a page assigned
+                // (eg. we're doing an update on an existing event), then bail out
+                if( ! empty($this->pageID) ){
+                    return;
+                }
+
+                /** @var $root \Concrete\Core\Page\Page */
+                $root = \Concrete\Core\Page\Page::getByID($packageObj->configGet($packageObj::CONFIG_EVENT_PAGE_PARENT));
+                if( $root->isActive() ){
+                    $pageType = \Concrete\Core\Page\Type\Type::getByID($packageObj->configGet($packageObj::CONFIG_EVENT_PAGE_TYPE));
+                    if( is_object($pageType) ){
+                        /** @var $newPageObj \Concrete\Core\Page\Page */
+                        $newPageObj = $root->add($pageType, array(
+                            'cName' => $this->getTitle(),
+                            'pkgID' => $packageObj->getPackageID()
+                        ));
+                        // We can't use any CRUD (eg. $this->save()) methods
+                        // for updating the pageID column as we don't want
+                        // to create a new version and create a loop back
+                        // to this method
+                        $this->pageID = $newPageObj->getCollectionID();
+                        $pageID  = $this->pageID;
+                        $eventID = $this->id;
+                        self::adhocQuery(function(\PDO $connection, $tableName) use($eventID, $pageID){
+                            $statement = $connection->prepare("UPDATE {$tableName} SET pageID=:pageID WHERE id=:eventID");
+                            $statement->bindValue(':pageID', $pageID);
+                            $statement->bindValue(':eventID', $eventID);
+                            return $statement;
+                        });
+                    }
+                }
+            }
         }
 
         /**

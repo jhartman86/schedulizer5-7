@@ -62,6 +62,9 @@
             <NOTNULL />
             <DEFAULT value="0"/>
         </field>
+        <field name="pageID" type="I" size="11">
+            <unsigned />
+        </field>
     </table>
 
     <table name="SchedulizerEventVersion">

@@ -8,18 +8,25 @@ angular.module('schedulizer.app').
             $scope._requesting  = false;
 
             // Create requests promise queue, always loading available timezones list
-            var _requests = [API.timezones.get().$promise];
+            var _requests = [
+                API.timezones.get().$promise, // full timezones list
+                API.timezones.defaultTimezone().$promise  // default timezone (config setting)
+            ];
 
             // If calendarID is available; try to load it, and push to the requests queue
             if( ModalManager.data.calendarID ){
                 _requests.push(API.calendar.get({id:ModalManager.data.calendarID}).$promise);
             }
 
-            // When all requests are finished; proceed...
+            // When all requests are finished; 'returned' is an array of
+            // promises containing the query data whereas:
+            // returned[0] = array of all timezones available
+            // returned[1] = object with default timezone from config settings
+            // returned[2] = the calendar, OR null
             $q.all(_requests).then(function( returned ){
                 $scope.timezoneOptions = returned[0];
-                $scope.entity = returned[1] || new API.calendar({
-                    defaultTimezone: $scope.timezoneOptions[$scope.timezoneOptions.indexOf('America/Denver')]
+                $scope.entity = returned[2] || new API.calendar({
+                    defaultTimezone: $scope.timezoneOptions[$scope.timezoneOptions.indexOf(returned[1].name)]
                 });
                 $scope._ready = true;
             }, function( resp ){

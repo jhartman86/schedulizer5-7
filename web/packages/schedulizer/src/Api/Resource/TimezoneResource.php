@@ -11,6 +11,16 @@
          *  ?country=ISO_COUNTRY_CODE (2 letters)
          */
         protected function httpGet(){
+            // If config_default is set; we're asking for the config value default timezone name
+            if( isset($this->requestParams()->config_default) ){
+                /** @var $packageObj \Concrete\Package\Schedulizer\Controller */
+                $packageObj = \Package::getByHandle('schedulizer');
+                $this->setResponseData((object)array(
+                    'name' => $packageObj->configGet($packageObj::CONFIG_DEFAULT_TIMEZONE)
+                ));
+                return;
+            }
+
             // If country code is set, honor ONLY that (ignore region) and return
             if( isset($this->requestParams()->country) ){
                 $this->filterByCountry();

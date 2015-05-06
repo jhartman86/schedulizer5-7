@@ -1,5 +1,6 @@
 <?php namespace Concrete\Package\Schedulizer\Src\Install {
 
+    use Loader;
     use \DateTime;
     use \DateTimeZone;
 
@@ -7,6 +8,7 @@
      * Class Support
      * @package Concrete\Package\Schedulizer\Src\Install
      * @todo: mysql 5.6 for innodb full text indices
+     * @todo: test for foreign key support and cascading deletes
      */
     class Support {
 
@@ -16,10 +18,31 @@
 
         /**
          * Pass in database instance
-         * @param $database
          */
-        public function __construct( $database ){
-            $this->db = $database;
+        public function __construct(){
+            $this->db = Loader::db();
+        }
+
+        /**
+         * Easily accessible way of checking if meets system
+         * requirements.
+         * @return bool
+         */
+        public static function meetsRequirements(){
+            $self = new self();
+            return $self->allPassed();
+        }
+
+        /**
+         * Results of all the tests.
+         * @return bool
+         */
+        public function allPassed(){
+            if( ! $this->phpVersion() ){ return false; }
+            if( ! $this->mysqlHasTimezoneTables() ){ return false; }
+            if( ! $this->phpDateTimeZoneConversionsCorrect() ){ return false; }
+            if( ! $this->phpDateTimeSupportsOrdinals() ){ return false; }
+            return true;
         }
 
         /**

@@ -11,7 +11,7 @@
         /**
          * @return \Concrete\Package\Schedulizer\Src\Event
          */
-        public function getData(){
+        public function getEventObj(){
             return $this->data;
         }
 

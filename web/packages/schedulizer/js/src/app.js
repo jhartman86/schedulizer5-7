@@ -68,7 +68,8 @@
 
                })),
                timezones: $resource(Routes.generate('api.timezones'), {}, {
-                   get: {isArray:true, cache:true}
+                   get: {isArray:true, cache:true},
+                   defaultTimezone: {method:'GET', cache:true, params:{config_default:true}}
                }),
                // Append the Routes factory result into the API for easier access
                _routes: Routes

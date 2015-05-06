@@ -117,6 +117,9 @@
             return Router::route(array(sprintf('permission/category/schedulizer_calendar?%s',$query), 'schedulizer'));
         }
 
+        /**
+         * @return \Concrete\Core\Permission\Category
+         */
         public function getPermissionKeyCategory(){
             if( $this->_permissionKeyCategory === null ){
                 $this->_permissionKeyCategory = PermissionKeyCategory::getByHandle(self::PERMISSION_KEY_CATEGORY);
@@ -124,8 +127,9 @@
             return $this->_permissionKeyCategory;
         }
 
-
-
+        /**
+         * @return \Concrete\Core\Permission\Checker
+         */
         public function getPermissions(){
             if( $this->_permissions === null ){
                 $this->_permissions = new Permissions($this);
@@ -133,18 +137,30 @@
             return $this->_permissions;
         }
 
+        /**
+         * @return string
+         */
         public function getPermissionResponseClassName(){
             return '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Response\\SchedulizerCalendarResponse';
         }
 
+        /**
+         * @return string
+         */
         public function getPermissionAssignmentClassName(){
             return '\\Concrete\\Package\\Schedulizer\\Src\\Permission\\Assignment\\SchedulizerCalendarAssignment';
         }
 
+        /**
+         * @return string
+         */
         public function getPermissionObjectKeyCategoryHandle(){
             return self::PERMISSION_KEY_CATEGORY;
         }
 
+        /**
+         * @return int|null
+         */
         public function getPermissionObjectIdentifier(){
             return $this->getID();
         }
